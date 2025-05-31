@@ -1,0 +1,23 @@
+# CLASP files
+.clasp.json
+
+# Apps Script files
+appsscript.json
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db 
