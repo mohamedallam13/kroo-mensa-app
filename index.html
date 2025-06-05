@@ -14,6 +14,7 @@
             --color-primary-light: #FEF3C7;
             --color-success: #10B981;
             --color-success-dark: #059669;
+            --color-success-light: #d1fae5;
             --color-danger: #EF4444;
             --color-danger-dark: #DC2626;
             --color-text: #333333;
@@ -593,6 +594,22 @@
             font-size: 1.5rem;
         }
 
+        .discount-section {
+            background: var(--color-success-light);
+            border: 1px solid var(--color-success);
+            border-radius: var(--radius-lg);
+            padding: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+
+        .discount-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--color-success-dark);
+            font-weight: 500;
+        }
+
         .checkout-btn {
             width: 100%;
             background: var(--color-primary);
@@ -789,7 +806,264 @@
             margin: 0 auto var(--space-4);
         }
 
-        /* Responsive */
+        /* Payment Flow Screens */
+        .payment-screen {
+            text-align: center;
+            padding: var(--space-6) var(--space-4);
+        }
+
+        .payment-screen .icon-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto var(--space-5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-screen .icon-container.counter {
+            background: linear-gradient(135deg, var(--color-blue) 0%, var(--color-blue-dark) 100%);
+            color: white;
+        }
+
+        .payment-screen .icon-container.instapay {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: white;
+        }
+
+        .payment-screen .icon-container.preparing {
+            background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+            color: white;
+        }
+
+        /* Animated pulse effect */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        .pulse.preparing {
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        /* InstaPay Upload Section */
+        .instapay-upload {
+            margin: var(--space-5) 0;
+        }
+
+        .upload-instructions {
+            background: var(--color-primary-light);
+            border: 1px solid var(--color-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+            text-align: left;
+        }
+
+        .upload-instructions h4 {
+            color: var(--color-primary-dark);
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .upload-instructions ol {
+            color: var(--color-text);
+            margin-left: var(--space-4);
+        }
+
+        .upload-instructions li {
+            margin-bottom: var(--space-2);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--color-bg);
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--color-text-light);
+            margin-bottom: var(--space-3);
+        }
+
+        .upload-text {
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-2);
+        }
+
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--radius-lg);
+            margin-top: var(--space-3);
+            box-shadow: 0 2px 8px var(--color-shadow);
+        }
+
+        /* Order History Styles */
+        .order-history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: var(--color-bg);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin-bottom: var(--space-3);
+            border: 1px solid var(--color-border);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+        }
+
+        .order-number {
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+
+        .order-date {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 0.25rem var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-completed {
+            background: var(--color-success-light);
+            color: var(--color-success-dark);
+        }
+
+        .status-preparing {
+            background: var(--color-primary-light);
+            color: var(--color-primary-dark);
+        }
+
+        .history-items {
+            margin-top: var(--space-2);
+        }
+
+        .history-item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .history-total {
+            border-top: 1px solid var(--color-border);
+            padding-top: var(--space-2);
+            margin-top: var(--space-2);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Header Navigation */
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem var(--space-3);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--color-primary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-nav {
+                margin-top: var(--space-3);
+            }
+
+            .nav-btn {
+                padding: 0.5rem var(--space-2);
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Mobile Responsive - Improved */
         @media (max-width: 768px) {
             .cart-sidebar {
                 width: 100%;
@@ -814,36 +1088,91 @@
                 width: 100%;
             }
 
+            /* Improved Mobile Menu Item Layout */
             .menu-item {
                 flex-direction: column;
+                padding: var(--space-4);
                 text-align: center;
             }
 
             .item-image {
                 width: 100%;
-                height: 120px;
-                margin-right: 0;
-                margin-bottom: var(--space-3);
+                height: 160px;
+                max-width: 280px;
+                margin: 0 0 var(--space-4) 0;
+                align-self: center;
+            }
+
+            .item-details {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
 
             .item-header {
                 flex-direction: column;
                 align-items: center;
                 gap: var(--space-2);
+                width: 100%;
+                margin-bottom: var(--space-3);
+            }
+
+            .item-name-section {
+                text-align: center;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .item-rating {
+                justify-content: center;
+            }
+
+            .item-price-section {
+                margin-left: 0;
+                text-align: center;
+                width: 100%;
+            }
+
+            .item-title {
+                font-size: 1.375rem;
+                margin-bottom: var(--space-2);
             }
 
             .item-price {
-                margin-left: 0;
                 font-size: 1.5rem;
+                margin-bottom: var(--space-2);
+            }
+
+            .item-description {
+                text-align: center;
+                margin: 0 0 var(--space-4) 0;
+                max-width: 320px;
             }
 
             .item-actions {
                 justify-content: center;
+                width: 100%;
+            }
+
+            .quantity-controls {
+                justify-content: center;
+            }
+
+            .add-btn {
+                padding: var(--space-3) var(--space-6);
+                font-size: 1rem;
             }
 
             .category-nav {
                 overflow-x: auto;
                 padding: var(--space-2);
+            }
+
+            .section-title {
+                font-size: 1.75rem;
             }
         }
 
@@ -852,8 +1181,16 @@
                 padding: var(--space-4) var(--space-3);
             }
 
-            .item-content {
-                padding: var(--space-4);
+            .menu-item {
+                padding: var(--space-3);
+            }
+
+            .item-title {
+                font-size: 1.25rem;
+            }
+
+            .item-price {
+                font-size: 1.375rem;
             }
 
             .modal {
@@ -871,6 +1208,40 @@
             border-radius: 50%;
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
+        }
+
+        .loading.dark {
+            border: 2px solid rgba(0,0,0,0.1);
+            border-top-color: var(--color-primary);
+        }
+
+        .menu-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-8);
+            text-align: center;
+            min-height: 400px;
+        }
+
+        .menu-loader .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--color-border);
+            border-radius: 50%;
+            border-top-color: var(--color-primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: var(--space-4);
+        }
+
+        .menu-loader h3 {
+            color: var(--color-text);
+            margin-bottom: var(--space-2);
+        }
+
+        .menu-loader p {
+            color: var(--color-text-muted);
         }
 
         @keyframes spin {
@@ -902,13 +1273,29 @@
             background: var(--color-success);
         }
 
-        .success-light {
-            background-color: #d1fae5;
-        }
-
         /* Auto-focus verification input */
         .form-input[maxlength="6"] {
             font-family: 'Courier New', monospace;
+            letter-spacing: 0.2rem;
+            text-align: center;
+        }
+
+        /* Enter key indicator */
+        .enter-hint {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .enter-hint kbd {
+            background: var(--color-bg-muted);
+            border: 1px solid var(--color-border);
+            border-radius: 0.25rem;
+            padding: 0.125rem 0.25rem;
+            font-size: 0.6875rem;
         }
     </style>
 </head>
@@ -926,6 +1313,12 @@
                 </div>
             </div>
             <div class="header-actions">
+                <div class="header-nav">
+                    <button class="nav-btn" onclick="showOrderHistory()">
+                        <i class="fas fa-history"></i>
+                        <span>Orders</span>
+                    </button>
+                </div>
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="Search menu..." id="searchInput">
                     <i class="fas fa-search search-icon"></i>
@@ -943,9 +1336,10 @@
     <div class="container">
         <!-- Category Navigation -->
         <nav class="category-nav">
-            <button class="category-btn active" onclick="showCategory('beverages')">Beverages</button>
-            <button class="category-btn" onclick="showCategory('food')">Food</button>
-            <button class="category-btn" onclick="showCategory('snacks')">Snacks</button>
+            <button class="category-btn active" onclick="showCategory('hotBeverages', this)">Hot Beverages</button>
+            <button class="category-btn" onclick="showCategory('coldBeverages', this)">Cold Beverages</button>
+            <button class="category-btn" onclick="showCategory('food', this)">Food</button>
+            <button class="category-btn" onclick="showCategory('snacks', this)">Snacks</button>
         </nav>
 
         <!-- Menu Container -->
@@ -970,6 +1364,7 @@
                 </div>
             </div>
             <div class="cart-footer" id="cartFooter" style="display: none;">
+                <div id="discountSection" style="display: none;"></div>
                 <div class="cart-total">
                     <span>Total:</span>
                     <span class="total-amount" id="totalAmount">EGP 0.00</span>
@@ -992,6 +1387,21 @@
             </div>
             <div class="modal-content" id="checkoutContent">
                 <!-- Checkout form will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Order History Modal -->
+    <div class="modal-overlay" id="orderHistoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Order History</h3>
+                <button class="modal-close" onclick="closeModal('orderHistoryModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content" id="orderHistoryContent">
+                <!-- Order history will be inserted here -->
             </div>
         </div>
     </div>
@@ -1020,7 +1430,7 @@
     <script>
         // Menu Data with actual image URLs
         const menuData = {
-            beverages: [
+            hotBeverages: [
                 { 
                     id: 1, 
                     name: "Artisan Coffee", 
@@ -1032,11 +1442,11 @@
                 },
                 { 
                     id: 2, 
-                    name: "Cold Brew", 
-                    price: 40.00, 
-                    description: "24-hour slow steeped coffee served over ice with a smooth, rich flavor", 
-                    image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=300&h=300&fit=crop", 
-                    rating: 4.7 
+                    name: "Espresso", 
+                    price: 30.00, 
+                    description: "Rich and bold double shot with perfect crema", 
+                    image: "https://images.unsplash.com/photo-1510707577719-ae7c14805e76?w=300&h=300&fit=crop", 
+                    rating: 4.9 
                 },
                 { 
                     id: 3, 
@@ -1048,16 +1458,75 @@
                 },
                 { 
                     id: 4, 
+                    name: "Cappuccino", 
+                    price: 38.00, 
+                    description: "Classic Italian coffee with steamed milk and rich foam", 
+                    image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=300&h=300&fit=crop", 
+                    rating: 4.7 
+                },
+                { 
+                    id: 5, 
+                    name: "Hot Chocolate", 
+                    price: 40.00, 
+                    description: "Rich Belgian chocolate melted with steamed milk and whipped cream", 
+                    image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=300&h=300&fit=crop", 
+                    rating: 4.6 
+                }
+            ],
+            coldBeverages: [
+                { 
+                    id: 6, 
+                    name: "Cold Brew", 
+                    price: 40.00, 
+                    description: "24-hour slow steeped coffee served over ice with a smooth, rich flavor", 
+                    image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=300&h=300&fit=crop", 
+                    rating: 4.7,
+                    popular: true 
+                },
+                { 
+                    id: 7, 
+                    name: "Iced Latte", 
+                    price: 42.00, 
+                    description: "Smooth espresso with cold milk served over ice", 
+                    image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=300&fit=crop", 
+                    rating: 4.5 
+                },
+                { 
+                    id: 8, 
                     name: "Fresh Orange Juice", 
                     price: 50.00, 
                     description: "Daily pressed Valencia oranges, served fresh with pulp", 
                     image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300&h=300&fit=crop", 
                     rating: 4.6 
+                },
+                { 
+                    id: 9, 
+                    name: "Iced Matcha Latte", 
+                    price: 47.00, 
+                    description: "Premium matcha powder with cold milk and ice", 
+                    image: "https://images.unsplash.com/photo-1564890273748-8a934eb78f6d?w=300&h=300&fit=crop", 
+                    rating: 4.8 
+                },
+                { 
+                    id: 10, 
+                    name: "Lemonade", 
+                    price: 35.00, 
+                    description: "Fresh squeezed lemons with a hint of mint", 
+                    image: "https://images.unsplash.com/photo-1523371683702-bed5499440dd?w=300&h=300&fit=crop", 
+                    rating: 4.4 
+                },
+                { 
+                    id: 11, 
+                    name: "Smoothie Bowl Drink", 
+                    price: 55.00, 
+                    description: "Tropical fruit smoothie with mango, pineapple, and coconut", 
+                    image: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=300&h=300&fit=crop", 
+                    rating: 4.7 
                 }
             ],
             food: [
                 { 
-                    id: 5, 
+                    id: 12, 
                     name: "Avocado Toast", 
                     price: 85.00, 
                     description: "Artisan sourdough topped with smashed avocado, heirloom tomatoes, and microgreens", 
@@ -1066,7 +1535,7 @@
                     popular: true 
                 },
                 { 
-                    id: 6, 
+                    id: 13, 
                     name: "Mediterranean Bowl", 
                     price: 95.00, 
                     description: "Quinoa base with roasted vegetables, feta cheese, and tahini dressing", 
@@ -1074,7 +1543,7 @@
                     rating: 4.7 
                 },
                 { 
-                    id: 7, 
+                    id: 14, 
                     name: "Grilled Sandwich", 
                     price: 75.00, 
                     description: "House-made sourdough with grilled chicken, local cheese, and seasonal vegetables", 
@@ -1082,7 +1551,7 @@
                     rating: 4.4 
                 },
                 { 
-                    id: 8, 
+                    id: 15, 
                     name: "Acai Bowl", 
                     price: 90.00, 
                     description: "Organic acai blend topped with fresh berries, granola, and coconut flakes", 
@@ -1092,7 +1561,7 @@
             ],
             snacks: [
                 { 
-                    id: 9, 
+                    id: 16, 
                     name: "Energy Balls", 
                     price: 25.00, 
                     description: "House-made blend of dates, almonds, and raw cacao", 
@@ -1100,7 +1569,7 @@
                     rating: 4.6 
                 },
                 { 
-                    id: 10, 
+                    id: 17, 
                     name: "Greek Yogurt Parfait", 
                     price: 30.00, 
                     description: "Thick Greek yogurt layered with honey and mixed berries", 
@@ -1108,7 +1577,7 @@
                     rating: 4.5 
                 },
                 { 
-                    id: 11, 
+                    id: 18, 
                     name: "Protein Bar", 
                     price: 35.00, 
                     description: "Plant-based protein bar with almonds and dark chocolate", 
@@ -1116,7 +1585,7 @@
                     rating: 4.3 
                 },
                 { 
-                    id: 12, 
+                    id: 19, 
                     name: "Mixed Nuts", 
                     price: 30.00, 
                     description: "Daily roasted selection of almonds, cashews, and walnuts", 
@@ -1126,30 +1595,272 @@
             ]
         };
 
-        // App State
-        let cart = [];
-        let currentCategory = 'beverages';
-        let userEmail = '';
-        let isAuthenticated = false;
+        // Reactive App State
+        const appState = {
+            // State properties
+            cart: [],
+            currentCategory: 'hotBeverages',
+            isLoading: false,
+            menuDataLoaded: false,
+            orderHistory: [],
+            currentUploadedFile: null,
+            user: {
+                email: '',
+                isAuthenticated: false,
+                discountPercentage: 0,
+                discountType: null // 'percentage', 'fixed', null
+            },
+            ui: {
+                selectedPayment: '',
+                currentVerificationCode: ''
+            },
+
+            // Reactive subscribers
+            subscribers: {
+                cart: [],
+                user: [],
+                ui: [],
+                loading: [],
+                menu: [],
+                orders: []
+            },
+
+            // Subscribe to state changes
+            subscribe(property, callback) {
+                if (!this.subscribers[property]) {
+                    this.subscribers[property] = [];
+                }
+                this.subscribers[property].push(callback);
+            },
+
+            // Notify subscribers of state changes
+            notify(property) {
+                if (this.subscribers[property]) {
+                    this.subscribers[property].forEach(callback => callback(this[property]));
+                }
+            },
+
+            // State update methods
+            updateCart(newCart) {
+                this.cart = newCart;
+                this.notify('cart');
+            },
+
+            updateUser(userData) {
+                this.user = { ...this.user, ...userData };
+                this.notify('user');
+                
+                // If user data includes discount info, update cart display
+                if (userData.discountPercentage !== undefined || userData.discountType !== undefined) {
+                    this.notify('cart'); // Trigger cart recalculation
+                }
+            },
+
+            updateUI(uiData) {
+                this.ui = { ...this.ui, ...uiData };
+                this.notify('ui');
+            },
+
+            setLoading(isLoading) {
+                this.isLoading = isLoading;
+                this.notify('loading');
+            },
+
+            setMenuLoaded(loaded) {
+                this.menuDataLoaded = loaded;
+                this.notify('menu');
+            },
+
+            addOrder(order) {
+                this.orderHistory.unshift(order); // Add to beginning of array
+                this.notify('orders');
+            },
+
+            // Cart methods
+            addToCart(item) {
+                const existingItem = this.cart.find(cartItem => cartItem.id === item.id);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    this.cart.push({ ...item, quantity: 1 });
+                }
+                
+                this.notify('cart');
+            },
+
+            updateCartQuantity(itemId, change) {
+                const cartItemIndex = this.cart.findIndex(item => item.id === itemId);
+                
+                if (cartItemIndex !== -1) {
+                    this.cart[cartItemIndex].quantity += change;
+                    
+                    if (this.cart[cartItemIndex].quantity <= 0) {
+                        this.cart.splice(cartItemIndex, 1);
+                    }
+                }
+                
+                this.notify('cart');
+            },
+
+            clearCart() {
+                this.cart = [];
+                this.notify('cart');
+            },
+
+            // Calculate totals with discount
+            getCartTotals() {
+                const subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                let discount = 0;
+                
+                if (this.user.isAuthenticated && this.user.discountPercentage > 0) {
+                    discount = (subtotal * this.user.discountPercentage) / 100;
+                }
+                
+                const total = subtotal - discount;
+                
+                return {
+                    subtotal,
+                    discount,
+                    total,
+                    itemCount: this.cart.reduce((sum, item) => sum + item.quantity, 0)
+                };
+            },
+
+            // Simulate user data loading (would normally come from server after login)
+            loadUserData(email) {
+                // Simulate different discount levels based on email domain or other criteria
+                let discountPercentage = 0;
+                
+                // Example: Give discounts to certain email domains or specific users
+                if (email.includes('employee@') || email.includes('staff@')) {
+                    discountPercentage = 20; // Employee discount
+                } else if (email.includes('student@') || email.includes('.edu')) {
+                    discountPercentage = 10; // Student discount
+                } else if (email.includes('vip@') || email === 'premium@user.com') {
+                    discountPercentage = 15; // VIP discount
+                } else {
+                    // Random chance for regular users to have a small discount
+                    const randomDiscount = Math.random() < 0.3 ? 5 : 0;
+                    discountPercentage = randomDiscount;
+                }
+
+                this.updateUser({
+                    email,
+                    isAuthenticated: true,
+                    discountPercentage,
+                    discountType: discountPercentage > 0 ? 'percentage' : null
+                });
+
+                console.log(`💰 User discount loaded: ${discountPercentage}% for ${email}`);
+            }
+        };
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
+            setupAppState();
             loadUserFromCookies();
-            showCategory('beverages');
             setupSearch();
+            setupKeyboardListeners();
+            
+            // Start with loading simulation
+            simulateMenuLoading();
         });
+
+        // Simulate loading menu data with timeout
+        function simulateMenuLoading() {
+            console.log('📡 Loading menu data...');
+            
+            // Show loader immediately
+            showMenuLoader();
+            
+            // Simulate loading with timeout
+            setTimeout(() => {
+                console.log('✅ Menu data loaded successfully');
+                // Load Hot Beverages as default after loading
+                showCategoryByName('hotBeverages');
+            }, 1200); // 1.2 second loading simulation
+        }
+
+        // Setup reactive state
+        function setupAppState() {
+            // Subscribe to cart changes
+            appState.subscribe('cart', updateCartDisplay);
+            
+            // Subscribe to user changes
+            appState.subscribe('user', (user) => {
+                console.log('👤 User state updated:', user);
+            });
+        }
+
+        // Simulate loading menu data from backend
+        function loadMenuData() {
+            console.log('📡 Loading menu data...');
+            appState.setLoading(true);
+            
+            // Show loader briefly
+            showMenuLoader();
+            
+            // Quick simulation - just 800ms to show the loader
+            setTimeout(() => {
+                console.log('✅ Menu data loaded successfully');
+                appState.setLoading(false);
+                appState.setMenuLoaded(true);
+            }, 800); // Quick 800ms delay just to show the loader
+        }
+
+        function showMenuLoader() {
+            const menuContainer = document.getElementById('menuContainer');
+            menuContainer.innerHTML = `
+                <div class="menu-loader">
+                    <div class="loader-spinner"></div>
+                    <h3>Loading Menu</h3>
+                    <p>Getting fresh items ready...</p>
+                </div>
+            `;
+        }
+
+        // Setup keyboard event listeners
+        function setupKeyboardListeners() {
+            document.addEventListener('keydown', function(event) {
+                // Close modals and cart with Escape key
+                if (event.key === 'Escape') {
+                    closeCart();
+                    document.querySelectorAll('.modal-overlay').forEach(modal => {
+                        modal.classList.remove('active');
+                    });
+                }
+
+                // Handle Enter key in forms
+                if (event.key === 'Enter') {
+                    const activeElement = document.activeElement;
+                    
+                    // Email input
+                    if (activeElement && activeElement.id === 'loginEmailInput') {
+                        event.preventDefault();
+                        sendVerificationCode();
+                    }
+                    
+                    // Verification code input
+                    if (activeElement && activeElement.id === 'verificationCodeInput') {
+                        event.preventDefault();
+                        const email = activeElement.getAttribute('data-email');
+                        if (email) {
+                            verifyCode(email);
+                        }
+                    }
+                }
+            });
+        }
 
         // User Management
         function loadUserFromCookies() {
             const savedEmail = getCookie('userEmail');
             if (savedEmail) {
-                userEmail = savedEmail;
-                isAuthenticated = true;
-                console.log(`🔐 User loaded from cookies: ${userEmail}`);
-                console.log(`✅ Authentication status: ${isAuthenticated}`);
+                console.log(`🔐 User loaded from cookies: ${savedEmail}`);
+                appState.loadUserData(savedEmail);
             } else {
-                console.log(`❌ No user found in simulated cookies - starting as guest`);
-                console.log(`🔐 Authentication status: ${isAuthenticated}`);
+                console.log(`❌ No user found in cookies - starting as guest`);
             }
         }
 
@@ -1164,39 +1875,56 @@
             const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
             document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
             
-            // Console log for testing
             console.log(`✅ Cookie saved: ${name} = ${value}`);
-            console.log(`📅 Expires: ${expires}`);
-            console.log(`🍪 Current cookies:`, document.cookie);
         }
 
         // Menu Display
-        function showCategory(category) {
-            currentCategory = category;
+        function showCategory(category, buttonElement = null) {
+            appState.currentCategory = category;
             
             // Update active button
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            }
+            
+            renderMenu();
+        }
+
+        // Helper function to show category by name (used during initialization)
+        function showCategoryByName(categoryName) {
+            console.log(`🍽️ Showing category: ${categoryName}`);
+            appState.currentCategory = categoryName;
+            
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.onclick && btn.onclick.toString().includes(categoryName)) {
+                    btn.classList.add('active');
+                }
+            });
             
             renderMenu();
         }
 
         function renderMenu(searchTerm = '') {
             const menuContainer = document.getElementById('menuContainer');
-            const items = menuData[currentCategory].filter(item => 
+            const items = menuData[appState.currentCategory].filter(item => 
                 item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.description.toLowerCase().includes(searchTerm.toLowerCase())
             );
             
             const categoryNames = {
-                beverages: { title: 'Beverages', subtitle: 'Coffee, Tea & Fresh Drinks' },
+                hotBeverages: { title: 'Hot Beverages', subtitle: 'Coffee, Tea & Warm Drinks' },
+                coldBeverages: { title: 'Cold Beverages', subtitle: 'Iced Drinks & Fresh Juices' },
                 food: { title: 'Main Dishes', subtitle: 'Fresh & Healthy Options' },
                 snacks: { title: 'Snacks & Treats', subtitle: 'Light Bites & Energy Boosters' }
             };
             
-            const categoryInfo = categoryNames[currentCategory];
+            const categoryInfo = categoryNames[appState.currentCategory];
             
             menuContainer.innerHTML = `
                 <div class="menu-section">
@@ -1235,7 +1963,7 @@
         }
 
         function getItemControls(item) {
-            const cartItem = cart.find(cartItem => cartItem.id === item.id);
+            const cartItem = appState.cart.find(cartItem => cartItem.id === item.id);
             
             if (cartItem) {
                 return `
@@ -1264,31 +1992,13 @@
             const item = findItemById(itemId);
             if (!item) return;
             
-            const existingItem = cart.find(cartItem => cartItem.id === itemId);
-            
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ ...item, quantity: 1 });
-            }
-            
-            updateCartDisplay();
+            appState.addToCart(item);
             renderMenu();
             showToast('Added to cart!', 'success');
         }
 
         function updateQuantity(itemId, change) {
-            const cartItemIndex = cart.findIndex(item => item.id === itemId);
-            
-            if (cartItemIndex !== -1) {
-                cart[cartItemIndex].quantity += change;
-                
-                if (cart[cartItemIndex].quantity <= 0) {
-                    cart.splice(cartItemIndex, 1);
-                }
-            }
-            
-            updateCartDisplay();
+            appState.updateCartQuantity(itemId, change);
             renderMenu();
         }
 
@@ -1305,20 +2015,20 @@
             const cartContent = document.getElementById('cartContent');
             const cartFooter = document.getElementById('cartFooter');
             const totalAmount = document.getElementById('totalAmount');
+            const discountSection = document.getElementById('discountSection');
             
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const totals = appState.getCartTotals();
             
             // Update badge
-            if (totalItems > 0) {
+            if (totals.itemCount > 0) {
                 cartBadge.style.display = 'flex';
-                cartBadge.textContent = totalItems;
+                cartBadge.textContent = totals.itemCount;
             } else {
                 cartBadge.style.display = 'none';
             }
             
             // Update cart content
-            if (cart.length === 0) {
+            if (appState.cart.length === 0) {
                 cartContent.innerHTML = `
                     <div class="cart-empty">
                         <i class="fas fa-shopping-cart"></i>
@@ -1327,7 +2037,7 @@
                 `;
                 cartFooter.style.display = 'none';
             } else {
-                cartContent.innerHTML = cart.map(item => `
+                cartContent.innerHTML = appState.cart.map(item => `
                     <div class="cart-item">
                         <div class="cart-item-image" style="background-image: url('${item.image}')"></div>
                         <div class="cart-item-details">
@@ -1346,7 +2056,22 @@
                     </div>
                 `).join('');
                 
-                totalAmount.textContent = `EGP ${totalPrice.toFixed(2)}`;
+                // Show discount section if user has discount
+                if (appState.user.isAuthenticated && totals.discount > 0) {
+                    discountSection.style.display = 'block';
+                    discountSection.innerHTML = `
+                        <div class="discount-section">
+                            <div class="discount-row">
+                                <span><i class="fas fa-tag"></i> Discount (${appState.user.discountPercentage}%)</span>
+                                <span>-EGP ${totals.discount.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    discountSection.style.display = 'none';
+                }
+                
+                totalAmount.textContent = `EGP ${totals.total.toFixed(2)}`;
                 cartFooter.style.display = 'block';
             }
         }
@@ -1372,10 +2097,10 @@
 
         // Checkout
         function checkout() {
-            if (cart.length === 0) return;
+            if (appState.cart.length === 0) return;
             
             // If user is already authenticated, go directly to payment
-            if (isAuthenticated) {
+            if (appState.user.isAuthenticated) {
                 showPaymentOptions();
             } else {
                 showLoginForm();
@@ -1397,6 +2122,9 @@
                 <div class="form-group">
                     <label class="form-label">Email Address</label>
                     <input type="email" class="form-input" id="loginEmailInput" placeholder="your@email.com" required>
+                    <div class="enter-hint">
+                        <kbd>Enter</kbd> to send code
+                    </div>
                 </div>
                 
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
@@ -1410,6 +2138,12 @@
             `;
             
             document.getElementById('checkoutModal').classList.add('active');
+            
+            // Auto-focus email input
+            setTimeout(() => {
+                const emailInput = document.getElementById('loginEmailInput');
+                if (emailInput) emailInput.focus();
+            }, 100);
         }
 
         function showVerificationForm(email) {
@@ -1426,7 +2160,10 @@
 
                 <div class="form-group">
                     <label class="form-label">Verification Code</label>
-                    <input type="text" class="form-input" id="verificationCodeInput" placeholder="Enter 6-digit code" maxlength="6" style="text-align: center; font-size: 1.25rem; letter-spacing: 0.5rem;" required>
+                    <input type="text" class="form-input" id="verificationCodeInput" data-email="${email}" placeholder="Enter 6-digit code" maxlength="6" required>
+                    <div class="enter-hint">
+                        <kbd>Enter</kbd> to verify
+                    </div>
                 </div>
                 
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
@@ -1444,11 +2181,17 @@
                     </button>
                 </div>
             `;
+            
+            // Auto-focus verification input
+            setTimeout(() => {
+                const codeInput = document.getElementById('verificationCodeInput');
+                if (codeInput) codeInput.focus();
+            }, 100);
         }
 
         function showPaymentOptions() {
             const checkoutContent = document.getElementById('checkoutContent');
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const totals = appState.getCartTotals();
             
             checkoutContent.innerHTML = `
                 <div style="text-align: center; margin-bottom: 2rem;">
@@ -1456,21 +2199,32 @@
                         <i class="fas fa-check" style="color: var(--color-success); font-size: 1.5rem;"></i>
                     </div>
                     <h3>Welcome back!</h3>
-                    <p style="color: var(--color-text-muted); margin-top: 0.5rem;">Logged in as <strong>${userEmail}</strong></p>
+                    <p style="color: var(--color-text-muted); margin-top: 0.5rem;">Logged in as <strong>${appState.user.email}</strong></p>
+                    ${appState.user.discountPercentage > 0 ? 
+                        `<div style="background: var(--color-success-light); color: var(--color-success-dark); padding: 0.5rem 1rem; border-radius: var(--radius-lg); margin-top: 1rem; display: inline-block;">
+                            <i class="fas fa-tag"></i> ${appState.user.discountPercentage}% Discount Applied!
+                        </div>` : ''
+                    }
                 </div>
 
                 <h4 style="margin: 1.5rem 0 1rem 0;">Order Summary</h4>
                 <div style="background: var(--color-bg); padding: 1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
-                    ${cart.map(item => `
+                    ${appState.cart.map(item => `
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span>${item.name} × ${item.quantity}</span>
                             <span>EGP ${(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                     `).join('')}
+                    ${totals.discount > 0 ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--color-success-dark);">
+                            <span>Discount (${appState.user.discountPercentage}%)</span>
+                            <span>-EGP ${totals.discount.toFixed(2)}</span>
+                        </div>
+                    ` : ''}
                     <div style="border-top: 1px solid var(--color-border); padding-top: 0.5rem; margin-top: 0.5rem; font-weight: 600;">
                         <div style="display: flex; justify-content: space-between;">
                             <span>Total</span>
-                            <span style="color: var(--color-primary-dark); font-size: 1.25rem;">EGP ${totalPrice.toFixed(2)}</span>
+                            <span style="color: var(--color-primary-dark); font-size: 1.25rem;">EGP ${totals.total.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
@@ -1517,9 +2271,6 @@
             `;
         }
 
-        let selectedPayment = '';
-        let currentVerificationCode = '';
-
         function sendVerificationCode(email = null) {
             const emailToUse = email || document.getElementById('loginEmailInput').value;
             
@@ -1543,13 +2294,14 @@
             }
             
             // Generate verification code (6 digits)
-            currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            appState.updateUI({ currentVerificationCode: verificationCode });
             
             // Simulate sending email (in real app, this would call Google Apps Script)
             setTimeout(() => {
                 // For demo purposes, show the code in console and alert
-                console.log(`Verification code for ${emailToUse}: ${currentVerificationCode}`);
-                alert(`Demo: Your verification code is ${currentVerificationCode}`);
+                console.log(`Verification code for ${emailToUse}: ${verificationCode}`);
+                alert(`Demo: Your verification code is ${verificationCode}`);
                 
                 showToast(`Verification code sent to ${emailToUse}`, 'success');
                 showVerificationForm(emailToUse);
@@ -1574,32 +2326,32 @@
             verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
             verifyBtn.disabled = true;
             
-            console.log(`🔍 Verifying code: ${enteredCode} against ${currentVerificationCode}`);
+            console.log(`🔍 Verifying code: ${enteredCode} against ${appState.ui.currentVerificationCode}`);
             
             // Simulate verification (in real app, this would verify with server)
             setTimeout(() => {
-                if (enteredCode === currentVerificationCode) {
-                    // Success - save user email and mark as authenticated
+                if (enteredCode === appState.ui.currentVerificationCode) {
+                    // Success - save user email and load user data
                     console.log(`✅ Verification successful for: ${email}`);
-                    setCookie('userEmail', email); // This is now simulated
-                    userEmail = email;
-                    isAuthenticated = true;
+                    setCookie('userEmail', email);
+                    appState.loadUserData(email);
                     
-                    console.log(`🎉 User authenticated: ${userEmail}`);
-                    console.log(`🔐 Auth status: ${isAuthenticated}`);
-                    console.log(`💾 User session established (simulated cookie save)`);
+                    console.log(`🎉 User authenticated: ${email}`);
+                    console.log(`💾 User session established`);
                     
                     showToast('Login successful!', 'success');
                     showPaymentOptions();
                 } else {
                     // Failed verification
-                    console.log(`❌ Verification failed. Expected: ${currentVerificationCode}, Got: ${enteredCode}`);
+                    console.log(`❌ Verification failed. Expected: ${appState.ui.currentVerificationCode}, Got: ${enteredCode}`);
                     showToast('Invalid verification code. Please try again.', 'error');
                     verifyBtn.innerHTML = 'Verify & Continue';
                     verifyBtn.disabled = false;
                     
-                    // Clear the input
-                    document.getElementById('verificationCodeInput').value = '';
+                    // Clear the input and refocus
+                    const codeInput = document.getElementById('verificationCodeInput');
+                    codeInput.value = '';
+                    codeInput.focus();
                 }
             }, 1500);
         }
@@ -1607,17 +2359,23 @@
         function logout() {
             // Clear authentication
             setCookie('userEmail', '', -1); // Delete cookie
-            userEmail = '';
-            isAuthenticated = false;
-            currentVerificationCode = '';
-            selectedPayment = '';
+            appState.updateUser({
+                email: '',
+                isAuthenticated: false,
+                discountPercentage: 0,
+                discountType: null
+            });
+            appState.updateUI({
+                selectedPayment: '',
+                currentVerificationCode: ''
+            });
             
             showToast('Logged out successfully', 'success');
             closeModal('checkoutModal');
         }
 
         function selectPayment(method) {
-            selectedPayment = method;
+            appState.updateUI({ selectedPayment: method });
             
             console.log(`💳 Payment method selected: ${method}`);
             
@@ -1635,55 +2393,349 @@
         }
 
         function processOrder() {
-            if (!selectedPayment) {
+            if (!appState.ui.selectedPayment) {
                 showToast('Please select a payment method', 'error');
                 return;
             }
             
-            if (!isAuthenticated) {
+            if (!appState.user.isAuthenticated) {
                 showToast('Please login first', 'error');
                 return;
             }
+
+            const paymentMethod = appState.ui.selectedPayment;
             
-            console.log(`🚀 Processing order...`);
-            console.log(`👤 User: ${userEmail}`);
-            console.log(`💳 Payment: ${selectedPayment}`);
-            console.log(`🛒 Cart:`, cart);
+            console.log(`🚀 Processing order with payment method: ${paymentMethod}`);
             
-            // Show loading
-            const processBtn = document.getElementById('processBtn');
-            processBtn.innerHTML = '<div class="loading"></div> Processing...';
-            processBtn.disabled = true;
+            // Route to different payment flows
+            if (paymentMethod === 'instapay') {
+                showInstaPayFlow();
+            } else if (paymentMethod === 'cash' || paymentMethod === 'card') {
+                showCounterFlow(paymentMethod);
+            }
+        }
+
+        function showInstaPayFlow() {
+            const checkoutContent = document.getElementById('checkoutContent');
+            const totals = appState.getCartTotals();
             
-            // Simulate processing
+            checkoutContent.innerHTML = `
+                <div class="payment-screen">
+                    <div class="icon-container instapay">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>InstaPay Payment</h3>
+                    <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+                        Total Amount: <strong style="color: var(--color-primary-dark);">EGP ${totals.total.toFixed(2)}</strong>
+                    </p>
+                    
+                    <div class="upload-instructions">
+                        <h4><i class="fas fa-info-circle"></i> Payment Instructions</h4>
+                        <ol>
+                            <li>Click the InstaPay link below to open your banking app</li>
+                            <li>Complete the payment of <strong>EGP ${totals.total.toFixed(2)}</strong></li>
+                            <li>Take a screenshot of the successful payment</li>
+                            <li>Upload the screenshot below for verification</li>
+                        </ol>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <a href="instapay://pay?amount=${totals.total.toFixed(2)}&merchant=KROO_CAFE" 
+                           class="btn" style="width: 100%; justify-content: center; text-decoration: none;">
+                            <i class="fas fa-external-link-alt"></i>
+                            Open InstaPay (EGP ${totals.total.toFixed(2)})
+                        </a>
+                    </div>
+
+                    <div class="instapay-upload">
+                        <div class="file-upload-area" onclick="document.getElementById('paymentScreenshot').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text">
+                                <strong>Upload Payment Screenshot</strong>
+                            </div>
+                            <p style="color: var(--color-text-light); font-size: 0.875rem;">
+                                Click to browse or drag & drop your screenshot
+                            </p>
+                            <input type="file" id="paymentScreenshot" accept="image/*" onchange="handleScreenshotUpload(event)">
+                            <div id="uploadPreview"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn btn-secondary" onclick="showPaymentOptions()" style="flex: 1;">
+                            Back
+                        </button>
+                        <button class="btn" onclick="verifyPayment()" id="verifyPaymentBtn" style="flex: 2;" disabled>
+                            Verify Payment
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleScreenshotUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            appState.currentUploadedFile = file;
+            
+            const preview = document.getElementById('uploadPreview');
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Payment Screenshot" class="uploaded-image">
+                    <p style="color: var(--color-success); margin-top: 0.5rem;">
+                        <i class="fas fa-check"></i> Screenshot uploaded successfully
+                    </p>
+                `;
+                
+                // Enable verify button
+                document.getElementById('verifyPaymentBtn').disabled = false;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function verifyPayment() {
+            if (!appState.currentUploadedFile) {
+                showToast('Please upload payment screenshot first', 'error');
+                return;
+            }
+
+            const verifyBtn = document.getElementById('verifyPaymentBtn');
+            verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
+            verifyBtn.disabled = true;
+
+            // Simulate payment verification
             setTimeout(() => {
+                // Simulate 90% success rate
+                const isVerified = Math.random() > 0.1;
+                
+                if (isVerified) {
+                    completeOrder('instapay');
+                } else {
+                    showToast('Payment verification failed. Please try again or contact support.', 'error');
+                    verifyBtn.innerHTML = 'Verify Payment';
+                    verifyBtn.disabled = false;
+                }
+            }, 2000);
+        }
+
+        function showCounterFlow(paymentMethod) {
+            const checkoutContent = document.getElementById('checkoutContent');
+            const totals = appState.getCartTotals();
+            const paymentText = paymentMethod === 'cash' ? 'Cash' : 'Card';
+            
+            checkoutContent.innerHTML = `
+                <div class="payment-screen">
+                    <div class="icon-container counter pulse">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <h3>Go to Counter</h3>
+                    <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+                        Please proceed to the counter to complete your ${paymentText.toLowerCase()} payment
+                    </p>
+                    
+                    <div style="background: var(--color-bg); border-radius: var(--radius-lg); padding: 1.5rem; margin: 1.5rem 0;">
+                        <h4 style="margin-bottom: 1rem; color: var(--color-text);">Order Summary</h4>
+                        ${appState.cart.map(item => `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>${item.name} × ${item.quantity}</span>
+                                <span>EGP ${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                        ${totals.discount > 0 ? `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--color-success-dark);">
+                                <span>Discount (${appState.user.discountPercentage}%)</span>
+                                <span>-EGP ${totals.discount.toFixed(2)}</span>
+                            </div>
+                        ` : ''}
+                        <div style="border-top: 1px solid var(--color-border); padding-top: 0.5rem; margin-top: 0.5rem; font-weight: 600;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Total Amount</span>
+                                <span style="color: var(--color-primary-dark); font-size: 1.25rem;">EGP ${totals.total.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--color-primary-light); border-radius: var(--radius-lg); padding: 1rem; margin: 1.5rem 0;">
+                        <p style="color: var(--color-primary-dark); text-align: center; margin: 0;">
+                            <i class="fas fa-info-circle"></i> 
+                            Show this screen to our staff for ${paymentText.toLowerCase()} payment
+                        </p>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn btn-secondary" onclick="showPaymentOptions()" style="flex: 1;">
+                            Back
+                        </button>
+                        <button class="btn" onclick="completeOrder('${paymentMethod}')" style="flex: 2;">
+                            <i class="fas fa-check"></i> Complete Order
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function completeOrder(paymentMethod) {
+            // Find the button that was clicked
+            const processBtn = document.querySelector('.payment-screen .btn:not(.btn-secondary)');
+            if (processBtn) {
+                processBtn.innerHTML = '<div class="loading"></div> Processing...';
+                processBtn.disabled = true;
+            }
+            
+            console.log(`🚀 Completing order with payment method: ${paymentMethod}`);
+            
+            setTimeout(() => {
+                const totals = appState.getCartTotals();
+                
                 // Create order object
                 const order = {
-                    email: userEmail,
-                    items: cart,
-                    total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-                    paymentMethod: selectedPayment,
+                    orderNumber: generateOrderNumber(),
+                    email: appState.user.email,
+                    items: [...appState.cart],
+                    subtotal: totals.subtotal,
+                    discount: totals.discount,
+                    total: totals.total,
+                    paymentMethod: paymentMethod,
+                    discountApplied: appState.user.discountPercentage,
                     timestamp: new Date().toISOString(),
-                    orderNumber: generateOrderNumber()
+                    status: 'preparing'
                 };
                 
+                // Add to order history
+                appState.addOrder(order);
+                
                 console.log(`✅ Order created:`, order);
-                console.log(`💾 Saving order to system...`);
                 
-                // Clear cart
-                cart = [];
-                updateCartDisplay();
+                // Clear cart and reset selections
+                appState.clearCart();
+                appState.updateUI({ selectedPayment: '' });
+                appState.currentUploadedFile = null;
                 
-                // Reset payment selection
-                selectedPayment = '';
-                
-                console.log(`🎉 Order completed successfully!`);
-                
-                // Close modals and show success
-                closeModal('checkoutModal');
-                closeCart();
-                document.getElementById('successModal').classList.add('active');
-            }, 2000);
+                // Show order preparation screen
+                showOrderPreparation(order);
+            }, 1500);
+        }
+
+        function showOrderPreparation(order) {
+            const checkoutContent = document.getElementById('checkoutContent');
+            
+            checkoutContent.innerHTML = `
+                <div class="payment-screen">
+                    <div class="icon-container preparing pulse preparing">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Order Confirmed!</h3>
+                    <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+                        Your order is being prepared
+                    </p>
+                    
+                    <div style="background: var(--color-success-light); border-radius: var(--radius-lg); padding: 1.5rem; margin: 1.5rem 0; border: 1px solid var(--color-success);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <span style="font-weight: 600; color: var(--color-success-dark);">Order #${order.orderNumber}</span>
+                            <span class="order-status status-preparing">Preparing</span>
+                        </div>
+                        <p style="color: var(--color-success-dark); margin: 0;">
+                            <i class="fas fa-clock"></i> 
+                            Estimated time: 10-15 minutes
+                        </p>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h4 style="margin-bottom: 1rem;">Order Items</h4>
+                        ${order.items.map(item => `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--color-text-muted);">
+                                <span>${item.name} × ${item.quantity}</span>
+                                <span>EGP ${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                        <div style="border-top: 1px solid var(--color-border); padding-top: 0.5rem; margin-top: 0.5rem; font-weight: 600;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Total Paid</span>
+                                <span style="color: var(--color-success-dark);">EGP ${order.total.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button class="btn btn-secondary" onclick="showOrderHistory()" style="flex: 1;">
+                            <i class="fas fa-history"></i> View Orders
+                        </button>
+                        <button class="btn" onclick="newOrder()" style="flex: 1;">
+                            <i class="fas fa-plus"></i> New Order
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Order History
+        function showOrderHistory() {
+            const historyContent = document.getElementById('orderHistoryContent');
+            
+            if (appState.orderHistory.length === 0) {
+                historyContent.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
+                        <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; color: var(--color-text-light);"></i>
+                        <h4>No Orders Yet</h4>
+                        <p>Your order history will appear here after you place your first order.</p>
+                    </div>
+                `;
+            } else {
+                historyContent.innerHTML = `
+                    <div class="order-history">
+                        ${appState.orderHistory.map(order => `
+                            <div class="history-item">
+                                <div class="history-header">
+                                    <div>
+                                        <div class="order-number">Order #${order.orderNumber}</div>
+                                        <div class="order-date">${new Date(order.timestamp).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}</div>
+                                    </div>
+                                    <span class="order-status ${order.status === 'preparing' ? 'status-preparing' : 'status-completed'}">
+                                        ${order.status}
+                                    </span>
+                                </div>
+                                <div class="history-items">
+                                    ${order.items.map(item => `
+                                        <div class="history-item-row">
+                                            <span>${item.name} × ${item.quantity}</span>
+                                            <span>EGP ${(item.price * item.quantity).toFixed(2)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="history-total">
+                                    <span>Total</span>
+                                    <span>EGP ${order.total.toFixed(2)}</span>
+                                </div>
+                                <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--color-text-muted);">
+                                    Payment: ${order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            closeModal('checkoutModal');
+            document.getElementById('orderHistoryModal').classList.add('active');
+        }
+
+        function newOrder() {
+            closeModal('checkoutModal');
+            closeModal('orderHistoryModal');
+            closeCart();
+            showToast('Welcome back! Start a new order', 'success');
         }
 
         function generateOrderNumber() {
@@ -1698,11 +2750,6 @@
         // Modal Management
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
-        }
-
-        function newOrder() {
-            closeModal('successModal');
-            showToast('Welcome back! Start a new order', 'success');
         }
 
         // Toast Notifications
@@ -1720,16 +2767,6 @@
         document.addEventListener('click', function(event) {
             if (event.target.classList.contains('modal-overlay')) {
                 event.target.classList.remove('active');
-            }
-        });
-
-        // Close cart with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeCart();
-                document.querySelectorAll('.modal-overlay').forEach(modal => {
-                    modal.classList.remove('active');
-                });
             }
         });
     </script>
