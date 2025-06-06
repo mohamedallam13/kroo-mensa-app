@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,7 +31,7 @@
             --color-blue: #3B82F6;
             --color-blue-dark: #2563EB;
             --color-blue-light: #93C5FD;
-            
+
             /* Spacing */
             --space-1: 0.25rem;
             --space-2: 0.5rem;
@@ -39,7 +40,7 @@
             --space-5: 1.25rem;
             --space-6: 1.5rem;
             --space-8: 2rem;
-            
+
             /* Border radius */
             --radius-sm: 0.25rem;
             --radius-md: 0.5rem;
@@ -850,10 +851,12 @@
                 transform: scale(1);
                 box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
             }
+
             50% {
                 transform: scale(1.05);
                 box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
             }
+
             100% {
                 transform: scale(1);
                 box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
@@ -869,10 +872,12 @@
                 transform: scale(1);
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
             }
+
             50% {
                 transform: scale(1.05);
                 box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
             }
+
             100% {
                 transform: scale(1);
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
@@ -1042,7 +1047,7 @@
             gap: var(--space-2);
             font-size: 0.875rem;
             position: relative;
-            min-width: 0; /* Allow shrinking */
+            min-width: 0;
         }
 
         .user-avatar {
@@ -1063,7 +1068,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            min-width: 0; /* Allow shrinking */
+            min-width: 0;
             flex: 1;
         }
 
@@ -1156,7 +1161,7 @@
         /* Desktop layout - keep original structure */
         .header-top-row,
         .header-bottom-row {
-            display: contents; /* On desktop, act as if these divs don't exist */
+            display: contents;
         }
 
         /* Mobile Responsive - Improved */
@@ -1177,7 +1182,6 @@
                 gap: var(--space-3);
             }
 
-            /* Top row: Search and User Status */
             .header-top-row {
                 display: flex;
                 align-items: center;
@@ -1188,7 +1192,7 @@
             .search-container {
                 display: block;
                 flex: 1;
-                min-width: 0; /* Prevent overflow */
+                min-width: 0;
             }
 
             .search-input {
@@ -1199,7 +1203,6 @@
                 flex-shrink: 0;
             }
 
-            /* Bottom row: Navigation and Cart */
             .header-bottom-row {
                 display: flex;
                 justify-content: space-between;
@@ -1219,7 +1222,7 @@
             .user-info {
                 padding: 0.5rem var(--space-2);
                 font-size: 0.8rem;
-                max-width: 200px; /* Prevent overflow */
+                max-width: 200px;
                 gap: var(--space-2);
             }
 
@@ -1367,14 +1370,14 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
         }
 
         .loading.dark {
-            border: 2px solid rgba(0,0,0,0.1);
+            border: 2px solid rgba(0, 0, 0, 0.1);
             border-top-color: var(--color-primary);
         }
 
@@ -1388,7 +1391,8 @@
             min-height: 400px;
         }
 
-        .menu-loader .loader-spinner {
+        /* Global spinner for loaders */
+        .loader-spinner {
             width: 60px;
             height: 60px;
             border: 4px solid var(--color-border);
@@ -1408,7 +1412,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* Toast Notifications */
@@ -1460,8 +1466,24 @@
             padding: 0.125rem 0.25rem;
             font-size: 0.6875rem;
         }
+
+        .global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(250, 250, 250, 0.95);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -1505,12 +1527,7 @@
     <!-- Main Content -->
     <div class="container">
         <!-- Category Navigation -->
-        <nav class="category-nav">
-            <button class="category-btn active" onclick="showCategory('hotBeverages', this)">Hot Beverages</button>
-            <button class="category-btn" onclick="showCategory('coldBeverages', this)">Cold Beverages</button>
-            <button class="category-btn" onclick="showCategory('food', this)">Food</button>
-            <button class="category-btn" onclick="showCategory('snacks', this)">Snacks</button>
-        </nav>
+        <nav class="category-nav" id="categoryNav"></nav>
 
         <!-- Menu Container -->
         <div id="menuContainer">
@@ -1597,7 +1614,510 @@
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
+    <!-- Global Loader -->
+    <div id="globalLoader" class="global-loader" style="display: none;">
+        <div class="loader-spinner"></div>
+        <h3>Loading Menu</h3>
+        <p>Getting fresh items ready...</p>
+    </div>
+
     <script>
+        // Fixed Menu Data with proper structure and Unsplash images
+        const menuData = {
+            "teas": {
+                "name": "Teas",
+                "subtitle": "Traditional & Herbal Teas",
+                "items": [
+                    {
+                        id: 1,
+                        "name": "Tea",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop",
+                        "description": "Traditional black tea, perfectly brewed",
+                        "rating": 4.5,
+                        "popular": true
+                    },
+                    {
+                        id: 2,
+                        "name": "Yanson",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?w=400&h=300&fit=crop",
+                        "description": "Aromatic anise tea blend",
+                        "rating": 4.3
+                    },
+                    {
+                        id: 3,
+                        "name": "Mint",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop",
+                        "description": "Fresh mint tea, refreshing and soothing",
+                        "rating": 4.6
+                    },
+                    {
+                        id: 4,
+                        "name": "Karak",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400&h=300&fit=crop",
+                        "description": "Spiced milk tea with cardamom and cinnamon",
+                        "rating": 4.8,
+                        "popular": true
+                    },
+                    {
+                        id: 5,
+                        "name": "Masala",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1597318181409-cf64352723bb?w=400&h=300&fit=crop",
+                        "description": "Indian spiced tea with aromatic spices",
+                        "rating": 4.7
+                    },
+                    {
+                        id: 6,
+                        "name": "Ice Tea",
+                        "price": 50,
+                        "image": "https://images.unsplash.com/photo-1499638673689-79a0b5115d87?w=400&h=300&fit=crop",
+                        "description": "Chilled tea served over ice",
+                        "rating": 4.4
+                    },
+                    {
+                        id: 7,
+                        "name": "Green Tea",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1564890275775-5d9d3b2e2d50?w=400&h=300&fit=crop",
+                        "description": "Healthy green tea with antioxidants",
+                        "rating": 4.5
+                    }
+                ]
+            },
+            "coffees": {
+                "name": "Coffees",
+                "subtitle": "Espresso & Coffee Specialties",
+                "items": [
+                    {
+                        id: 8,
+                        "name": "Turkish Coffee S",
+                        "price": 40,
+                        "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=300&fit=crop",
+                        "description": "Traditional Turkish coffee - small size",
+                        "rating": 4.8,
+                        "popular": true
+                    },
+                    {
+                        id: 9,
+                        "name": "Turkish Coffee M",
+                        "price": 50,
+                        "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=300&fit=crop",
+                        "description": "Traditional Turkish coffee - medium size",
+                        "rating": 4.8
+                    },
+                    {
+                        id: 10,
+                        "name": "French Coffee",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop",
+                        "description": "Classic French press coffee",
+                        "rating": 4.6
+                    },
+                    {
+                        id: 11,
+                        "name": "Turkish Hazelnut",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1509785307050-d4066910ec1e?w=400&h=300&fit=crop",
+                        "description": "Turkish coffee with hazelnut flavor",
+                        "rating": 4.7
+                    },
+                    {
+                        id: 12,
+                        "name": "Espresso M",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400&h=300&fit=crop",
+                        "description": "Rich espresso shot - medium size",
+                        "rating": 4.9,
+                        "popular": true
+                    },
+                    {
+                        id: 13,
+                        "name": "Espresso S",
+                        "price": 45,
+                        "image": "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400&h=300&fit=crop",
+                        "description": "Rich espresso shot - small size",
+                        "rating": 4.9
+                    },
+                    {
+                        id: 14,
+                        "name": "Americano",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1549007953-2f2dc0b24019?w=400&h=300&fit=crop",
+                        "description": "Espresso with hot water",
+                        "rating": 4.5
+                    },
+                    {
+                        id: 15,
+                        "name": "Cortado",
+                        "price": 65,
+                        "image": "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=300&fit=crop",
+                        "description": "Espresso with warm milk",
+                        "rating": 4.6
+                    },
+                    {
+                        id: 16,
+                        "name": "Flat White",
+                        "price": 70,
+                        "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=300&fit=crop",
+                        "description": "Double shot espresso with steamed milk",
+                        "rating": 4.7
+                    },
+                    {
+                        id: 17,
+                        "name": "Latte L",
+                        "price": 70,
+                        "image": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop",
+                        "description": "Espresso with steamed milk - large size",
+                        "rating": 4.6,
+                        "popular": true
+                    },
+                    {
+                        id: 18,
+                        "name": "Latte M",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop",
+                        "description": "Espresso with steamed milk - medium size",
+                        "rating": 4.6
+                    },
+                    {
+                        id: 19,
+                        "name": "Cappuccino M",
+                        "price": 65,
+                        "image": "https://images.unsplash.com/photo-1572286258217-fbf707746512?w=400&h=300&fit=crop",
+                        "description": "Espresso with steamed milk and foam - medium",
+                        "rating": 4.7
+                    },
+                    {
+                        id: 20,
+                        "name": "Cappuccino L",
+                        "price": 75,
+                        "image": "https://images.unsplash.com/photo-1572286258217-fbf707746512?w=400&h=300&fit=crop",
+                        "description": "Espresso with steamed milk and foam - large",
+                        "rating": 4.7
+                    },
+                    {
+                        id: 21,
+                        "name": "Spanish Latte",
+                        "price": 90,
+                        "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+                        "description": "Latte with condensed milk",
+                        "rating": 4.8,
+                        "popular": true
+                    },
+                    {
+                        id: 22,
+                        "name": "B/W Mocha",
+                        "price": 70,
+                        "image": "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400&h=300&fit=crop",
+                        "description": "Black and white chocolate mocha",
+                        "rating": 4.5
+                    },
+                    {
+                        id: 23,
+                        "name": "Ice Americano",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=300&fit=crop",
+                        "description": "Chilled americano over ice",
+                        "rating": 4.4
+                    },
+                    {
+                        id: 24,
+                        "name": "Ice Latte",
+                        "price": 80,
+                        "image": "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=400&h=300&fit=crop",
+                        "description": "Iced latte with cold milk",
+                        "rating": 4.6
+                    },
+                    {
+                        id: 25,
+                        "name": "Ice Mocha",
+                        "price": 85,
+                        "image": "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=400&h=300&fit=crop",
+                        "description": "Iced chocolate mocha",
+                        "rating": 4.5
+                    },
+                    {
+                        id: 26,
+                        "name": "Ice Cappuccino",
+                        "price": 65,
+                        "image": "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=300&fit=crop",
+                        "description": "Iced cappuccino with cold foam",
+                        "rating": 4.4
+                    },
+                    {
+                        id: 27,
+                        "name": "Ice Coffee",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1498804103079-a6351b050096?w=400&h=300&fit=crop",
+                        "description": "Cold brew coffee over ice",
+                        "rating": 4.3
+                    }
+                ]
+            },
+            "hotDrinks": {
+                "name": "Hot Drinks",
+                "subtitle": "Warm & Comforting Beverages",
+                "items": [
+                    {
+                        id: 28,
+                        "name": "Sahlab",
+                        "price": 50,
+                        "image": "https://images.unsplash.com/photo-1549007953-2f2dc0b24019?w=400&h=300&fit=crop",
+                        "description": "Traditional Middle Eastern hot drink",
+                        "rating": 4.7,
+                        "popular": true
+                    },
+                    {
+                        id: 29,
+                        "name": "Hot Cider",
+                        "price": 50,
+                        "image": "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=400&h=300&fit=crop",
+                        "description": "Warm spiced apple cider",
+                        "rating": 4.5
+                    },
+                    {
+                        id: 30,
+                        "name": "Hot Chocolate",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1542990253-0b395150d956?w=400&h=300&fit=crop",
+                        "description": "Rich hot chocolate with whipped cream",
+                        "rating": 4.8,
+                        "popular": true
+                    },
+                    {
+                        id: 31,
+                        "name": "Cinnamon",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=400&h=300&fit=crop",
+                        "description": "Warm cinnamon spiced drink",
+                        "rating": 4.3
+                    }
+                ]
+            },
+            "chilledDrinks": {
+                "name": "Chilled Drinks",
+                "subtitle": "Fresh Juices & Cold Beverages",
+                "items": [
+                    {
+                        id: 32,
+                        "name": "Water",
+                        "price": 20,
+                        "image": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",
+                        "description": "Pure bottled water",
+                        "rating": 4.0
+                    },
+                    {
+                        id: 33,
+                        "name": "Juhayna Pure Pineapple",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1589055332906-8c1e8b84c8aa?w=400&h=300&fit=crop",
+                        "description": "Fresh pineapple juice",
+                        "rating": 4.4
+                    },
+                    {
+                        id: 34,
+                        "name": "Mix Chocolate",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&h=300&fit=crop",
+                        "description": "Chocolate flavored milk drink",
+                        "rating": 4.2
+                    },
+                    {
+                        id: 35,
+                        "name": "Juhayna Apple",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+                        "description": "Fresh apple juice",
+                        "rating": 4.3
+                    },
+                    {
+                        id: 36,
+                        "name": "Juhayna Guava",
+                        "price": 25,
+                        "image": "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=400&h=300&fit=crop",
+                        "description": "Tropical guava juice",
+                        "rating": 4.5
+                    },
+                    {
+                        id: 37,
+                        "name": "Juhayna Pure Grapes",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1537652555356-8b647ea4d3b4?w=400&h=300&fit=crop",
+                        "description": "Pure grape juice",
+                        "rating": 4.4
+                    },
+                    {
+                        id: 38,
+                        "name": "Juhayna Pure Orange",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=300&fit=crop",
+                        "description": "Fresh orange juice",
+                        "rating": 4.6,
+                        "popular": true
+                    },
+                    {
+                        id: 39,
+                        "name": "Juhayna Pure Mango",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1605027990121-3b2c3909031c?w=400&h=300&fit=crop",
+                        "description": "Pure mango juice",
+                        "rating": 4.7
+                    }
+                ]
+            },
+            "softDrinks": {
+                "name": "Soft Drinks",
+                "subtitle": "Carbonated & Energy Drinks",
+                "items": [
+                    {
+                        id: 40,
+                        "name": "V7 Cola",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=400&h=300&fit=crop",
+                        "description": "Local cola drink",
+                        "rating": 4.1
+                    },
+                    {
+                        id: 41,
+                        "name": "Musa Berry",
+                        "price": 35,
+                        "image": "https://images.unsplash.com/photo-1546171753-97d7676e4602?w=400&h=300&fit=crop",
+                        "description": "Berry flavored soft drink",
+                        "rating": 4.3
+                    },
+                    {
+                        id: 42,
+                        "name": "Musa Peach",
+                        "price": 35,
+                        "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400&h=300&fit=crop",
+                        "description": "Peach flavored soft drink",
+                        "rating": 4.3
+                    },
+                    {
+                        id: 43,
+                        "name": "Musa Lemon",
+                        "price": 35,
+                        "image": "https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400&h=300&fit=crop",
+                        "description": "Lemon flavored soft drink",
+                        "rating": 4.2
+                    },
+                    {
+                        id: 44,
+                        "name": "Willy Cream Soda",
+                        "price": 35,
+                        "image": "https://images.unsplash.com/photo-1624552360970-4e2e9bd2a3c0?w=400&h=300&fit=crop",
+                        "description": "Creamy vanilla soda",
+                        "rating": 4.0
+                    },
+                    {
+                        id: 45,
+                        "name": "Spatis Kiwi",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1587574293340-e0011c4e8ecf?w=400&h=300&fit=crop",
+                        "description": "Kiwi flavored sparkling drink",
+                        "rating": 4.1
+                    },
+                    {
+                        id: 46,
+                        "name": "Spatis Grapes",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1629203849225-1a4c7e42780f?w=400&h=300&fit=crop",
+                        "description": "Grape flavored sparkling drink",
+                        "rating": 4.2
+                    },
+                    {
+                        id: 47,
+                        "name": "Redbull",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1608070854576-7c7d4c4c3e42?w=400&h=300&fit=crop",
+                        "description": "Energy drink for boost",
+                        "rating": 4.5,
+                        "popular": true
+                    },
+                    {
+                        id: 48,
+                        "name": "Twist",
+                        "price": 40,
+                        "image": "https://images.unsplash.com/photo-1635221543276-186276dff3b7?w=400&h=300&fit=crop",
+                        "description": "Local energy drink",
+                        "rating": 4.0
+                    }
+                ]
+            },
+            "mocktails": {
+                "name": "Mocktails",
+                "subtitle": "Non-Alcoholic Cocktails",
+                "items": [
+                    {
+                        id: 49,
+                        "name": "Mojito",
+                        "price": 60,
+                        "image": "https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&h=300&fit=crop",
+                        "description": "Fresh mint and lime mocktail",
+                        "rating": 4.8,
+                        "popular": true
+                    }
+                ]
+            },
+            "snacks": {
+                "name": "Snacks",
+                "subtitle": "Snacks & Light Bites",
+                "items": [
+                    {
+                        id: 50,
+                        "name": "Abu Ali Mamool",
+                        "price": 10,
+                        "image": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=300&fit=crop",
+                        "description": "Traditional Middle Eastern cookie",
+                        "rating": 4.3
+                    },
+                    {
+                        id: 51,
+                        "name": "Oat Korona",
+                        "price": 10,
+                        "image": "https://images.unsplash.com/photo-1599909533420-e15aeb65e3c2?w=400&h=300&fit=crop",
+                        "description": "Healthy oat biscuit",
+                        "rating": 4.1
+                    },
+                    {
+                        id: 52,
+                        "name": "Chato",
+                        "price": 30,
+                        "image": "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=300&fit=crop",
+                        "description": "Local snack favorite",
+                        "rating": 4.4,
+                        "popular": true
+                    }
+                ]
+            },
+            "extras": {
+                "name": "Extras",
+                "subtitle": "Add-ons & Customizations",
+                "items": [
+                    {
+                        id: 53,
+                        "name": "Add Flavor",
+                        "price": 15,
+                        "image": "https://images.unsplash.com/photo-1516685018646-549198525c1b?w=400&h=300&fit=crop",
+                        "description": "Extra flavor shot for any drink",
+                        "rating": 4.0
+                    },
+                    {
+                        id: 54,
+                        "name": "Milk 200ML",
+                        "price": 20,
+                        "image": "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop",
+                        "description": "Fresh milk addition",
+                        "rating": 4.2
+                    }
+                ]
+            }
+        };
+
         // Hardcoded user data for testing discounts
         const testUsers = {
             'john@employee.com': { discount: 20, type: 'Employee' },
@@ -1612,178 +2132,11 @@
             'staff@kroo.com': { discount: 35, type: 'Staff' }
         };
 
-        // Menu Data with actual image URLs
-        const menuData = {
-            hotBeverages: [
-                { 
-                    id: 1, 
-                    name: "Artisan Coffee", 
-                    price: 35.00, 
-                    description: "Single origin, locally roasted arabica beans with notes of chocolate and caramel", 
-                    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&h=300&fit=crop", 
-                    rating: 4.8, 
-                    popular: true 
-                },
-                { 
-                    id: 2, 
-                    name: "Espresso", 
-                    price: 30.00, 
-                    description: "Rich and bold double shot with perfect crema", 
-                    image: "https://images.unsplash.com/photo-1510707577719-ae7c14805e76?w=300&h=300&fit=crop", 
-                    rating: 4.9 
-                },
-                { 
-                    id: 3, 
-                    name: "Matcha Latte", 
-                    price: 45.00, 
-                    description: "Premium ceremonial grade matcha powder whisked with steamed milk", 
-                    image: "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=300&h=300&fit=crop", 
-                    rating: 4.9 
-                },
-                { 
-                    id: 4, 
-                    name: "Cappuccino", 
-                    price: 38.00, 
-                    description: "Classic Italian coffee with steamed milk and rich foam", 
-                    image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=300&h=300&fit=crop", 
-                    rating: 4.7 
-                },
-                { 
-                    id: 5, 
-                    name: "Hot Chocolate", 
-                    price: 40.00, 
-                    description: "Rich Belgian chocolate melted with steamed milk and whipped cream", 
-                    image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=300&h=300&fit=crop", 
-                    rating: 4.6 
-                }
-            ],
-            coldBeverages: [
-                { 
-                    id: 6, 
-                    name: "Cold Brew", 
-                    price: 40.00, 
-                    description: "24-hour slow steeped coffee served over ice with a smooth, rich flavor", 
-                    image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=300&h=300&fit=crop", 
-                    rating: 4.7,
-                    popular: true 
-                },
-                { 
-                    id: 7, 
-                    name: "Iced Latte", 
-                    price: 42.00, 
-                    description: "Smooth espresso with cold milk served over ice", 
-                    image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=300&fit=crop", 
-                    rating: 4.5 
-                },
-                { 
-                    id: 8, 
-                    name: "Fresh Orange Juice", 
-                    price: 50.00, 
-                    description: "Daily pressed Valencia oranges, served fresh with pulp", 
-                    image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300&h=300&fit=crop", 
-                    rating: 4.6 
-                },
-                { 
-                    id: 9, 
-                    name: "Iced Matcha Latte", 
-                    price: 47.00, 
-                    description: "Premium matcha powder with cold milk and ice", 
-                    image: "https://images.unsplash.com/photo-1564890273748-8a934eb78f6d?w=300&h=300&fit=crop", 
-                    rating: 4.8 
-                },
-                { 
-                    id: 10, 
-                    name: "Lemonade", 
-                    price: 35.00, 
-                    description: "Fresh squeezed lemons with a hint of mint", 
-                    image: "https://images.unsplash.com/photo-1523371683702-bed5499440dd?w=300&h=300&fit=crop", 
-                    rating: 4.4 
-                },
-                { 
-                    id: 11, 
-                    name: "Smoothie Bowl Drink", 
-                    price: 55.00, 
-                    description: "Tropical fruit smoothie with mango, pineapple, and coconut", 
-                    image: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=300&h=300&fit=crop", 
-                    rating: 4.7 
-                }
-            ],
-            food: [
-                { 
-                    id: 12, 
-                    name: "Avocado Toast", 
-                    price: 85.00, 
-                    description: "Artisan sourdough topped with smashed avocado, heirloom tomatoes, and microgreens", 
-                    image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=300&h=300&fit=crop", 
-                    rating: 4.5, 
-                    popular: true 
-                },
-                { 
-                    id: 13, 
-                    name: "Mediterranean Bowl", 
-                    price: 95.00, 
-                    description: "Quinoa base with roasted vegetables, feta cheese, and tahini dressing", 
-                    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=300&fit=crop", 
-                    rating: 4.7 
-                },
-                { 
-                    id: 14, 
-                    name: "Grilled Sandwich", 
-                    price: 75.00, 
-                    description: "House-made sourdough with grilled chicken, local cheese, and seasonal vegetables", 
-                    image: "https://images.unsplash.com/photo-1553909489-cd47e0ef937f?w=300&h=300&fit=crop", 
-                    rating: 4.4 
-                },
-                { 
-                    id: 15, 
-                    name: "Acai Bowl", 
-                    price: 90.00, 
-                    description: "Organic acai blend topped with fresh berries, granola, and coconut flakes", 
-                    image: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=300&h=300&fit=crop", 
-                    rating: 4.8 
-                }
-            ],
-            snacks: [
-                { 
-                    id: 16, 
-                    name: "Energy Balls", 
-                    price: 25.00, 
-                    description: "House-made blend of dates, almonds, and raw cacao", 
-                    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=300&fit=crop", 
-                    rating: 4.6 
-                },
-                { 
-                    id: 17, 
-                    name: "Greek Yogurt Parfait", 
-                    price: 30.00, 
-                    description: "Thick Greek yogurt layered with honey and mixed berries", 
-                    image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=300&h=300&fit=crop", 
-                    rating: 4.5 
-                },
-                { 
-                    id: 18, 
-                    name: "Protein Bar", 
-                    price: 35.00, 
-                    description: "Plant-based protein bar with almonds and dark chocolate", 
-                    image: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=300&h=300&fit=crop", 
-                    rating: 4.3 
-                },
-                { 
-                    id: 19, 
-                    name: "Mixed Nuts", 
-                    price: 30.00, 
-                    description: "Daily roasted selection of almonds, cashews, and walnuts", 
-                    image: "https://images.unsplash.com/photo-1599909533420-e15aeb65e3c2?w=300&h=300&fit=crop", 
-                    rating: 4.4 
-                }
-            ]
-        };
-
         // Reactive App State
         const appState = {
             // State properties
             cart: [],
-            currentCategory: 'hotBeverages',
+            currentCategory: 'teas',
             isLoading: false,
             menuDataLoaded: false,
             orderHistory: [],
@@ -1792,7 +2145,7 @@
                 email: '',
                 isAuthenticated: false,
                 discountPercentage: 0,
-                discountType: null // 'percentage', 'fixed', null
+                discountType: null
             },
             ui: {
                 selectedPayment: '',
@@ -1833,10 +2186,9 @@
             updateUser(userData) {
                 this.user = { ...this.user, ...userData };
                 this.notify('user');
-                
-                // If user data includes discount info, update cart display
+
                 if (userData.discountPercentage !== undefined || userData.discountType !== undefined) {
-                    this.notify('cart'); // Trigger cart recalculation
+                    this.notify('cart');
                 }
             },
 
@@ -1856,34 +2208,34 @@
             },
 
             addOrder(order) {
-                this.orderHistory.unshift(order); // Add to beginning of array
+                this.orderHistory.unshift(order);
                 this.notify('orders');
             },
 
             // Cart methods
             addToCart(item) {
                 const existingItem = this.cart.find(cartItem => cartItem.id === item.id);
-                
+
                 if (existingItem) {
                     existingItem.quantity += 1;
                 } else {
                     this.cart.push({ ...item, quantity: 1 });
                 }
-                
+
                 this.notify('cart');
             },
 
             updateCartQuantity(itemId, change) {
                 const cartItemIndex = this.cart.findIndex(item => item.id === itemId);
-                
+
                 if (cartItemIndex !== -1) {
                     this.cart[cartItemIndex].quantity += change;
-                    
+
                     if (this.cart[cartItemIndex].quantity <= 0) {
                         this.cart.splice(cartItemIndex, 1);
                     }
                 }
-                
+
                 this.notify('cart');
             },
 
@@ -1896,13 +2248,13 @@
             getCartTotals() {
                 const subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                 let discount = 0;
-                
+
                 if (this.user.isAuthenticated && this.user.discountPercentage > 0) {
                     discount = (subtotal * this.user.discountPercentage) / 100;
                 }
-                
+
                 const total = subtotal - discount;
-                
+
                 return {
                     subtotal,
                     discount,
@@ -1911,19 +2263,16 @@
                 };
             },
 
-            // Simulate user data loading (would normally come from server after login)
+            // Simulate user data loading
             loadUserData(email) {
                 let discountPercentage = 0;
                 let userType = 'Regular';
-                
-                // Check if email exists in test users
+
                 if (testUsers[email.toLowerCase()]) {
                     const userData = testUsers[email.toLowerCase()];
                     discountPercentage = userData.discount;
                     userType = userData.type;
-                    console.log(`🎯 Found test user: ${email} - ${userType} (${discountPercentage}%)`);
                 } else {
-                    // Fallback to original logic for non-test emails
                     if (email.includes('employee@') || email.includes('staff@')) {
                         discountPercentage = 20;
                         userType = 'Employee';
@@ -1934,15 +2283,11 @@
                         discountPercentage = 15;
                         userType = 'VIP';
                     } else {
-                        // Random chance for regular users to have a small discount
                         const randomDiscount = Math.random() < 0.3 ? 5 : 0;
                         discountPercentage = randomDiscount;
                         userType = randomDiscount > 0 ? 'Lucky User' : 'Regular';
                     }
-                    console.log(`🎲 Generated discount for ${email}: ${userType} (${discountPercentage}%)`);
                 }
-
-                console.log(`💰 Assigning discount: ${discountPercentage}% for ${email} (${userType})`);
 
                 this.updateUser({
                     email,
@@ -1951,64 +2296,42 @@
                     discountType: discountPercentage > 0 ? 'percentage' : null,
                     userType
                 });
-
-                console.log(`💰 User discount loaded: ${discountPercentage}% for ${email}`);
-                console.log(`👤 Final user state:`, this.user);
             }
         };
 
         // Initialize App
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             setupAppState();
             loadUserFromCookies();
             setupSearch();
             setupKeyboardListeners();
-            
-            // Start with loading simulation
             simulateMenuLoading();
         });
 
         // Simulate loading menu data with timeout
         function simulateMenuLoading() {
-            console.log('📡 Loading menu data...');
-            
-            // Show loader immediately
-            showMenuLoader();
-            
-            // Simulate loading with timeout
+            showGlobalLoader();
             setTimeout(() => {
-                console.log('✅ Menu data loaded successfully');
-                // Load Hot Beverages as default after loading
-                showCategoryByName('hotBeverages');
-            }, 1200); // 1.2 second loading simulation
+                showCategoryByName('teas');
+                renderCategoryNav(); // Ensure nav bar highlights the active category
+                hideGlobalLoader();
+            }, 1200);
+        }
+
+        function showGlobalLoader() {
+            document.getElementById('globalLoader').style.display = 'flex';
+        }
+
+        function hideGlobalLoader() {
+            document.getElementById('globalLoader').style.display = 'none';
         }
 
         // Setup reactive state
         function setupAppState() {
-            // Subscribe to cart changes
             appState.subscribe('cart', updateCartDisplay);
-            
-            // Subscribe to user changes
             appState.subscribe('user', (user) => {
-                console.log('👤 User state updated:', user);
                 updateUserStatus();
             });
-        }
-
-        // Simulate loading menu data from backend
-        function loadMenuData() {
-            console.log('📡 Loading menu data...');
-            appState.setLoading(true);
-            
-            // Show loader briefly
-            showMenuLoader();
-            
-            // Quick simulation - just 800ms to show the loader
-            setTimeout(() => {
-                console.log('✅ Menu data loaded successfully');
-                appState.setLoading(false);
-                appState.setMenuLoaded(true);
-            }, 800); // Quick 800ms delay just to show the loader
         }
 
         function showMenuLoader() {
@@ -2024,8 +2347,7 @@
 
         // Setup keyboard event listeners
         function setupKeyboardListeners() {
-            document.addEventListener('keydown', function(event) {
-                // Close modals and cart with Escape key
+            document.addEventListener('keydown', function (event) {
                 if (event.key === 'Escape') {
                     closeCart();
                     document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -2033,17 +2355,14 @@
                     });
                 }
 
-                // Handle Enter key in forms
                 if (event.key === 'Enter') {
                     const activeElement = document.activeElement;
-                    
-                    // Email input
+
                     if (activeElement && activeElement.id === 'loginEmailInput') {
                         event.preventDefault();
                         sendVerificationCode();
                     }
-                    
-                    // Verification code input
+
                     if (activeElement && activeElement.id === 'verificationCodeInput') {
                         event.preventDefault();
                         const email = activeElement.getAttribute('data-email');
@@ -2058,22 +2377,16 @@
         function loadUserFromCookies() {
             const savedEmail = getCookie('krooUserEmail');
             if (savedEmail) {
-                console.log(`🔐 User loaded from cookies: ${savedEmail}`);
                 appState.loadUserData(savedEmail);
-            } else {
-                console.log(`❌ No user found in cookies - starting as guest`);
             }
-            updateUserStatus(); // Update UI immediately
+            updateUserStatus();
         }
 
         function updateUserStatus() {
             const userStatusEl = document.getElementById('userStatus');
             if (!userStatusEl) return;
 
-            console.log(`🔄 Updating user status UI. Current user:`, appState.user);
-
             if (appState.user.isAuthenticated) {
-                // Get user initials for avatar
                 const initials = appState.user.email
                     .split('@')[0]
                     .split('.')
@@ -2081,26 +2394,22 @@
                     .slice(0, 2)
                     .join('');
 
-                console.log(`✨ User has discount: ${appState.user.discountPercentage}%`);
-
                 userStatusEl.innerHTML = `
                     <div class="user-info">
                         <div class="user-avatar">${initials}</div>
                         <div class="user-details">
-                            <div class="user-email">${appState.user.email.length > 20 ? 
-                                appState.user.email.substring(0, 17) + '...' : 
-                                appState.user.email}</div>
-                            ${appState.user.discountPercentage > 0 ? 
-                                `<div class="user-discount">${appState.user.discountPercentage}% OFF</div>` : ''
-                            }
+                            <div class="user-email">${appState.user.email.length > 20 ?
+                        appState.user.email.substring(0, 17) + '...' :
+                        appState.user.email}</div>
+                            ${appState.user.discountPercentage > 0 ?
+                        `<div class="user-discount">${appState.user.discountPercentage}% OFF</div>` : ''
+                    }
                         </div>
                         <button class="logout-btn" onclick="logout()" title="Sign Out">
                             <i class="fas fa-sign-out-alt"></i>
                         </button>
                     </div>
                 `;
-                
-                console.log(`✅ User status UI updated with discount: ${appState.user.discountPercentage}%`);
             } else {
                 userStatusEl.innerHTML = `
                     <button class="login-btn" onclick="showQuickLogin()">
@@ -2108,8 +2417,6 @@
                         Sign In
                     </button>
                 `;
-                
-                console.log(`✅ User status UI updated - showing login button`);
             }
         }
 
@@ -2118,7 +2425,6 @@
         }
 
         function getCookie(name) {
-            // Handle URL encoded values
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) {
@@ -2130,101 +2436,80 @@
 
         function setCookie(name, value, days = 30) {
             const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-            
-            // Try different cookie configurations for maximum compatibility
+
             if (days < 0) {
-                // Delete cookie
                 document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=None; Secure`;
                 document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
                 document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-                console.log(`🗑️ Cookie deleted: ${name}`);
             } else {
-                // Set cookie with multiple fallback attempts
                 try {
-                    // First try: Secure with SameSite=None (for cross-site)
                     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=None; Secure`;
-                    console.log(`✅ Cookie saved (Secure): ${name} = ${value}`);
                 } catch (e) {
                     try {
-                        // Second try: SameSite=Lax (for same-site)
                         document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
-                        console.log(`✅ Cookie saved (Lax): ${name} = ${value}`);
                     } catch (e) {
                         try {
-                            // Third try: Basic cookie without SameSite
                             document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-                            console.log(`✅ Cookie saved (Basic): ${name} = ${value}`);
                         } catch (e) {
-                            console.error(`❌ Failed to save cookie: ${name}`, e);
+                            console.error(`Failed to save cookie: ${name}`, e);
                         }
                     }
                 }
             }
-            
-            // Verify cookie was actually saved
-            setTimeout(() => {
-                const savedValue = getCookie(name);
-                if (savedValue === value) {
-                    console.log(`✅ Cookie verification successful: ${name}`);
-                } else {
-                    console.warn(`⚠️ Cookie verification failed: ${name}. Expected: ${value}, Got: ${savedValue}`);
-                }
-            }, 100);
         }
 
-        // Menu Display
+        // Menu Display - Fixed function
         function showCategory(category, buttonElement = null) {
             appState.currentCategory = category;
-            
+
             // Update active button
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             if (buttonElement) {
                 buttonElement.classList.add('active');
             }
-            
+
             renderMenu();
         }
 
-        // Helper function to show category by name (used during initialization)
+        // Helper function to show category by name
         function showCategoryByName(categoryName) {
-            console.log(`🍽️ Showing category: ${categoryName}`);
             appState.currentCategory = categoryName;
-            
+
             // Update active button
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
-                if (btn.onclick && btn.onclick.toString().includes(categoryName)) {
+                // Check if this button is for the current category
+                const onclick = btn.getAttribute('onclick');
+                if (onclick && onclick.includes(`'${categoryName}'`)) {
                     btn.classList.add('active');
                 }
             });
-            
+
             renderMenu();
         }
 
         function renderMenu(searchTerm = '') {
             const menuContainer = document.getElementById('menuContainer');
-            const items = menuData[appState.currentCategory].filter(item => 
+            const categoryData = menuData[appState.currentCategory];
+
+            if (!categoryData) {
+                menuContainer.innerHTML = '<div class="menu-loader"><h3>Category not found</h3></div>';
+                return;
+            }
+
+            const items = categoryData.items.filter(item =>
                 item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.description.toLowerCase().includes(searchTerm.toLowerCase())
             );
-            
-            const categoryNames = {
-                hotBeverages: { title: 'Hot Beverages', subtitle: 'Coffee, Tea & Warm Drinks' },
-                coldBeverages: { title: 'Cold Beverages', subtitle: 'Iced Drinks & Fresh Juices' },
-                food: { title: 'Main Dishes', subtitle: 'Fresh & Healthy Options' },
-                snacks: { title: 'Snacks & Treats', subtitle: 'Light Bites & Energy Boosters' }
-            };
-            
-            const categoryInfo = categoryNames[appState.currentCategory];
-            
+
             menuContainer.innerHTML = `
                 <div class="menu-section">
                     <div class="section-header">
-                        <h2 class="section-title">${categoryInfo.title}</h2>
-                        <p class="section-subtitle">${categoryInfo.subtitle}</p>
+                        <h2 class="section-title">${categoryData.name}</h2>
+                        <p class="section-subtitle">${categoryData.subtitle || ''}</p>
                     </div>
                     <div class="menu-list">
                         ${items.map(item => `
@@ -2258,7 +2543,7 @@
 
         function getItemControls(item) {
             const cartItem = appState.cart.find(cartItem => cartItem.id === item.id);
-            
+
             if (cartItem) {
                 return `
                     <div class="quantity-controls">
@@ -2285,7 +2570,7 @@
         function addToCart(itemId) {
             const item = findItemById(itemId);
             if (!item) return;
-            
+
             appState.addToCart(item);
             renderMenu();
             showToast('Added to cart!', 'success');
@@ -2297,9 +2582,12 @@
         }
 
         function findItemById(id) {
-            for (const category in menuData) {
-                const item = menuData[category].find(item => item.id === id);
-                if (item) return item;
+            for (const categoryKey in menuData) {
+                const categoryData = menuData[categoryKey];
+                if (categoryData.items) {
+                    const item = categoryData.items.find(item => item.id === id);
+                    if (item) return item;
+                }
             }
             return null;
         }
@@ -2310,9 +2598,9 @@
             const cartFooter = document.getElementById('cartFooter');
             const totalAmount = document.getElementById('totalAmount');
             const discountSection = document.getElementById('discountSection');
-            
+
             const totals = appState.getCartTotals();
-            
+
             // Update badge
             if (totals.itemCount > 0) {
                 cartBadge.style.display = 'flex';
@@ -2320,7 +2608,7 @@
             } else {
                 cartBadge.style.display = 'none';
             }
-            
+
             // Update cart content
             if (appState.cart.length === 0) {
                 cartContent.innerHTML = `
@@ -2349,7 +2637,7 @@
                         </div>
                     </div>
                 `).join('');
-                
+
                 // Show discount section if user has discount
                 if (appState.user.isAuthenticated && totals.discount > 0) {
                     discountSection.style.display = 'block';
@@ -2364,7 +2652,7 @@
                 } else {
                     discountSection.style.display = 'none';
                 }
-                
+
                 totalAmount.textContent = `EGP ${totals.total.toFixed(2)}`;
                 cartFooter.style.display = 'block';
             }
@@ -2384,7 +2672,7 @@
         // Search
         function setupSearch() {
             const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 renderMenu(this.value);
             });
         }
@@ -2392,8 +2680,7 @@
         // Checkout
         function checkout() {
             if (appState.cart.length === 0) return;
-            
-            // If user is already authenticated, go directly to payment
+
             if (appState.user.isAuthenticated) {
                 showPaymentOptions();
             } else {
@@ -2403,7 +2690,7 @@
 
         function showLoginForm() {
             const checkoutContent = document.getElementById('checkoutContent');
-            
+
             checkoutContent.innerHTML = `
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <div style="width: 60px; height: 60px; background: var(--color-primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
@@ -2430,10 +2717,9 @@
                     </button>
                 </div>
             `;
-            
+
             document.getElementById('checkoutModal').classList.add('active');
-            
-            // Auto-focus email input
+
             setTimeout(() => {
                 const emailInput = document.getElementById('loginEmailInput');
                 if (emailInput) emailInput.focus();
@@ -2442,7 +2728,7 @@
 
         function showVerificationForm(email) {
             const checkoutContent = document.getElementById('checkoutContent');
-            
+
             checkoutContent.innerHTML = `
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <div style="width: 60px; height: 60px; background: var(--color-primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
@@ -2475,8 +2761,7 @@
                     </button>
                 </div>
             `;
-            
-            // Auto-focus verification input
+
             setTimeout(() => {
                 const codeInput = document.getElementById('verificationCodeInput');
                 if (codeInput) codeInput.focus();
@@ -2486,7 +2771,7 @@
         function showPaymentOptions() {
             const checkoutContent = document.getElementById('checkoutContent');
             const totals = appState.getCartTotals();
-            
+
             checkoutContent.innerHTML = `
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <div style="width: 60px; height: 60px; background: var(--color-success-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
@@ -2494,11 +2779,11 @@
                     </div>
                     <h3>Welcome back!</h3>
                     <p style="color: var(--color-text-muted); margin-top: 0.5rem;">Logged in as <strong>${appState.user.email}</strong></p>
-                    ${appState.user.discountPercentage > 0 ? 
-                        `<div style="background: var(--color-success-light); color: var(--color-success-dark); padding: 0.5rem 1rem; border-radius: var(--radius-lg); margin-top: 1rem; display: inline-block;">
+                    ${appState.user.discountPercentage > 0 ?
+                    `<div style="background: var(--color-success-light); color: var(--color-success-dark); padding: 0.5rem 1rem; border-radius: var(--radius-lg); margin-top: 1rem; display: inline-block;">
                             <i class="fas fa-tag"></i> ${appState.user.discountPercentage}% Discount Applied!
                         </div>` : ''
-                    }
+                }
                 </div>
 
                 <h4 style="margin: 1.5rem 0 1rem 0;">Order Summary</h4>
@@ -2563,40 +2848,34 @@
                     </button>
                 </div>
             `;
+            document.getElementById('checkoutModal').classList.add('active');
         }
 
         function sendVerificationCode(email = null) {
             const emailToUse = email || document.getElementById('loginEmailInput').value;
-            
+
             if (!emailToUse) {
                 showToast('Please enter your email address', 'error');
                 return;
             }
-            
-            // Validate email
+
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(emailToUse)) {
                 showToast('Please enter a valid email address', 'error');
                 return;
             }
-            
-            // Show loading
+
             const sendCodeBtn = document.getElementById('sendCodeBtn');
             if (sendCodeBtn) {
                 sendCodeBtn.innerHTML = '<div class="loading"></div> Sending...';
                 sendCodeBtn.disabled = true;
             }
-            
-            // Generate verification code (6 digits)
+
             const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
             appState.updateUI({ currentVerificationCode: verificationCode });
-            
-            // Simulate sending email (in real app, this would call Google Apps Script)
+
             setTimeout(() => {
-                // For demo purposes, show the code in console and alert
-                console.log(`Verification code for ${emailToUse}: ${verificationCode}`);
                 alert(`Demo: Your verification code is ${verificationCode}`);
-                
                 showToast(`Verification code sent to ${emailToUse}`, 'success');
                 showVerificationForm(emailToUse);
             }, 1500);
@@ -2604,49 +2883,33 @@
 
         function verifyCode(email) {
             const enteredCode = document.getElementById('verificationCodeInput').value;
-            
+
             if (!enteredCode) {
                 showToast('Please enter the verification code', 'error');
                 return;
             }
-            
+
             if (enteredCode.length !== 6) {
                 showToast('Verification code must be 6 digits', 'error');
                 return;
             }
-            
-            // Show loading
+
             const verifyBtn = document.getElementById('verifyBtn');
             verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
             verifyBtn.disabled = true;
-            
-            console.log(`🔍 Verifying code: ${enteredCode} against ${appState.ui.currentVerificationCode}`);
-            
-            // Simulate verification (in real app, this would verify with server)
+
             setTimeout(() => {
                 if (enteredCode === appState.ui.currentVerificationCode) {
-                    // Success - save user email and load user data
-                    console.log(`✅ Verification successful for: ${email}`);
                     setCookie('krooUserEmail', email);
                     appState.loadUserData(email);
-                    
-                    console.log(`🎉 User authenticated: ${email}`);
-                    console.log(`💾 User session established`);
-                    
                     showToast('Login successful!', 'success');
-                    
-                    // Force update UI immediately
                     updateUserStatus();
-                    
                     showPaymentOptions();
                 } else {
-                    // Failed verification
-                    console.log(`❌ Verification failed. Expected: ${appState.ui.currentVerificationCode}, Got: ${enteredCode}`);
                     showToast('Invalid verification code. Please try again.', 'error');
                     verifyBtn.innerHTML = 'Verify & Continue';
                     verifyBtn.disabled = false;
-                    
-                    // Clear the input and refocus
+
                     const codeInput = document.getElementById('verificationCodeInput');
                     codeInput.value = '';
                     codeInput.focus();
@@ -2655,8 +2918,7 @@
         }
 
         function logout() {
-            // Clear authentication
-            setCookie('krooUserEmail', '', -1); // Delete cookie
+            setCookie('krooUserEmail', '', -1);
             appState.updateUser({
                 email: '',
                 isAuthenticated: false,
@@ -2667,28 +2929,22 @@
                 selectedPayment: '',
                 currentVerificationCode: ''
             });
-            
+
             showToast('Logged out successfully', 'success');
-            updateUserStatus(); // Update UI immediately
+            updateUserStatus();
             closeModal('checkoutModal');
         }
 
         function selectPayment(method) {
             appState.updateUI({ selectedPayment: method });
-            
-            console.log(`💳 Payment method selected: ${method}`);
-            
-            // Update UI
+
             document.querySelectorAll('.payment-method').forEach(el => {
                 el.classList.remove('selected');
             });
             event.currentTarget.classList.add('selected');
-            
-            // Enable process button
+
             const processBtn = document.getElementById('processBtn');
             processBtn.disabled = false;
-            
-            console.log(`✅ Process button enabled`);
         }
 
         function processOrder() {
@@ -2696,17 +2952,14 @@
                 showToast('Please select a payment method', 'error');
                 return;
             }
-            
+
             if (!appState.user.isAuthenticated) {
                 showToast('Please login first', 'error');
                 return;
             }
 
             const paymentMethod = appState.ui.selectedPayment;
-            
-            console.log(`🚀 Processing order with payment method: ${paymentMethod}`);
-            
-            // Route to different payment flows
+
             if (paymentMethod === 'instapay') {
                 showInstaPayFlow();
             } else if (paymentMethod === 'cash' || paymentMethod === 'card') {
@@ -2717,7 +2970,7 @@
         function showInstaPayFlow() {
             const checkoutContent = document.getElementById('checkoutContent');
             const totals = appState.getCartTotals();
-            
+
             checkoutContent.innerHTML = `
                 <div class="payment-screen">
                     <div class="icon-container instapay">
@@ -2779,22 +3032,21 @@
             if (!file) return;
 
             appState.currentUploadedFile = file;
-            
+
             const preview = document.getElementById('uploadPreview');
             const reader = new FileReader();
-            
-            reader.onload = function(e) {
+
+            reader.onload = function (e) {
                 preview.innerHTML = `
                     <img src="${e.target.result}" alt="Payment Screenshot" class="uploaded-image">
                     <p style="color: var(--color-success); margin-top: 0.5rem;">
                         <i class="fas fa-check"></i> Screenshot uploaded successfully
                     </p>
                 `;
-                
-                // Enable verify button
+
                 document.getElementById('verifyPaymentBtn').disabled = false;
             };
-            
+
             reader.readAsDataURL(file);
         }
 
@@ -2808,11 +3060,9 @@
             verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
             verifyBtn.disabled = true;
 
-            // Simulate payment verification
             setTimeout(() => {
-                // Simulate 90% success rate
                 const isVerified = Math.random() > 0.1;
-                
+
                 if (isVerified) {
                     completeOrder('instapay');
                 } else {
@@ -2827,7 +3077,7 @@
             const checkoutContent = document.getElementById('checkoutContent');
             const totals = appState.getCartTotals();
             const paymentText = paymentMethod === 'cash' ? 'Cash' : 'Card';
-            
+
             checkoutContent.innerHTML = `
                 <div class="payment-screen">
                     <div class="icon-container counter pulse">
@@ -2880,19 +3130,15 @@
         }
 
         function completeOrder(paymentMethod) {
-            // Find the button that was clicked
             const processBtn = document.querySelector('.payment-screen .btn:not(.btn-secondary)');
             if (processBtn) {
                 processBtn.innerHTML = '<div class="loading"></div> Processing...';
                 processBtn.disabled = true;
             }
-            
-            console.log(`🚀 Completing order with payment method: ${paymentMethod}`);
-            
+
             setTimeout(() => {
                 const totals = appState.getCartTotals();
-                
-                // Create order object
+
                 const order = {
                     orderNumber: generateOrderNumber(),
                     email: appState.user.email,
@@ -2905,25 +3151,19 @@
                     timestamp: new Date().toISOString(),
                     status: 'preparing'
                 };
-                
-                // Add to order history
+
                 appState.addOrder(order);
-                
-                console.log(`✅ Order created:`, order);
-                
-                // Clear cart and reset selections
                 appState.clearCart();
                 appState.updateUI({ selectedPayment: '' });
                 appState.currentUploadedFile = null;
-                
-                // Show order preparation screen
+
                 showOrderPreparation(order);
             }, 1500);
         }
 
         function showOrderPreparation(order) {
             const checkoutContent = document.getElementById('checkoutContent');
-            
+
             checkoutContent.innerHTML = `
                 <div class="payment-screen">
                     <div class="icon-container preparing pulse preparing">
@@ -2976,7 +3216,7 @@
         // Order History
         function showOrderHistory() {
             const historyContent = document.getElementById('orderHistoryContent');
-            
+
             if (appState.orderHistory.length === 0) {
                 historyContent.innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
@@ -2994,12 +3234,12 @@
                                     <div>
                                         <div class="order-number">Order #${order.orderNumber}</div>
                                         <div class="order-date">${new Date(order.timestamp).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}</div>
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}</div>
                                     </div>
                                     <span class="order-status ${order.status === 'preparing' ? 'status-preparing' : 'status-completed'}">
                                         ${order.status}
@@ -3025,7 +3265,7 @@
                     </div>
                 `;
             }
-            
+
             closeModal('checkoutModal');
             document.getElementById('orderHistoryModal').classList.add('active');
         }
@@ -3039,9 +3279,9 @@
 
         function generateOrderNumber() {
             const date = new Date();
-            const dateStr = date.getFullYear().toString().substr(2) + 
-                          (date.getMonth() + 1).toString().padStart(2, '0') + 
-                          date.getDate().toString().padStart(2, '0');
+            const dateStr = date.getFullYear().toString().substr(2) +
+                (date.getMonth() + 1).toString().padStart(2, '0') +
+                date.getDate().toString().padStart(2, '0');
             const randomNum = Math.floor(1000 + Math.random() * 9000);
             return `KROO${dateStr}${randomNum}`;
         }
@@ -3056,18 +3296,46 @@
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = `toast ${type} show`;
-            
+
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
         }
 
         // Close modals when clicking outside
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             if (event.target.classList.contains('modal-overlay')) {
                 event.target.classList.remove('active');
             }
         });
+
+        // Dynamically render category navigation
+        function renderCategoryNav() {
+            const nav = document.getElementById('categoryNav');
+            nav.innerHTML = '';
+            const categories = Object.keys(menuData);
+            categories.forEach((key, idx) => {
+                const cat = menuData[key];
+                const btn = document.createElement('button');
+                btn.className = 'category-btn' + (appState.currentCategory === key ? ' active' : '');
+                btn.textContent = cat.name;
+                btn.onclick = function() { showCategory(key, btn); };
+                nav.appendChild(btn);
+            });
+        }
+
+        // Patch showCategory to re-render nav
+        const _showCategory = showCategory;
+        showCategory = function(category, buttonElement = null) {
+            _showCategory(category, buttonElement);
+            renderCategoryNav();
+        }
+
+        // Initial render of category nav on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCategoryNav();
+        });
     </script>
 </body>
+
 </html>
