@@ -3081,17 +3081,66 @@
             verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
             verifyBtn.disabled = true;
 
-            setTimeout(() => {
-                const isVerified = Math.random() > 0.1;
+            const totals = appState.getCartTotals();
+            // Ensure reference is generated before any API call
+            const orderReference = generateOrderReference();
 
-                if (isVerified) {
-                    completeOrder('instapay');
+            // First verify the payment
+            API.verifyInstapayPayment(
+                appState.currentUploadedFile,
+                orderReference,
+                totals.total
+            )
+            .then(verificationResult => {
+                if (verificationResult.verified) {
+                    // If verified, complete the payment and add to buffer
+                    const orderData = {
+                        orderNumber: orderReference,
+                        reference: orderReference,
+                        email: appState.user.email,
+                        items: appState.cart.map(item => ({
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity
+                        })),
+                        subtotal: totals.subtotal,
+                        discount: totals.discount,
+                        total: totals.total,
+                        paymentMethod: 'instapay',
+                        discountApplied: appState.user.discountPercentage,
+                        timestamp: new Date().toISOString(),
+                        status: 'finished',
+                        orderId: orderReference,
+                        accountEmail: appState.user.email
+                    };
+
+                    // Add to buffer first
+                    API.addToBuffer(orderData)
+                        .then(() => {
+                            showOrderPreparation(orderData);
+                            // Fire-and-forget DB write
+                            API.addToFinishedOrders(orderData).catch(console.error);
+                            appState.addOrder(orderData);
+                            appState.clearCart();
+                            appState.updateUI({ selectedPayment: '' });
+                            appState.currentUploadedFile = null;
+                        })
+                        .catch(error => {
+                            console.error('Payment verification error:', error);
+                            showToast('Failed to verify payment. Please try again.', 'error');
+                            verifyBtn.innerHTML = 'Verify Payment';
+                            verifyBtn.disabled = false;
+                        });
                 } else {
-                    showToast('Payment verification failed. Please try again or contact support.', 'error');
-                    verifyBtn.innerHTML = 'Verify Payment';
-                    verifyBtn.disabled = false;
+                    throw new Error('Payment verification failed');
                 }
-            }, 2000);
+            })
+            .catch(error => {
+                console.error('Payment verification error:', error);
+                showToast('Failed to verify payment. Please try again.', 'error');
+                verifyBtn.innerHTML = 'Verify Payment';
+                verifyBtn.disabled = false;
+            });
         }
 
         function showCounterFlow(paymentMethod) {
@@ -3157,77 +3206,82 @@
                 processBtn.disabled = true;
             }
 
-            setTimeout(() => {
-                const totals = appState.getCartTotals();
+            const totals = appState.getCartTotals();
+            // Ensure reference is generated before any API call
+            const orderReference = generateOrderReference();
+            const orderData = {
+                orderNumber: orderReference,
+                reference: orderReference,
+                email: appState.user.email,
+                items: appState.cart.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
+                subtotal: totals.subtotal,
+                discount: totals.discount,
+                total: totals.total,
+                paymentMethod: paymentMethod,
+                discountApplied: appState.user.discountPercentage,
+                timestamp: new Date().toISOString(),
+                status: 'pending',
+                orderId: orderReference,
+                accountEmail: appState.user.email
+            };
 
-                const order = {
-                    orderNumber: generateOrderNumber(),
-                    email: appState.user.email,
-                    items: [...appState.cart],
-                    subtotal: totals.subtotal,
-                    discount: totals.discount,
-                    total: totals.total,
-                    paymentMethod: paymentMethod,
-                    discountApplied: appState.user.discountPercentage,
-                    timestamp: new Date().toISOString(),
-                    status: 'preparing'
-                };
-
-                appState.addOrder(order);
-                appState.clearCart();
-                appState.updateUI({ selectedPayment: '' });
-                appState.currentUploadedFile = null;
-
-                showOrderPreparation(order);
-            }, 1500);
+            // Add to buffer first
+            API.addToBuffer(orderData)
+                .then(() => {
+                    showOrderPreparation(orderData);
+                    // Fire-and-forget DB write
+                    API.addToPendingPayments(orderData).catch(console.error);
+                    appState.addOrder(orderData);
+                    appState.clearCart();
+                    appState.updateUI({ selectedPayment: '' });
+                    appState.currentUploadedFile = null;
+                })
+                .catch(error => {
+                    console.error('Order processing error:', error);
+                    showToast('Failed to process order. Please try again.', 'error');
+                    if (processBtn) {
+                        processBtn.innerHTML = 'Complete Order';
+                        processBtn.disabled = false;
+                    }
+                });
         }
 
         function showOrderPreparation(order) {
             const checkoutContent = document.getElementById('checkoutContent');
+            const isPaid = order.status === 'finished' || order.paymentMethod === 'instapay' || order.settled === true;
+            const statusText = isPaid ? 'Preparing' : 'Pending Payment';
+            const statusClass = isPaid ? 'status-preparing' : 'status-pending';
+            const timeEstimate = isPaid ? '5 minutes' : 'Please complete payment at counter';
+            const mainMessage = isPaid
+                ? 'Your order is being prepared and will be ready in about 5 minutes.'
+                : 'Please proceed to the counter to complete your payment';
 
             checkoutContent.innerHTML = `
                 <div class="payment-screen">
                     <div class="icon-container preparing pulse preparing">
                         <i class="fas fa-utensils"></i>
                     </div>
-                    <h3>Order Confirmed!</h3>
+                    <h3>Order ${isPaid ? 'Confirmed!' : 'Received!'}</h3>
                     <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
-                        Your order is being prepared
+                        ${mainMessage}
                     </p>
-                    
                     <div style="background: var(--color-success-light); border-radius: var(--radius-lg); padding: 1.5rem; margin: 1.5rem 0; border: 1px solid var(--color-success);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <span style="font-weight: 600; color: var(--color-success-dark);">Order #${order.orderNumber}</span>
-                            <span class="order-status status-preparing">Preparing</span>
+                            <span style="font-weight: 600; color: var(--color-success-dark);">Order #${order.orderNumber || order.reference}</span>
+                            <span class="order-status ${statusClass}">${statusText}</span>
                         </div>
                         <p style="color: var(--color-success-dark); margin: 0;">
                             <i class="fas fa-clock"></i> 
-                            Estimated time: 10-15 minutes
+                            ${timeEstimate}
                         </p>
                     </div>
-
-                    <div style="margin: 1.5rem 0;">
-                        <h4 style="margin-bottom: 1rem;">Order Items</h4>
-                        ${order.items.map(item => `
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--color-text-muted);">
-                                <span>${item.name} × ${item.quantity}</span>
-                                <span>EGP ${(item.price * item.quantity).toFixed(2)}</span>
-                            </div>
-                        `).join('')}
-                        <div style="border-top: 1px solid var(--color-border); padding-top: 0.5rem; margin-top: 0.5rem; font-weight: 600;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>Total Paid</span>
-                                <span style="color: var(--color-success-dark);">EGP ${order.total.toFixed(2)}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                        <button class="btn btn-secondary" onclick="showOrderHistory()" style="flex: 1;">
-                            <i class="fas fa-history"></i> View Orders
-                        </button>
-                        <button class="btn" onclick="newOrder()" style="flex: 1;">
-                            <i class="fas fa-plus"></i> New Order
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn" onclick="closeModal('checkoutModal'); closeCart();" style="flex: 1;">
+                            Done
                         </button>
                     </div>
                 </div>
@@ -3356,6 +3410,177 @@
         document.addEventListener('DOMContentLoaded', function() {
             renderCategoryNav();
         });
+
+        // ===== API MODULE =====
+        const API = {
+            // Track active requests by function name
+            activeRequests: {},
+
+            /**
+             * Core request method that handles all API calls to Google Apps Script
+             * @param {string} functionName - Server-side function to call
+             * @param {object} data - Optional data to send to the server
+             * @param {object} options - Optional configuration
+             * @returns {Promise} Promise that resolves with the response
+             */
+            request: function (functionName, data = {}, options = {}) {
+                const {
+                    showLoader = true,
+                    loaderMessage = 'Processing Request',
+                    loaderTitle = 'Please Wait',
+                    hideToastOnSuccess = false,
+                    successMessage = 'Operation completed successfully',
+                    errorMessage = 'Operation failed. Please try again.',
+                    preventDuplicateSubmission = true,
+                    requestId = functionName
+                } = options;
+
+                const trackingId = requestId;
+
+                if (preventDuplicateSubmission && this.activeRequests[trackingId]) {
+                    console.warn(`Preventing duplicate submission for: ${trackingId}`);
+                    return Promise.reject(new Error(`Request ${trackingId} already in progress`));
+                }
+
+                if (preventDuplicateSubmission) {
+                    this.activeRequests[trackingId] = true;
+                    console.log(`Starting request: ${trackingId}`);
+                }
+
+                return new Promise((resolve, reject) => {
+                    if (showLoader) {
+                        showGlobalLoader(loaderTitle, loaderMessage);
+                    }
+
+                    google.script.run
+                        .withSuccessHandler(function (response) {
+                            if (showLoader) {
+                                hideGlobalLoader();
+                            }
+
+                            if (!hideToastOnSuccess) {
+                                showToast('success', successMessage);
+                            }
+
+                            if (preventDuplicateSubmission) {
+                                delete API.activeRequests[trackingId];
+                                console.log(`Completed request: ${trackingId}`);
+                            }
+
+                            resolve(response);
+                        })
+                        .withFailureHandler(function (error) {
+                            console.error(`API Error (${functionName}):`, error);
+
+                            if (showLoader) {
+                                hideGlobalLoader();
+                            }
+
+                            showToast('error', errorMessage);
+
+                            if (preventDuplicateSubmission) {
+                                delete API.activeRequests[trackingId];
+                                console.log(`Failed request: ${trackingId}`);
+                            }
+
+                            reject(error);
+                        })
+                    [functionName](data);
+                });
+            },
+
+            /**
+             * Add order to buffer (first stage - sync)
+             * @param {object} orderData - Complete order data with reference
+             * @returns {Promise} Promise resolving to order with ID and reference
+             */
+            addToBuffer: function (orderData) {
+                // Only use the reference if present, do not generate here
+                if (!orderData.bufferTimestamp) {
+                    orderData.bufferTimestamp = Date.now();
+                }
+                const requestId = `addToBuffer_${orderData.reference}`;
+                return this.request('addToBuffer', orderData, {
+                    requestId: requestId,
+                    loaderTitle: 'Processing Order',
+                    loaderMessage: 'Please wait while we confirm your order...',
+                    hideToastOnSuccess: true,
+                    errorMessage: 'Could not process your order. Please try again.'
+                });
+            },
+
+            /**
+             * Add order to pending payments (second stage - async)
+             * @param {object} orderData - Order data from buffer
+             * @returns {Promise} Promise that resolves with the order
+             */
+            addToPendingPayments: function (orderData) {
+                const pendingOrderData = {
+                    ...orderData,
+                    pendingTimestamp: Date.now()
+                };
+
+                const requestId = `addToPendingPayments_${orderData.reference}`;
+
+                return this.request('addToPendingPayments', pendingOrderData, {
+                    requestId: requestId,
+                    showLoader: false,
+                    hideToastOnSuccess: true,
+                    preventDuplicateSubmission: true
+                });
+            },
+
+            /**
+             * Add order to finished orders (final stage - async)
+             * @param {object} orderData - Order data from pending
+             * @returns {Promise} Promise that resolves with the order
+             */
+            addToFinishedOrders: function (orderData) {
+                const finishedOrderData = {
+                    ...orderData,
+                    finishedTimestamp: Date.now()
+                };
+
+                console.log(finishedOrderData)
+
+                const requestId = `addToFinishedOrders_${orderData.reference}`;
+
+                return this.request('addToFinishedOrders', finishedOrderData, {
+                    requestId: requestId,
+                    showLoader: false,
+                    hideToastOnSuccess: true,
+                    preventDuplicateSubmission: true
+                });
+            },
+
+            /**
+             * Verify InstaPay payment
+             * @param {File} file - Screenshot file
+             * @param {string} orderReference - Order reference
+             * @param {number} expectedAmount - Expected payment amount
+             * @returns {Promise} Promise resolving to verification result
+             */
+            verifyInstapayPayment: function (file, orderReference, expectedAmount) {
+                // Temporarily bypass verification and always return success
+                return Promise.resolve({
+                    verified: true,
+                    message: "Payment verified successfully (bypassed for testing)",
+                    decision: "APPROVED",
+                    primaryCode: 8
+                });
+            }
+        };
+
+        // ===== DOM MODULE =====
+        // Generate a unique order reference in the format ORDER-YYYYMMDD-XXXXX
+        function generateOrderReference() {
+            const today = new Date();
+            const dateStr = today.getFullYear() +
+                (today.getMonth() + 1).toString().padStart(2, '0') +
+                today.getDate().toString().padStart(2, '0');
+            const randomPart = Math.floor(10000 + Math.random() * 90000);
+            return `ORDER-${dateStr}-${randomPart}`;
+        }
     </script>
 </body>
 
