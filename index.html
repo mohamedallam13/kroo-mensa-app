@@ -1024,6 +1024,108 @@
             justify-content: space-between;
         }
 
+        /* User Status Styles */
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem var(--space-3);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.875rem;
+            position: relative;
+            min-width: 0; /* Allow shrinking */
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--color-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-text);
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0; /* Allow shrinking */
+            flex: 1;
+        }
+
+        .user-email {
+            font-weight: 500;
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        .user-discount {
+            font-size: 0.75rem;
+            color: var(--color-primary);
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .login-btn {
+            background: var(--color-primary);
+            border: none;
+            border-radius: var(--radius-lg);
+            padding: 0.5rem var(--space-4);
+            color: var(--color-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            white-space: nowrap;
+        }
+
+        .login-btn:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--color-primary);
+        }
+
         /* Header Navigation */
         .header-nav {
             display: flex;
@@ -1051,16 +1153,10 @@
             border-color: var(--color-primary);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .header-nav {
-                margin-top: var(--space-3);
-            }
-
-            .nav-btn {
-                padding: 0.5rem var(--space-2);
-                font-size: 0.8rem;
-            }
+        /* Desktop layout - keep original structure */
+        .header-top-row,
+        .header-bottom-row {
+            display: contents; /* On desktop, act as if these divs don't exist */
         }
 
         /* Mobile Responsive - Improved */
@@ -1071,21 +1167,88 @@
 
             .header-content {
                 flex-direction: column;
-                gap: var(--space-4);
+                gap: var(--space-3);
+                align-items: stretch;
             }
 
             .header-actions {
                 width: 100%;
-                justify-content: space-between;
+                flex-direction: column;
+                gap: var(--space-3);
+            }
+
+            /* Top row: Search and User Status */
+            .header-top-row {
+                display: flex;
+                align-items: center;
+                gap: var(--space-3);
+                width: 100%;
             }
 
             .search-container {
                 display: block;
                 flex: 1;
+                min-width: 0; /* Prevent overflow */
             }
 
             .search-input {
                 width: 100%;
+            }
+
+            .user-status {
+                flex-shrink: 0;
+            }
+
+            /* Bottom row: Navigation and Cart */
+            .header-bottom-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+
+            .header-nav {
+                margin-top: 0;
+            }
+
+            .nav-btn {
+                padding: 0.5rem var(--space-2);
+                font-size: 0.8rem;
+            }
+
+            .user-info {
+                padding: 0.5rem var(--space-2);
+                font-size: 0.8rem;
+                max-width: 200px; /* Prevent overflow */
+                gap: var(--space-2);
+            }
+
+            .user-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+
+            .user-email {
+                max-width: 100px;
+                font-size: 0.8rem;
+            }
+
+            .user-discount {
+                font-size: 0.7rem;
+            }
+
+            .logout-btn {
+                width: 28px;
+                height: 28px;
+                padding: 0.375rem;
+                font-size: 0.7rem;
+            }
+
+            .login-btn {
+                padding: 0.5rem var(--space-3);
+                font-size: 0.8rem;
+                white-space: nowrap;
             }
 
             /* Improved Mobile Menu Item Layout */
@@ -1313,21 +1476,28 @@
                 </div>
             </div>
             <div class="header-actions">
-                <div class="header-nav">
-                    <button class="nav-btn" onclick="showOrderHistory()">
-                        <i class="fas fa-history"></i>
-                        <span>Orders</span>
+                <div class="header-top-row">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Search menu..." id="searchInput">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="user-status" id="userStatus">
+                        <!-- User status will be dynamically updated -->
+                    </div>
+                </div>
+                <div class="header-bottom-row">
+                    <div class="header-nav">
+                        <button class="nav-btn" onclick="showOrderHistory()">
+                            <i class="fas fa-history"></i>
+                            <span>Orders</span>
+                        </button>
+                    </div>
+                    <button class="cart-button" onclick="toggleCart()">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-text">Cart</span>
+                        <div class="cart-badge" id="cartBadge" style="display: none;">0</div>
                     </button>
                 </div>
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search menu..." id="searchInput">
-                    <i class="fas fa-search search-icon"></i>
-                </div>
-                <button class="cart-button" onclick="toggleCart()">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-text">Cart</span>
-                    <div class="cart-badge" id="cartBadge" style="display: none;">0</div>
-                </button>
             </div>
         </div>
     </header>
@@ -1428,6 +1598,20 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // Hardcoded user data for testing discounts
+        const testUsers = {
+            'john@employee.com': { discount: 20, type: 'Employee' },
+            'sarah@student.edu': { discount: 15, type: 'Student' },
+            'mike@vip.com': { discount: 25, type: 'VIP' },
+            'alex@manager.com': { discount: 30, type: 'Manager' },
+            'lisa@intern.com': { discount: 10, type: 'Intern' },
+            'test@test.com': { discount: 5, type: 'Regular' },
+            'admin@kroo.com': { discount: 50, type: 'Admin' },
+            'guest@example.com': { discount: 0, type: 'Guest' },
+            'premium@user.com': { discount: 15, type: 'Premium' },
+            'staff@kroo.com': { discount: 35, type: 'Staff' }
+        };
+
         // Menu Data with actual image URLs
         const menuData = {
             hotBeverages: [
@@ -1729,30 +1913,47 @@
 
             // Simulate user data loading (would normally come from server after login)
             loadUserData(email) {
-                // Simulate different discount levels based on email domain or other criteria
                 let discountPercentage = 0;
+                let userType = 'Regular';
                 
-                // Example: Give discounts to certain email domains or specific users
-                if (email.includes('employee@') || email.includes('staff@')) {
-                    discountPercentage = 20; // Employee discount
-                } else if (email.includes('student@') || email.includes('.edu')) {
-                    discountPercentage = 10; // Student discount
-                } else if (email.includes('vip@') || email === 'premium@user.com') {
-                    discountPercentage = 15; // VIP discount
+                // Check if email exists in test users
+                if (testUsers[email.toLowerCase()]) {
+                    const userData = testUsers[email.toLowerCase()];
+                    discountPercentage = userData.discount;
+                    userType = userData.type;
+                    console.log(`🎯 Found test user: ${email} - ${userType} (${discountPercentage}%)`);
                 } else {
-                    // Random chance for regular users to have a small discount
-                    const randomDiscount = Math.random() < 0.3 ? 5 : 0;
-                    discountPercentage = randomDiscount;
+                    // Fallback to original logic for non-test emails
+                    if (email.includes('employee@') || email.includes('staff@')) {
+                        discountPercentage = 20;
+                        userType = 'Employee';
+                    } else if (email.includes('student@') || email.includes('.edu')) {
+                        discountPercentage = 10;
+                        userType = 'Student';
+                    } else if (email.includes('vip@') || email === 'premium@user.com') {
+                        discountPercentage = 15;
+                        userType = 'VIP';
+                    } else {
+                        // Random chance for regular users to have a small discount
+                        const randomDiscount = Math.random() < 0.3 ? 5 : 0;
+                        discountPercentage = randomDiscount;
+                        userType = randomDiscount > 0 ? 'Lucky User' : 'Regular';
+                    }
+                    console.log(`🎲 Generated discount for ${email}: ${userType} (${discountPercentage}%)`);
                 }
+
+                console.log(`💰 Assigning discount: ${discountPercentage}% for ${email} (${userType})`);
 
                 this.updateUser({
                     email,
                     isAuthenticated: true,
                     discountPercentage,
-                    discountType: discountPercentage > 0 ? 'percentage' : null
+                    discountType: discountPercentage > 0 ? 'percentage' : null,
+                    userType
                 });
 
                 console.log(`💰 User discount loaded: ${discountPercentage}% for ${email}`);
+                console.log(`👤 Final user state:`, this.user);
             }
         };
 
@@ -1790,6 +1991,7 @@
             // Subscribe to user changes
             appState.subscribe('user', (user) => {
                 console.log('👤 User state updated:', user);
+                updateUserStatus();
             });
         }
 
@@ -1853,29 +2055,121 @@
             });
         }
 
-        // User Management
         function loadUserFromCookies() {
-            const savedEmail = getCookie('userEmail');
+            const savedEmail = getCookie('krooUserEmail');
             if (savedEmail) {
                 console.log(`🔐 User loaded from cookies: ${savedEmail}`);
                 appState.loadUserData(savedEmail);
             } else {
                 console.log(`❌ No user found in cookies - starting as guest`);
             }
+            updateUserStatus(); // Update UI immediately
+        }
+
+        function updateUserStatus() {
+            const userStatusEl = document.getElementById('userStatus');
+            if (!userStatusEl) return;
+
+            console.log(`🔄 Updating user status UI. Current user:`, appState.user);
+
+            if (appState.user.isAuthenticated) {
+                // Get user initials for avatar
+                const initials = appState.user.email
+                    .split('@')[0]
+                    .split('.')
+                    .map(part => part.charAt(0).toUpperCase())
+                    .slice(0, 2)
+                    .join('');
+
+                console.log(`✨ User has discount: ${appState.user.discountPercentage}%`);
+
+                userStatusEl.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar">${initials}</div>
+                        <div class="user-details">
+                            <div class="user-email">${appState.user.email.length > 20 ? 
+                                appState.user.email.substring(0, 17) + '...' : 
+                                appState.user.email}</div>
+                            ${appState.user.discountPercentage > 0 ? 
+                                `<div class="user-discount">${appState.user.discountPercentage}% OFF</div>` : ''
+                            }
+                        </div>
+                        <button class="logout-btn" onclick="logout()" title="Sign Out">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                `;
+                
+                console.log(`✅ User status UI updated with discount: ${appState.user.discountPercentage}%`);
+            } else {
+                userStatusEl.innerHTML = `
+                    <button class="login-btn" onclick="showQuickLogin()">
+                        <i class="fas fa-user"></i>
+                        Sign In
+                    </button>
+                `;
+                
+                console.log(`✅ User status UI updated - showing login button`);
+            }
+        }
+
+        function showQuickLogin() {
+            showLoginForm();
         }
 
         function getCookie(name) {
+            // Handle URL encoded values
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
+            if (parts.length === 2) {
+                const cookieValue = parts.pop().split(';').shift();
+                return decodeURIComponent(cookieValue);
+            }
             return '';
         }
 
         function setCookie(name, value, days = 30) {
             const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-            document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
             
-            console.log(`✅ Cookie saved: ${name} = ${value}`);
+            // Try different cookie configurations for maximum compatibility
+            if (days < 0) {
+                // Delete cookie
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=None; Secure`;
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+                console.log(`🗑️ Cookie deleted: ${name}`);
+            } else {
+                // Set cookie with multiple fallback attempts
+                try {
+                    // First try: Secure with SameSite=None (for cross-site)
+                    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=None; Secure`;
+                    console.log(`✅ Cookie saved (Secure): ${name} = ${value}`);
+                } catch (e) {
+                    try {
+                        // Second try: SameSite=Lax (for same-site)
+                        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+                        console.log(`✅ Cookie saved (Lax): ${name} = ${value}`);
+                    } catch (e) {
+                        try {
+                            // Third try: Basic cookie without SameSite
+                            document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+                            console.log(`✅ Cookie saved (Basic): ${name} = ${value}`);
+                        } catch (e) {
+                            console.error(`❌ Failed to save cookie: ${name}`, e);
+                        }
+                    }
+                }
+            }
+            
+            // Verify cookie was actually saved
+            setTimeout(() => {
+                const savedValue = getCookie(name);
+                if (savedValue === value) {
+                    console.log(`✅ Cookie verification successful: ${name}`);
+                } else {
+                    console.warn(`⚠️ Cookie verification failed: ${name}. Expected: ${value}, Got: ${savedValue}`);
+                }
+            }, 100);
         }
 
         // Menu Display
@@ -2333,13 +2627,17 @@
                 if (enteredCode === appState.ui.currentVerificationCode) {
                     // Success - save user email and load user data
                     console.log(`✅ Verification successful for: ${email}`);
-                    setCookie('userEmail', email);
+                    setCookie('krooUserEmail', email);
                     appState.loadUserData(email);
                     
                     console.log(`🎉 User authenticated: ${email}`);
                     console.log(`💾 User session established`);
                     
                     showToast('Login successful!', 'success');
+                    
+                    // Force update UI immediately
+                    updateUserStatus();
+                    
                     showPaymentOptions();
                 } else {
                     // Failed verification
@@ -2358,7 +2656,7 @@
 
         function logout() {
             // Clear authentication
-            setCookie('userEmail', '', -1); // Delete cookie
+            setCookie('krooUserEmail', '', -1); // Delete cookie
             appState.updateUser({
                 email: '',
                 isAuthenticated: false,
@@ -2371,6 +2669,7 @@
             });
             
             showToast('Logged out successfully', 'success');
+            updateUserStatus(); // Update UI immediately
             closeModal('checkoutModal');
         }
 
