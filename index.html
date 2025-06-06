@@ -2493,23 +2493,44 @@
 
         function renderMenu(searchTerm = '') {
             const menuContainer = document.getElementById('menuContainer');
-            const categoryData = menuData[appState.currentCategory];
+            let items = [];
+            let sectionTitle = '';
+            let sectionSubtitle = '';
 
-            if (!categoryData) {
-                menuContainer.innerHTML = '<div class="menu-loader"><h3>Category not found</h3></div>';
-                return;
+            if (searchTerm.trim() === '') {
+                // No search: show current category as before
+                const categoryData = menuData[appState.currentCategory];
+                if (!categoryData) {
+                    menuContainer.innerHTML = '<div class="menu-loader"><h3>Category not found</h3></div>';
+                    return;
+                }
+                items = categoryData.items;
+                sectionTitle = categoryData.name;
+                sectionSubtitle = categoryData.subtitle || '';
+            } else {
+                // Search: gather all matching items from all categories
+                for (const key in menuData) {
+                    const cat = menuData[key];
+                    const found = cat.items.filter(item =>
+                        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        item.description.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                    items = items.concat(found);
+                }
+                sectionTitle = `Search Results for "${searchTerm}"`;
+                sectionSubtitle = '';
             }
 
-            const items = categoryData.items.filter(item =>
-                item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.description.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+            if (items.length === 0) {
+                menuContainer.innerHTML = '<div class="menu-loader"><h3>No items found</h3></div>';
+                return;
+            }
 
             menuContainer.innerHTML = `
                 <div class="menu-section">
                     <div class="section-header">
-                        <h2 class="section-title">${categoryData.name}</h2>
-                        <p class="section-subtitle">${categoryData.subtitle || ''}</p>
+                        <h2 class="section-title">${sectionTitle}</h2>
+                        <p class="section-subtitle">${sectionSubtitle}</p>
                     </div>
                     <div class="menu-list">
                         ${items.map(item => `
