@@ -4,6 +4,7 @@
 
     const MASTER_INDEX_ID = "1J2Zon-o7_f2N5VwATpCQ2Lfymx-SVI9U"
     const KROO_CAFE_SSID = "1UV7J7-0WeC5EQx2sbwB1JyVrfEwv-j36Xc2mpoPlR4o"
+    const KROO_CAFE_PENDING_SSID = "1K0EydEne14jJvdyhDtcNWwklZ33p-ZrkpJ7lMuinRhI"
     const KROO_AUTO_LEDGER = "1RoRx_pFlh3fUE_8liIdYnJyUgoErWb2J_OgPxIDUlow"
     const KROO_SYSTEM = "1cVP0VUcbnXOXhPsQxaLvnLpsEwGFav0p-bkUlGmLfAM"
 
@@ -57,12 +58,21 @@
                 skipRows: 1,
                 countRowsByCol: "A"
             }
+        },
+        krooCafePendingOrders: {
+            sheetName: "Pending Orders",
+            parseObj: {
+                headerRow: 1,
+                skipRows: 1,
+                countRowsByCol: "A"
+            }
         }
     }
 
     return {
         MASTER_INDEX_ID,
         KROO_CAFE_SSID,
+        KROO_CAFE_PENDING_SSID,
         KROO_AUTO_LEDGER,
         KROO_SYSTEM,
         ALL_SHEET_PARAMS,
