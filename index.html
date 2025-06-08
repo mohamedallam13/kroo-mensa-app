@@ -1443,6 +1443,10 @@
             background: var(--color-success);
         }
 
+        .toast.error {
+            background: var(--color-danger);
+        }
+
         /* Auto-focus verification input */
         .form-input[maxlength="6"] {
             font-family: 'Courier New', monospace;
@@ -2350,10 +2354,10 @@
                             }
 
                             menuData = transformedMenu;
-                            
+
                             // Preload all images in the background
                             preloadAllImages(transformedMenu);
-                            
+
                             // Get the first available category instead of hardcoding 'teas'
                             const firstCategory = Object.keys(transformedMenu)[0];
                             if (firstCategory) {
@@ -2394,7 +2398,7 @@
         function preloadAllImages(menuData) {
             // Create a Set to store unique image URLs
             const imageUrls = new Set();
-            
+
             // Collect all unique image URLs from all categories
             Object.values(menuData).forEach(category => {
                 category.items.forEach(item => {
@@ -2403,12 +2407,12 @@
                     }
                 });
             });
-            
+
             // Create a hidden div to force image loading
             const preloadContainer = document.createElement('div');
             preloadContainer.style.display = 'none';
             document.body.appendChild(preloadContainer);
-            
+
             // Preload each image by creating actual img elements
             imageUrls.forEach(url => {
                 const img = document.createElement('img');
@@ -2417,7 +2421,7 @@
                 img.style.height = '1px';
                 preloadContainer.appendChild(img);
             });
-            
+
             // Remove the container after a delay to ensure images are loaded
             setTimeout(() => {
                 document.body.removeChild(preloadContainer);
@@ -3026,17 +3030,38 @@
                 sendCodeBtn.disabled = true;
             }
 
-            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-            appState.updateUI({ currentVerificationCode: verificationCode });
-            // Use the API to send the code
-            API.sendCode(emailToUse, verificationCode)
+            // First check if the email exists
+            API.checkIfEmailExists(emailToUse)
+                .then(response => {
+                    console.log(response)
+                    if (response === null) {
+                        showToast('This email is not registered. Please sign up first!', 'error');
+                        if (sendCodeBtn) {
+                            sendCodeBtn.innerHTML = 'Send Code';
+                            sendCodeBtn.disabled = false;
+                        }
+                        return Promise.reject('Email not registered'); // Reject the promise to stop the chain
+                    }
+
+                    // If email exists, proceed with sending verification code
+                    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                    appState.updateUI({ currentVerificationCode: verificationCode });
+
+                    return API.sendCode(emailToUse, verificationCode);
+                })
                 .then(() => {
+                    if (sendCodeBtn) {
+                        sendCodeBtn.innerHTML = 'Send Code';
+                        sendCodeBtn.disabled = false;
+                    }
                     showToast(`Verification code sent to ${emailToUse}`, 'success');
                     showVerificationForm(emailToUse);
                 })
                 .catch(error => {
-                    console.error('Error sending verification code:', error);
-                    showToast('Failed to send verification code. Please try again.', 'error');
+                    console.error('Error in email verification process:', error);
+                    if (error !== 'Email not registered') { // Only show generic error if it's not our known case
+                        showToast('Failed to process your request. Please try again.', 'error');
+                    }
                     if (sendCodeBtn) {
                         sendCodeBtn.innerHTML = 'Send Code';
                         sendCodeBtn.disabled = false;
@@ -3743,6 +3768,21 @@
                     loaderMessage: 'Sending login code to your email...',
                     successMessage: 'Login code sent! Please check your email.',
                     errorMessage: 'Failed to send login code. Please try again.'
+                });
+            },
+
+            /**
+             * Check if an email exists in the system
+             * @param {string} email - The email to check
+             * @returns {Promise} Promise resolving with the email if it exists, null if it doesn't
+             */
+            checkIfEmailExists: function (email) {
+                return this.request('checkIfEmailExists', { email }, {
+                    requestId: `checkEmail_${email}`,
+                    loaderTitle: 'Checking Email',
+                    loaderMessage: 'Verifying your email...',
+                    successMessage: 'Email verified!',
+                    errorMessage: 'Failed to verify email. Please try again.'
                 });
             }
         };

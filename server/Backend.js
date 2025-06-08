@@ -44,6 +44,16 @@
         return JSON.stringify({ menuObj })
     }
 
+    function checkIfEmailExists(email) {
+        email = email.toString().toLowerCase()
+        const { membersEmailsObj } = readFromJSON(MASTER_INDEX_ID)
+        const emailsObj = readFromJSON(membersEmailsObj)
+        if (emailsObj[email]){
+            return email
+        }
+        return null
+    }
+
     function filterMenuItems(menuObj) {
         const filteredMenu = {};
         for (const [section, sectionData] of Object.entries(menuObj)) {
@@ -259,13 +269,19 @@
         getMenuItems,
         addOrderToBuffer,
         submitOrder,
-        submitPendingOrder
+        submitPendingOrder,
+        checkIfEmailExists
     }
 
 })
 
 function getMenuItems(order) {
     return KROO_MENSA_APP.getMenuItems(order)
+}
+
+function checkIfEmailExists({email}) {
+    console.log(email)
+    return KROO_MENSA_APP.checkIfEmailExists(email)
 }
 
 function addToBuffer(order) {

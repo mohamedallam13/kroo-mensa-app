@@ -4,7 +4,7 @@
   // === KROO Café Login Code Email Module ===
 
   // Set to true to send to real users, false to send to testEmail
-  const LIVE = false;
+  const LIVE = true;
   const testEmail = 'mohamedallam.tu@gmail.com';
 
   /**

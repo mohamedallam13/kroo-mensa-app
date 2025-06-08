@@ -103,13 +103,17 @@ clasp pull
 ### Project Structure
 
 ```
-├── index.html          # Main application interface
-├── server/            # Server-side code
-│   ├── Backend.js     # Core backend functionality
-│   ├── Helpers.js     # Utility functions
-│   ├── Middleware.js  # Request/response middleware
-│   ├── Server.js      # Server configuration
-│   └── env.js         # Environment configuration
+├── index.html                    # Main application interface
+├── appsscript.json              # Apps Script configuration
+├── .clasp.json                  # CLASP configuration
+├── server/                      # Server-side code
+│   ├── Backend.js              # Core backend functionality
+│   ├── Email Login Confirmation.js  # Email verification system
+│   ├── Helpers.js              # Utility functions
+│   ├── Instapay.js             # Payment integration
+│   ├── Middleware.js           # Request/response middleware
+│   ├── Server.js               # Server configuration
+│   └── env.js                  # Environment configuration
 ```
 
 ## 🎨 Design System
