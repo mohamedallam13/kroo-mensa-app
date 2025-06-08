@@ -1263,7 +1263,7 @@
 
             .item-image {
                 width: 100%;
-                height: 160px;
+                height: 220px; /* was 160px */
                 max-width: 280px;
                 margin: 0 0 var(--space-4) 0;
                 align-self: center;
@@ -1623,7 +1623,7 @@
 
     <script>
         // Fixed Menu Data with proper structure and Unsplash images
-        const menuData = {
+        let menuData = {
             "teas": {
                 "name": "Teas",
                 "subtitle": "Traditional & Herbal Teas",
@@ -1975,9 +1975,9 @@
                 "items": [
                     {
                         id: 40,
-                        "name": "V7 Cola",
+                        "name": "V Cola",
                         "price": 30,
-                        "image": "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=400&h=300&fit=crop",
+                        "image": "https://lh3.googleusercontent.com/d/1W6JsHL2SnbbveHV_gdzsSV7lYYzLeVJL",
                         "description": "Local cola drink",
                         "rating": 4.1
                     },
@@ -2119,7 +2119,7 @@
         };
 
         // Hardcoded user data for testing discounts
-        const testUsers = {
+        let testUsers = {
             'john@employee.com': { discount: 20, type: 'Employee' },
             'sarah@student.edu': { discount: 15, type: 'Student' },
             'mike@vip.com': { discount: 25, type: 'VIP' },
@@ -2136,7 +2136,7 @@
         const appState = {
             // State properties
             cart: [],
-            currentCategory: 'teas',
+            currentCategory: null,
             isLoading: false,
             menuDataLoaded: false,
             orderHistory: [],
@@ -2305,18 +2305,8 @@
             loadUserFromCookies();
             setupSearch();
             setupKeyboardListeners();
-            simulateMenuLoading();
+            fetchMenu(); // Replace simulateMenuLoading with fetchMenu
         });
-
-        // Simulate loading menu data with timeout
-        function simulateMenuLoading() {
-            showGlobalLoader();
-            setTimeout(() => {
-                showCategoryByName('teas');
-                renderCategoryNav(); // Ensure nav bar highlights the active category
-                hideGlobalLoader();
-            }, 1200);
-        }
 
         function showGlobalLoader() {
             document.getElementById('globalLoader').style.display = 'flex';
@@ -2324,6 +2314,75 @@
 
         function hideGlobalLoader() {
             document.getElementById('globalLoader').style.display = 'none';
+        }
+
+        // Fetch menu from API
+        async function fetchMenu() {
+            showGlobalLoader();
+            try {
+                const response = await google.script.run
+                    .withSuccessHandler(function (response) {
+                        try {
+                            const parsedResponse = JSON.parse(response);
+                            if (!parsedResponse.menuObj) {
+                                throw new Error('Invalid menu data structure');
+                            }
+
+                            // Transform the menu data structure to match frontend expectations
+                            const transformedMenu = {};
+                            for (const [section, sectionData] of Object.entries(parsedResponse.menuObj)) {
+                                for (const [category, categoryData] of Object.entries(sectionData.categories)) {
+                                    transformedMenu[category] = {
+                                        name: categoryData.name || category,
+                                        subtitle: categoryData.subtitle || '',
+                                        items: categoryData.items.map(item => ({
+                                            id: item.id,
+                                            name: item.name,
+                                            price: parseFloat(item.price),
+                                            image: item.image,
+                                            description: item.description,
+                                            rating: parseFloat(item.rating) || 4.5,
+                                            popular: item.popular === true
+                                        }))
+                                    };
+                                }
+                            }
+
+                            menuData = transformedMenu;
+                            // Get the first available category instead of hardcoding 'teas'
+                            const firstCategory = Object.keys(transformedMenu)[0];
+                            if (firstCategory) {
+                                showCategoryByName(firstCategory);
+                            } else {
+                                // No categories available - show empty state
+                                const menuContainer = document.getElementById('menuContainer');
+                                menuContainer.innerHTML = `
+        <div class="menu-loader">
+            <i class="fas fa-utensils" style="font-size: 3rem; margin-bottom: 1rem; color: var(--color-text-light);"></i>
+            <h3>No Items Available</h3>
+            <p>We're currently out of stock. Please check back later.</p>
+        </div>
+    `;
+                            }
+                            renderCategoryNav();
+                            hideGlobalLoader();
+                        } catch (parseError) {
+                            console.error('Error parsing menu data:', parseError);
+                            showToast('Failed to process menu data. Please refresh the page.', 'error');
+                            hideGlobalLoader();
+                        }
+                    })
+                    .withFailureHandler(function (error) {
+                        console.error('Error fetching menu:', error);
+                        showToast('Failed to load menu. Please refresh the page.', 'error');
+                        hideGlobalLoader();
+                    })
+                    .getMenuItems();
+            } catch (error) {
+                console.error('Error in fetchMenu:', error);
+                showToast('Failed to load menu. Please refresh the page.', 'error');
+                hideGlobalLoader();
+            }
         }
 
         // Setup reactive state
@@ -2476,6 +2535,38 @@
 
         // Helper function to show category by name
         function showCategoryByName(categoryName) {
+            // Check if menu data exists and has categories
+            if (!menuData || Object.keys(menuData).length === 0) {
+                const menuContainer = document.getElementById('menuContainer');
+                menuContainer.innerHTML = `
+                    <div class="menu-loader">
+                        <i class="fas fa-utensils" style="font-size: 3rem; margin-bottom: 1rem; color: var(--color-text-light);"></i>
+                        <h3>No Items Available</h3>
+                        <p>We're currently out of stock. Please check back later.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // If category doesn't exist, try to get the first available category
+            if (!menuData[categoryName]) {
+                const availableCategories = Object.keys(menuData);
+                if (availableCategories.length > 0) {
+                    categoryName = availableCategories[0];
+                    showToast(`Category not found. Showing ${menuData[categoryName].name} instead.`, 'info');
+                } else {
+                    const menuContainer = document.getElementById('menuContainer');
+                    menuContainer.innerHTML = `
+                        <div class="menu-loader">
+                            <i class="fas fa-utensils" style="font-size: 3rem; margin-bottom: 1rem; color: var(--color-text-light);"></i>
+                            <h3>No Items Available</h3>
+                            <p>We're currently out of stock. Please check back later.</p>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
             appState.currentCategory = categoryName;
 
             // Update active button
@@ -2498,6 +2589,10 @@
             let sectionSubtitle = '';
 
             if (searchTerm.trim() === '') {
+                if (!appState.currentCategory || !menuData[appState.currentCategory]) {
+                    menuContainer.innerHTML = '<div class="menu-loader"><h3>No category selected</h3></div>';
+                    return;
+                }
                 // No search: show current category as before
                 const categoryData = menuData[appState.currentCategory];
                 if (!categoryData) {
@@ -3091,56 +3186,56 @@
                 orderReference,
                 totals.total
             )
-            .then(verificationResult => {
-                if (verificationResult.verified) {
-                    // If verified, complete the payment and add to buffer
-                    const orderData = {
-                        orderNumber: orderReference,
-                        reference: orderReference,
-                        email: appState.user.email,
-                        items: appState.cart.map(item => ({
-                            name: item.name,
-                            price: item.price,
-                            quantity: item.quantity
-                        })),
-                        subtotal: totals.subtotal,
-                        discount: totals.discount,
-                        total: totals.total,
-                        paymentMethod: 'instapay',
-                        discountApplied: appState.user.discountPercentage,
-                        timestamp: new Date().toISOString(),
-                        status: 'finished',
-                        orderId: orderReference,
-                        accountEmail: appState.user.email
-                    };
+                .then(verificationResult => {
+                    if (verificationResult.verified) {
+                        // If verified, complete the payment and add to buffer
+                        const orderData = {
+                            orderNumber: orderReference,
+                            reference: orderReference,
+                            email: appState.user.email,
+                            items: appState.cart.map(item => ({
+                                name: item.name,
+                                price: item.price,
+                                quantity: item.quantity
+                            })),
+                            subtotal: totals.subtotal,
+                            discount: totals.discount,
+                            total: totals.total,
+                            paymentMethod: 'instapay',
+                            discountApplied: appState.user.discountPercentage,
+                            timestamp: new Date().toISOString(),
+                            status: 'finished',
+                            orderId: orderReference,
+                            accountEmail: appState.user.email
+                        };
 
-                    // Add to buffer first
-                    API.addToBuffer(orderData)
-                        .then(() => {
-                            showOrderPreparation(orderData);
-                            // Fire-and-forget DB write
-                            API.addToFinishedOrders(orderData).catch(console.error);
-                            appState.addOrder(orderData);
-                            appState.clearCart();
-                            appState.updateUI({ selectedPayment: '' });
-                            appState.currentUploadedFile = null;
-                        })
-                        .catch(error => {
-                            console.error('Payment verification error:', error);
-                            showToast('Failed to verify payment. Please try again.', 'error');
-                            verifyBtn.innerHTML = 'Verify Payment';
-                            verifyBtn.disabled = false;
-                        });
-                } else {
-                    throw new Error('Payment verification failed');
-                }
-            })
-            .catch(error => {
-                console.error('Payment verification error:', error);
-                showToast('Failed to verify payment. Please try again.', 'error');
-                verifyBtn.innerHTML = 'Verify Payment';
-                verifyBtn.disabled = false;
-            });
+                        // Add to buffer first
+                        API.addToBuffer(orderData)
+                            .then(() => {
+                                showOrderPreparation(orderData);
+                                // Fire-and-forget DB write
+                                API.addToFinishedOrders(orderData).catch(console.error);
+                                appState.addOrder(orderData);
+                                appState.clearCart();
+                                appState.updateUI({ selectedPayment: '' });
+                                appState.currentUploadedFile = null;
+                            })
+                            .catch(error => {
+                                console.error('Payment verification error:', error);
+                                showToast('Failed to verify payment. Please try again.', 'error');
+                                verifyBtn.innerHTML = 'Verify Payment';
+                                verifyBtn.disabled = false;
+                            });
+                    } else {
+                        throw new Error('Payment verification failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Payment verification error:', error);
+                    showToast('Failed to verify payment. Please try again.', 'error');
+                    verifyBtn.innerHTML = 'Verify Payment';
+                    verifyBtn.disabled = false;
+                });
         }
 
         function showCounterFlow(paymentMethod) {
@@ -3394,20 +3489,20 @@
                 const btn = document.createElement('button');
                 btn.className = 'category-btn' + (appState.currentCategory === key ? ' active' : '');
                 btn.textContent = cat.name;
-                btn.onclick = function() { showCategory(key, btn); };
+                btn.onclick = function () { showCategory(key, btn); };
                 nav.appendChild(btn);
             });
         }
 
         // Patch showCategory to re-render nav
         const _showCategory = showCategory;
-        showCategory = function(category, buttonElement = null) {
+        showCategory = function (category, buttonElement = null) {
             _showCategory(category, buttonElement);
             renderCategoryNav();
         }
 
         // Initial render of category nav on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             renderCategoryNav();
         });
 
@@ -3486,6 +3581,24 @@
                             reject(error);
                         })
                     [functionName](data);
+                });
+            },
+
+            /**
+             * Fetch menu items from the backend
+             * @returns {Promise} Promise resolving to menu object
+             */
+            fetchMenu: function () {
+                return this.request('getMenuItems', {}, {
+                    requestId: 'fetchMenu',
+                    showLoader: true,
+                    hideToastOnSuccess: true
+                }).then(response => {
+                    const parsedResponse = JSON.parse(response)
+                    if (response && response.menuObj) {
+                        return response;
+                    }
+                    throw new Error('Invalid menu data received');
                 });
             },
 

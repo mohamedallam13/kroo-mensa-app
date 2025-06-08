@@ -37,11 +37,30 @@
         globalSSID = KROO_CAFE_SSID
         const { menuItemsFile, membersEmailsObj } = readFromJSON(MASTER_INDEX_ID)
         console.log(menuItemsFile, membersEmailsObj)
-        const menuObj = readFromJSON(menuItemsFile)
-        const emailsObj = readFromJSON(membersEmailsObj)
-        console.log({ menuObj, emailsObj })
-        return JSON.stringify({ menuObj, emailsObj })
+        let menuObj = readFromJSON(menuItemsFile)
+        menuObj = filterMenuItems(menuObj);
+        // const emailsObj = readFromJSON(membersEmailsObj)
+        // console.log({ menuObj, emailsObj })
+        return JSON.stringify({ menuObj })
     }
+
+    function filterMenuItems(menuObj) {
+        const filteredMenu = {};
+        for (const [section, sectionData] of Object.entries(menuObj)) {
+            const filteredCategories = {};
+            for (const [category, categoryData] of Object.entries(sectionData.categories)) {
+                const filteredItems = categoryData.items.filter(item => item.isPublicMenu !== "FALSE");
+                if (filteredItems.length > 0) {
+                    filteredCategories[category] = { ...categoryData, items: filteredItems };
+                }
+            }
+            if (Object.keys(filteredCategories).length > 0) {
+                filteredMenu[section] = { ...sectionData, categories: filteredCategories };
+            }
+        }
+        return filteredMenu;
+    }
+
 
     function addOrderToBuffer(order) {
         try {
