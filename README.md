@@ -9,24 +9,50 @@ A modern, responsive web application built with Google Apps Script that provides
   - Beautiful gradient headers and card-based design
   - Smooth animations and transitions
   - Dark mode support
+  - Intuitive navigation with category-based browsing
+  - Elegant loading states and transitions
+
+- **Advanced Authentication System**
+  - Secure email-based authentication
+  - One-time verification code system
+  - Automatic session persistence
 
 - **Interactive Menu System**
   - Category-based navigation
   - Real-time search functionality
   - Detailed item descriptions and pricing
   - Customizable order options
+  - High-quality image display
+  - Smart image preloading for instant display
+  - CDN-optimized image delivery
 
 - **Shopping Cart Management**
   - Real-time cart updates
   - Item quantity adjustments
   - Order summary
   - Checkout process
+  - Persistent cart state
+  - Price calculations
+  - Order history tracking
 
 - **Performance Optimized**
   - Fast loading times
   - Efficient state management
   - Optimized asset loading
   - Smooth scrolling and interactions
+  - Intelligent image preloading
+  - CDN integration for fast content delivery
+  - Caching mechanisms
+  - Lazy loading where appropriate
+
+- **Advanced Features**
+  - Real-time menu updates
+  - Error handling and recovery
+  - User preferences storage
+  - Responsive image handling
+  - Cross-browser compatibility
+  - Accessibility features
+  - Keyboard navigation support
 
 ## 🛠️ Technical Stack
 
