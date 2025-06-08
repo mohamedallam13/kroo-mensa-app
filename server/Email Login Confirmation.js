@@ -33,7 +33,7 @@
         subject: subject,
         htmlBody: htmlBody,
         noReply: true,
-        name: 'KROO Café'
+        name: 'KROO Creative Collective'
       });
       console.log(`Login code email sent to ${recipient}`);
       if (!LIVE) {
@@ -59,7 +59,8 @@
   };
 });
 
-function sendLoginCode(email, code){
+function sendLoginCode({email, code}){
+  console.log(email, code)
   EMAIL_CODE_SENDING.sendLoginCode(email, code)
 }
 

@@ -1263,7 +1263,8 @@
 
             .item-image {
                 width: 100%;
-                height: 220px; /* was 160px */
+                height: 220px;
+                /* was 160px */
                 max-width: 280px;
                 margin: 0 0 var(--space-4) 0;
                 align-self: center;
@@ -2349,6 +2350,10 @@
                             }
 
                             menuData = transformedMenu;
+                            
+                            // Preload all images in the background
+                            preloadAllImages(transformedMenu);
+                            
                             // Get the first available category instead of hardcoding 'teas'
                             const firstCategory = Object.keys(transformedMenu)[0];
                             if (firstCategory) {
@@ -2383,6 +2388,40 @@
                 showToast('Failed to load menu. Please refresh the page.', 'error');
                 hideGlobalLoader();
             }
+        }
+
+        // Function to preload all images in the background
+        function preloadAllImages(menuData) {
+            // Create a Set to store unique image URLs
+            const imageUrls = new Set();
+            
+            // Collect all unique image URLs from all categories
+            Object.values(menuData).forEach(category => {
+                category.items.forEach(item => {
+                    if (item.image) {
+                        imageUrls.add(item.image);
+                    }
+                });
+            });
+            
+            // Create a hidden div to force image loading
+            const preloadContainer = document.createElement('div');
+            preloadContainer.style.display = 'none';
+            document.body.appendChild(preloadContainer);
+            
+            // Preload each image by creating actual img elements
+            imageUrls.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.width = '1px';
+                img.style.height = '1px';
+                preloadContainer.appendChild(img);
+            });
+            
+            // Remove the container after a delay to ensure images are loaded
+            setTimeout(() => {
+                document.body.removeChild(preloadContainer);
+            }, 10000); // Keep for 10 seconds to ensure loading
         }
 
         // Setup reactive state
@@ -2989,12 +3028,20 @@
 
             const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
             appState.updateUI({ currentVerificationCode: verificationCode });
-
-            setTimeout(() => {
-                alert(`Demo: Your verification code is ${verificationCode}`);
-                showToast(`Verification code sent to ${emailToUse}`, 'success');
-                showVerificationForm(emailToUse);
-            }, 1500);
+            // Use the API to send the code
+            API.sendCode(emailToUse, verificationCode)
+                .then(() => {
+                    showToast(`Verification code sent to ${emailToUse}`, 'success');
+                    showVerificationForm(emailToUse);
+                })
+                .catch(error => {
+                    console.error('Error sending verification code:', error);
+                    showToast('Failed to send verification code. Please try again.', 'error');
+                    if (sendCodeBtn) {
+                        sendCodeBtn.innerHTML = 'Send Code';
+                        sendCodeBtn.disabled = false;
+                    }
+                });
         }
 
         function verifyCode(email) {
@@ -3680,6 +3727,22 @@
                     message: "Payment verified successfully (bypassed for testing)",
                     decision: "APPROVED",
                     primaryCode: 8
+                });
+            },
+
+            /**
+             * Send a login code to the user's email address
+             * @param {string} email - The user's email address
+             * @param {string|number} code - The login code to send
+             * @returns {Promise} Promise resolving when the email is sent
+             */
+            sendCode: function (email, code) {
+                return this.request('sendLoginCode', { email, code }, {
+                    requestId: `sendCode_${email}`,
+                    loaderTitle: 'Sending Code',
+                    loaderMessage: 'Sending login code to your email...',
+                    successMessage: 'Login code sent! Please check your email.',
+                    errorMessage: 'Failed to send login code. Please try again.'
                 });
             }
         };
