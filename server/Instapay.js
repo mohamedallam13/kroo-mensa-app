@@ -2,6 +2,8 @@
   root.INSTAPAY = factory();
 })(this, function () {
 
+  const SCREENHOTS_FOLDER_ID = '1xJD-r9QLuSKMamIuSVtM8iyIanuSk7ls';
+
   /**
    * === 1. OCR: Get OCR result from image input ===
    */
@@ -238,131 +240,136 @@
     return result;
   }
 
- /**
- * === 3. Decision: Get payment approval/rejection based on verification ===
- * Improved to better prioritize issues and handle partial payments
- */
-function getPaymentDecision(verificationResult, ocrResult, options = {}) {
-  const decision = {
-    decision: "REJECTED",
-    primaryCode: 0,
-    message: "",
-    codes: []
-  };
+  /**
+  * === 3. Decision: Get payment approval/rejection based on verification ===
+  * Improved to better prioritize issues and handle partial payments
+  */
+  function getPaymentDecision(verificationResult, ocrResult, options = {}) {
+    const decision = {
+      decision: "REJECTED",
+      primaryCode: 0,
+      message: "",
+      codes: []
+    };
 
-  // OCR error
-  if (ocrResult && ocrResult.success === false) {
-    decision.decision = "ERROR";
-    decision.primaryCode = 7;
-    decision.codes = [7];
-    decision.message = "We couldn't process this receipt. Please upload a clearer image of your InstaPay receipt.";
-    return decision;
-  }
+    // OCR error
+    if (ocrResult && ocrResult.success === false) {
+      decision.decision = "ERROR";
+      decision.primaryCode = 7;
+      decision.codes = [7];
+      decision.message = "We couldn't process this receipt. Please upload a clearer image of your InstaPay receipt.";
+      return decision;
+    }
 
-  // Collect all issues
-  const issuesCodes = [];
-  
-  // Unsuccessful transaction (highest priority issue)
-  if (verificationResult.hasStatus && verificationResult.reasons.some(r => r.includes("not successful") || r.includes("status is not"))) {
-    issuesCodes.push(1);
-  }
-  
-  // Missing status
-  if (!verificationResult.hasStatus) issuesCodes.push(2);
-  
-  // No reference number - critical issue
-  if (!verificationResult.hasReferenceNumber) issuesCodes.push(5);
-  
-  // Time-related issues - very important
-  const hasMissingTimestamp = !verificationResult.hasTimestamp;
-  const hasOldTimestamp = verificationResult.reasons.some(r => r.includes("too old"));
-  
-  if (hasMissingTimestamp) issuesCodes.push(3);
-  if (hasOldTimestamp) issuesCodes.push(4);
-  
-  // Amount issues - less critical if above are fine
-  const isPartialPayment = !verificationResult.isRightAmount && 
-    verificationResult.amountStatus === 'less' &&
-    Math.abs(verificationResult.remainder) < options.expectedAmount; // Not a complete miss
-  
-  const isOverpayment = !verificationResult.isRightAmount && 
-    verificationResult.amountStatus === 'more';
-  
-  if (!verificationResult.isRightAmount && !isPartialPayment && !isOverpayment) {
-    issuesCodes.push(6); // Regular amount issue
-  }
+    // Collect all issues
+    const issuesCodes = [];
 
-  // Special handling for partial payments
-  if (isPartialPayment && !issuesCodes.includes(1) && 
-      !issuesCodes.includes(2) && !issuesCodes.includes(3) && 
+    // Unsuccessful transaction (highest priority issue)
+    if (verificationResult.hasStatus && verificationResult.reasons.some(r => r.includes("not successful") || r.includes("status is not"))) {
+      issuesCodes.push(1);
+    }
+
+    // Missing status
+    if (!verificationResult.hasStatus) issuesCodes.push(2);
+
+    // No reference number - critical issue
+    if (!verificationResult.hasReferenceNumber) issuesCodes.push(5);
+
+    // Time-related issues - very important
+    const hasMissingTimestamp = !verificationResult.hasTimestamp;
+    const hasOldTimestamp = verificationResult.reasons.some(r => r.includes("too old"));
+
+    if (hasMissingTimestamp) issuesCodes.push(3);
+    if (hasOldTimestamp) issuesCodes.push(4);
+
+    // Amount issues - less critical if above are fine
+    const isPartialPayment = !verificationResult.isRightAmount &&
+      verificationResult.amountStatus === 'less' &&
+      Math.abs(verificationResult.remainder) < options.expectedAmount; // Not a complete miss
+
+    const isOverpayment = !verificationResult.isRightAmount &&
+      verificationResult.amountStatus === 'more';
+
+    if (!verificationResult.isRightAmount && !isPartialPayment && !isOverpayment) {
+      issuesCodes.push(6); // Regular amount issue
+    }
+
+    // Special handling for partial payments
+    if (isPartialPayment && !issuesCodes.includes(1) &&
+      !issuesCodes.includes(2) && !issuesCodes.includes(3) &&
       !issuesCodes.includes(4) && !issuesCodes.includes(5)) {
-    // If the ONLY issue is partial payment and everything else is okay
-    decision.decision = "PARTIAL";
-    decision.primaryCode = 9; // New code for partial payments
-    decision.codes = [9];
-    const shortfall = Math.abs(verificationResult.remainder).toFixed(2);
-    decision.message = `Partial payment detected. The amount is ${shortfall} less than required.`;
-    return decision;
-  }
-  
-  // Special handling for overpayments
-  if (isOverpayment && !issuesCodes.includes(1) && 
-      !issuesCodes.includes(2) && !issuesCodes.includes(3) && 
-      !issuesCodes.includes(4) && !issuesCodes.includes(5)) {
-    // If the ONLY issue is overpayment and everything else is okay
-    decision.decision = "APPROVED";
-    decision.primaryCode = 10; // New code for overpayments
-    decision.codes = [10];
-    const excess = verificationResult.remainder.toFixed(2);
-    decision.message = `Payment verified successfully. You paid ${excess} more than required.`;
-    return decision;
-  }
+      // If the ONLY issue is partial payment and everything else is okay
+      decision.decision = "PARTIAL";
+      decision.primaryCode = 9; // New code for partial payments
+      decision.codes = [9];
+      const shortfall = Math.abs(verificationResult.remainder).toFixed(2);
+      decision.message = `Partial payment detected. The amount is ${shortfall} less than required.`;
+      return decision;
+    }
 
-  // Determine primary issue based on PRIORITY not numeric order
-  // This is a key change from the original code
-  if (issuesCodes.length > 0) {
-    // Define priority order (most important first)
-    const priorityOrder = [1, 5, 3, 4, 2, 6];
-    
-    // Sort issues by priority
-    issuesCodes.sort((a, b) => {
-      return priorityOrder.indexOf(a) - priorityOrder.indexOf(b);
-    });
-    
-    decision.primaryCode = issuesCodes[0];
-    decision.codes = issuesCodes;
-    decision.message = generateHumanReadableMessage(issuesCodes, verificationResult);
-  } else {
-    decision.decision = "APPROVED";
-    decision.primaryCode = 8;
-    decision.message = "Payment verified successfully.";
+    // Special handling for overpayments
+    if (isOverpayment && !issuesCodes.includes(1) &&
+      !issuesCodes.includes(2) && !issuesCodes.includes(3) &&
+      !issuesCodes.includes(4) && !issuesCodes.includes(5)) {
+      // If the ONLY issue is overpayment and everything else is okay
+      decision.decision = "APPROVED";
+      decision.primaryCode = 10; // New code for overpayments
+      decision.codes = [10];
+      const excess = verificationResult.remainder.toFixed(2);
+      decision.message = `Payment verified successfully. You paid ${excess} more than required.`;
+      return decision;
+    }
+
+    // Determine primary issue based on PRIORITY not numeric order
+    // This is a key change from the original code
+    if (issuesCodes.length > 0) {
+      // Define priority order (most important first)
+      const priorityOrder = [1, 5, 3, 4, 2, 6];
+
+      // Sort issues by priority
+      issuesCodes.sort((a, b) => {
+        return priorityOrder.indexOf(a) - priorityOrder.indexOf(b);
+      });
+
+      decision.primaryCode = issuesCodes[0];
+      decision.codes = issuesCodes;
+      decision.message = generateHumanReadableMessage(issuesCodes, verificationResult);
+    } else {
+      decision.decision = "APPROVED";
+      decision.primaryCode = 8;
+      decision.message = "Payment verified successfully.";
+    }
+
+    // Set final decision status based on primary code
+    if (decision.primaryCode === 8 || decision.primaryCode === 10) {
+      decision.decision = "APPROVED";
+    } else if (decision.primaryCode === 9) {
+      decision.decision = "PARTIAL";
+    } else if (decision.primaryCode === 7) {
+      decision.decision = "ERROR";
+    } else {
+      decision.decision = "REJECTED";
+    }
+
+    return decision;
   }
-  
-  // Set final decision status based on primary code
-  if (decision.primaryCode === 8 || decision.primaryCode === 10) {
-    decision.decision = "APPROVED";
-  } else if (decision.primaryCode === 9) {
-    decision.decision = "PARTIAL";
-  } else if (decision.primaryCode === 7) {
-    decision.decision = "ERROR";
-  } else {
-    decision.decision = "REJECTED";
-  }
-  
-  return decision;
-}
 
   /**
    * === 4. One-call frontend function: Does all three stages and returns combined result as stringified JSON ===
    */
   function processFullVerification(imageInput, options = {}) {
+    let savedFileId = null;
+    if (imageInput && typeof imageInput.getBytes === 'function') {
+      // Save the screenshot to Drive
+      var fileName = options && options.reference ? `instapay_${options.reference}.jpg` : `instapay_${Date.now()}.jpg`;
+      savedFileId = saveScreenshotToDrive(imageInput, fileName);
+      if (options) options.savedFileId = savedFileId;
+    }
     const ocrResult = getOcrResult(imageInput, options);
-    console.log(ocrResult)
     const verificationResult = getVerificationResult(ocrResult, options);
-    console.log(verificationResult)
     const decision = getPaymentDecision(verificationResult, ocrResult, options);
-    console.log(decision)
-    return JSON.stringify({ ocrResult, verificationResult, decision });
+    // Include the saved file ID in the result
+    return JSON.stringify({ ocrResult, verificationResult, decision, savedFileId });
   }
 
   /**
@@ -370,87 +377,87 @@ function getPaymentDecision(verificationResult, ocrResult, options = {}) {
    */
 
 
-/**
- * Improved message generation for better clarity and UX
- */
-function generateHumanReadableMessage(issues, verification) {
-  if (issues.length === 0) return "Payment verified successfully.";
-  if (issues.includes(7)) return "We couldn't process this receipt. Please upload a clearer image of your InstaPay receipt.";
-  if (issues.includes(1)) return "This payment was not successful. Please complete the payment and upload a successful transaction receipt.";
-  
-  // Special handling for time-related issues - prioritize these
-  const hasOldTimestamp = verification.reasons.find(r => r.includes("too old"));
-  if (issues.includes(4) && hasOldTimestamp) {
-    // Extract the time from the reason for better messaging
-    const match = hasOldTimestamp.match(/\(([^)]+)\)/);
-    const timeInfo = match && match[1] ? match[1] : "too old";
-    return `We couldn't verify your payment. The transaction is from ${timeInfo}, which exceeds our verification window.`;
-  }
-  
-  if (issues.includes(3)) {
-    return "We couldn't verify your payment. The transaction date is missing from the receipt.";
-  }
-  
-  // Reference number is critical
-  if (issues.includes(5)) {
-    return "We couldn't verify your payment. The reference number is missing from the receipt.";
-  }
-  
-  // Status issues
-  if (issues.includes(2)) {
-    return "We couldn't verify your payment. The transaction status is unclear or missing.";
-  }
-  
-  // Amount issues - handled last
-  if (issues.includes(6)) {
-    if (verification.amountStatus === "less") {
-      const shortfall = Math.abs(verification.remainder).toFixed(2);
-      return `We couldn't verify your payment. The amount is ${shortfall} less than required.`;
-    } else if (verification.amountStatus === "more") {
-      const excess = verification.remainder.toFixed(2);
-      return `The amount is ${excess} more than required, but your booking can be confirmed.`;
-    } else {
-      return "We couldn't verify your payment. The amount is invalid or unreadable.";
-    }
-  }
+  /**
+   * Improved message generation for better clarity and UX
+   */
+  function generateHumanReadableMessage(issues, verification) {
+    if (issues.length === 0) return "Payment verified successfully.";
+    if (issues.includes(7)) return "We couldn't process this receipt. Please upload a clearer image of your InstaPay receipt.";
+    if (issues.includes(1)) return "This payment was not successful. Please complete the payment and upload a successful transaction receipt.";
 
-  // Fall back to collecting all issues if none of the specific handlers matched
-  const issuesDescriptions = [];
-  if (issues.includes(2)) issuesDescriptions.push("transaction status is unclear");
-  if (issues.includes(5)) issuesDescriptions.push("reference number is missing");
-  if (issues.includes(3)) issuesDescriptions.push("transaction date is missing");
-  
-  if (issues.includes(4)) {
-    let timeAgoMessage = "it's too old";
-    const oldTimestampReason = verification.reasons.find(r => r.includes("too old"));
-    if (oldTimestampReason) {
-      const match = oldTimestampReason.match(/\(([^)]+)\)/);
-      if (match && match[1]) timeAgoMessage = `it's from ${match[1]}`;
+    // Special handling for time-related issues - prioritize these
+    const hasOldTimestamp = verification.reasons.find(r => r.includes("too old"));
+    if (issues.includes(4) && hasOldTimestamp) {
+      // Extract the time from the reason for better messaging
+      const match = hasOldTimestamp.match(/\(([^)]+)\)/);
+      const timeInfo = match && match[1] ? match[1] : "too old";
+      return `We couldn't verify your payment. The transaction is from ${timeInfo}, which exceeds our verification window.`;
     }
-    issuesDescriptions.push(timeAgoMessage);
-  }
-  
-  if (issues.includes(6)) {
-    if (verification.amountStatus === "less") {
-      const shortfall = Math.abs(verification.remainder).toFixed(2);
-      issuesDescriptions.push(`amount is ${shortfall} less than required`);
-    } else if (verification.amountStatus === "more") {
-      const excess = verification.remainder.toFixed(2);
-      issuesDescriptions.push(`amount is ${excess} more than required`);
+
+    if (issues.includes(3)) {
+      return "We couldn't verify your payment. The transaction date is missing from the receipt.";
+    }
+
+    // Reference number is critical
+    if (issues.includes(5)) {
+      return "We couldn't verify your payment. The reference number is missing from the receipt.";
+    }
+
+    // Status issues
+    if (issues.includes(2)) {
+      return "We couldn't verify your payment. The transaction status is unclear or missing.";
+    }
+
+    // Amount issues - handled last
+    if (issues.includes(6)) {
+      if (verification.amountStatus === "less") {
+        const shortfall = Math.abs(verification.remainder).toFixed(2);
+        return `We couldn't verify your payment. The amount is ${shortfall} less than required.`;
+      } else if (verification.amountStatus === "more") {
+        const excess = verification.remainder.toFixed(2);
+        return `The amount is ${excess} more than required, but your booking can be confirmed.`;
+      } else {
+        return "We couldn't verify your payment. The amount is invalid or unreadable.";
+      }
+    }
+
+    // Fall back to collecting all issues if none of the specific handlers matched
+    const issuesDescriptions = [];
+    if (issues.includes(2)) issuesDescriptions.push("transaction status is unclear");
+    if (issues.includes(5)) issuesDescriptions.push("reference number is missing");
+    if (issues.includes(3)) issuesDescriptions.push("transaction date is missing");
+
+    if (issues.includes(4)) {
+      let timeAgoMessage = "it's too old";
+      const oldTimestampReason = verification.reasons.find(r => r.includes("too old"));
+      if (oldTimestampReason) {
+        const match = oldTimestampReason.match(/\(([^)]+)\)/);
+        if (match && match[1]) timeAgoMessage = `it's from ${match[1]}`;
+      }
+      issuesDescriptions.push(timeAgoMessage);
+    }
+
+    if (issues.includes(6)) {
+      if (verification.amountStatus === "less") {
+        const shortfall = Math.abs(verification.remainder).toFixed(2);
+        issuesDescriptions.push(`amount is ${shortfall} less than required`);
+      } else if (verification.amountStatus === "more") {
+        const excess = verification.remainder.toFixed(2);
+        issuesDescriptions.push(`amount is ${excess} more than required`);
+      } else {
+        issuesDescriptions.push("amount is invalid");
+      }
+    }
+
+    if (issuesDescriptions.length === 1) {
+      return `We couldn't verify your payment. The ${issuesDescriptions[0]}.`;
+    } else if (issuesDescriptions.length === 2) {
+      return `We couldn't verify your payment. The ${issuesDescriptions[0]} and ${issuesDescriptions[1]}.`;
     } else {
-      issuesDescriptions.push("amount is invalid");
+      const lastIssue = issuesDescriptions.pop();
+      return `We couldn't verify your payment. The ${issuesDescriptions.join(', ')}, and ${lastIssue}.`;
     }
   }
-  
-  if (issuesDescriptions.length === 1) {
-    return `We couldn't verify your payment. The ${issuesDescriptions[0]}.`;
-  } else if (issuesDescriptions.length === 2) {
-    return `We couldn't verify your payment. The ${issuesDescriptions[0]} and ${issuesDescriptions[1]}.`;
-  } else {
-    const lastIssue = issuesDescriptions.pop();
-    return `We couldn't verify your payment. The ${issuesDescriptions.join(', ')}, and ${lastIssue}.`;
-  }
-}
 
   function parseTransactionDate(dateStr) {
     if (!dateStr) return null;
@@ -487,6 +494,18 @@ function generateHumanReadableMessage(issues, verification) {
     }
     if (/[\u0600-\u06FF]/.test(dateStr)) return null;
     return null;
+  }
+
+  function saveScreenshotToDrive(blob, fileName) {
+    try {
+      var folder = DriveApp.getFolderById(SCREENHOTS_FOLDER_ID);
+      var file = folder.createFile(blob);
+      file.setName(fileName);
+      return file.getId();
+    } catch (e) {
+      Logger.log('Error saving screenshot to Drive: ' + e);
+      return null;
+    }
   }
 
   /**
@@ -613,3 +632,4 @@ function testWithImages() {
 
   return INSTAPAY.testWithImages(fileIds);
 }
+
