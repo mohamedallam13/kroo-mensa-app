@@ -1544,6 +1544,8 @@
 </head>
 
 <body>
+    <input type="hidden" id="debug-mode" value="<?= debugMode ?>">
+    
     <!-- Header -->
     <header class="header">
         <div class="header-content">
@@ -3877,7 +3879,15 @@
             return `ORDER-${dateStr}-${randomPart}`;
         }
 
+        // Utility: Detect debug mode from URL
+        function isDebugMode() {
+            const debugInput = document.getElementById('debug-mode');
+            console.log(debugInput)
+            return debugInput && debugInput.value === 'true';
+        }
+
         function debugLog(msg) {
+            if (!isDebugMode()) return;
             let el = document.getElementById('debug-log');
             if (!el) {
                 el = document.createElement('div');
