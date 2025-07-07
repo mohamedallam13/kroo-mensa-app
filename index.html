@@ -4108,10 +4108,6 @@ body::before {
                 verifyBtn.disabled = false;
 
                 updateVerificationUI(verificationResult, ocrResult, decision);
-
-                if (decision?.decision === 'APPROVED' || (verificationResult.isLegitimate && verificationResult.isRightAmount)) {
-                    showCompleteOrderButton();
-                }
             })
             .catch(error => {
                 console.error('Error during verification:', error);
@@ -4829,12 +4825,6 @@ body::before {
             const amountStatus = verificationResult?.amountStatus || 'unknown';
             const remainder = verificationResult?.remainder || 0;
 
-            let confidenceDisplay = 'Medium';
-            if (ocrResult?.confidence?.amount) {
-                const confidencePercent = (ocrResult.confidence.amount * 100).toFixed(1);
-                confidenceDisplay = `${confidencePercent}%`;
-            }
-
             const reasons = verificationResult?.reasons || [];
             const decisionStatus = decision?.decision || null;
             const decisionMessage = decision?.message || null;
@@ -4871,6 +4861,7 @@ body::before {
 
             // Handle different verification results
             if (decisionStatus === 'APPROVED' || (isLegitimate && isRightAmount)) {
+                // Show confirmation and automatically proceed to order confirmation
                 verificationStatus.innerHTML = `
                     <div class="status-success">
                         <div class="status-success-header">
@@ -4881,12 +4872,16 @@ body::before {
                             <p>${decisionMessage || 'Your payment has been verified and your order is confirmed.'}</p>
                             <ul class="status-success-list">
                                 <li>Amount: EGP ${appState.getCartTotals().total.toFixed(2)}</li>
-                                <li>Confidence: ${confidenceDisplay}</li>
+                                <li>Status: Verified</li>
                             </ul>
                         </div>
                     </div>
                 `;
-                showCompleteOrderButton();
+                
+                // Automatically proceed to order confirmation after a brief moment
+                setTimeout(() => {
+                    handleVerifiedInstapayPayment(false);
+                }, 1500);
             }
             else if (decisionStatus === 'PARTIAL' || (isLegitimate && amountStatus === 'less')) {
                 const expectedTotal = appState.expectedRemainingAmount || appState.getCartTotals().total;
@@ -5031,24 +5026,7 @@ body::before {
             }
         }
 
-        function showCompleteOrderButton() {
-            const verificationStatus = document.getElementById('verificationStatus');
-            if (!verificationStatus) return;
 
-            let buttonContainer = verificationStatus.querySelector('.verification-actions');
-            if (!buttonContainer) {
-                buttonContainer = document.createElement('div');
-                buttonContainer.className = 'verification-actions';
-                buttonContainer.style.marginTop = '16px';
-                verificationStatus.appendChild(buttonContainer);
-            }
-
-            buttonContainer.innerHTML = `
-                <button class="btn" onclick="handleVerifiedInstapayPayment(false)" style="width: 100%;">
-                    <i class="fas fa-check"></i> Complete Order
-                </button>
-            `;
-        }
 
         function handleVerifiedInstapayPayment(isPartial = false) {
             const totals = appState.getCartTotals();
@@ -5278,9 +5256,7 @@ body::before {
 
                 updateVerificationUI(verificationResult, ocrResult, decision);
 
-                if (decision?.decision === 'APPROVED' || (verificationResult.isLegitimate && verificationResult.isRightAmount)) {
-                    showCompleteOrderButton();
-                }
+                // Removed showCompleteOrderButton() call since we now auto-proceed in updateVerificationUI
             })
             .catch(error => {
                 console.error('Error during verification:', error);
