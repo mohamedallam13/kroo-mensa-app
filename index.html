@@ -7,1543 +7,2261 @@
     <title>KROO Café - Order Menu</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            /* Colors - matching booking system */
-            --color-primary: #F4B400;
-            --color-primary-dark: #E0A800;
-            --color-primary-hover: #D97706;
-            --color-primary-light: #FEF3C7;
-            --color-success: #10B981;
-            --color-success-dark: #059669;
-            --color-success-light: #d1fae5;
-            --color-danger: #EF4444;
-            --color-danger-dark: #DC2626;
-            --color-text: #333333;
-            --color-text-muted: #6B7280;
-            --color-text-light: #9CA3AF;
-            --color-border: #E5E7EB;
-            --color-border-dark: #D1D5DB;
-            --color-bg: #FAFAFA;
-            --color-bg-card: #FFFFFF;
-            --color-bg-muted: #F3F4F6;
-            --color-shadow: rgba(0, 0, 0, 0.1);
-            --color-shadow-lg: rgba(0, 0, 0, 0.15);
-            --color-blue: #3B82F6;
-            --color-blue-dark: #2563EB;
-            --color-blue-light: #93C5FD;
-
-            /* Spacing */
-            --space-1: 0.25rem;
-            --space-2: 0.5rem;
-            --space-3: 0.75rem;
-            --space-4: 1rem;
-            --space-5: 1.25rem;
-            --space-6: 1.5rem;
-            --space-8: 2rem;
-
-            /* Border radius */
-            --radius-sm: 0.25rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-full: 9999px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            border: none !important;
-            outline: none !important;
-            background: var(--color-bg) !important;
-        }
-        html::before, html::after,
-        body::before, body::after,
-        .header::before, .header::after {
-            display: none !important;
-            border: none !important;
-            background: none !important;
-            content: none !important;
-        }
-        .header {
-            box-shadow: none !important;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: var(--color-text);
-            line-height: 1.6;
-        }
-
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #333333 0%, #1F2937 100%);
-            color: white;
-            padding: var(--space-6) 0;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            box-shadow: none !important;
-            border-top: none !important;
-            margin-top: 0 !important;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--space-4);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-        }
-
-        .brand-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(244, 180, 0, 0.15);
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            color: var(--color-primary);
-        }
-
-        .brand-text h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .brand-text p {
-            font-size: 0.875rem;
-            opacity: 0.9;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: var(--space-4);
-        }
-
-        .search-container {
-            position: relative;
-            display: none;
-        }
-
-        .search-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-lg);
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            color: white;
-            width: 250px;
-            transition: all 0.3s ease;
-        }
-
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .search-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--color-primary);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .cart-button {
-            position: relative;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-lg);
-            padding: 0.75rem;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        .cart-button:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--color-primary);
-        }
-
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--color-primary);
-            color: var(--color-text);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: var(--space-6) var(--space-4);
-        }
-
-        /* Category Navigation */
-        .category-nav {
-            background: var(--color-bg-card);
-            border-radius: var(--radius-xl);
-            padding: var(--space-2);
-            margin-bottom: var(--space-8);
-            box-shadow: 0 2px 4px var(--color-shadow);
-            display: flex;
-            gap: var(--space-2);
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .category-nav::-webkit-scrollbar {
-            display: none;
-        }
-
-        .category-btn {
-            background: none;
-            border: none;
-            padding: var(--space-3) var(--space-5);
-            border-radius: var(--radius-lg);
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            color: var(--color-text-muted);
-        }
-
-        .category-btn:hover {
-            background: var(--color-primary-light);
-            color: var(--color-primary-dark);
-        }
-
-        .category-btn.active {
-            background: var(--color-primary);
-            color: white;
-            box-shadow: 0 2px 4px rgba(244, 180, 0, 0.3);
-        }
-
-        /* Menu List Style */
-        .menu-section {
-            margin-bottom: var(--space-8);
-        }
-
-        .section-header {
-            margin-bottom: var(--space-6);
-            text-align: center;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--color-text);
-            margin-bottom: var(--space-2);
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 2px;
-            background: var(--color-primary);
-            margin: var(--space-3) auto 0;
-        }
-
-        .section-subtitle {
-            color: var(--color-text-muted);
-            font-style: italic;
-        }
-
-        .menu-list {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: var(--space-5);
-            margin-bottom: var(--space-4);
-            background: var(--color-bg-card);
-            border-radius: var(--radius-lg);
-            box-shadow: 0 1px 3px var(--color-shadow);
-            transition: all 0.3s ease;
-            border: 1px solid var(--color-border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .menu-item:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px var(--color-shadow-lg);
-            border-color: var(--color-primary);
-        }
-
-        .menu-item.popular::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 0;
-            border-left: 40px solid transparent;
-            border-top: 40px solid var(--color-primary);
-        }
-
-        .menu-item.popular::after {
-            content: '★';
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            color: var(--color-text);
-            font-size: 0.875rem;
-            font-weight: bold;
-            z-index: 2;
-        }
-
-        .item-image {
-            width: 80px;
-            height: 80px;
-            border-radius: var(--radius-lg);
-            margin-right: var(--space-4);
-            flex-shrink: 0;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border: 2px solid var(--color-border);
-        }
-
-        .item-details {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: var(--space-2);
-        }
-
-        .item-name-section {
-            flex: 1;
-        }
-
-        .item-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--color-text);
-            margin-bottom: 0.25rem;
-            line-height: 1.3;
-        }
-
-        .item-rating {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            color: var(--color-primary);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .item-price-section {
-            text-align: right;
-            margin-left: var(--space-4);
-        }
-
-        .item-price {
-            font-size: 1.375rem;
-            font-weight: 700;
-            color: var(--color-text);
-            line-height: 1.2;
-        }
-
-        .popular-badge {
-            background: var(--color-primary);
-            color: var(--color-text);
-            padding: 0.125rem var(--space-2);
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 0.25rem;
-            display: inline-block;
-        }
-
-        .item-description {
-            color: var(--color-text-muted);
-            font-size: 0.875rem;
-            line-height: 1.4;
-            margin-bottom: var(--space-3);
-            margin-right: var(--space-4);
-        }
-
-        .item-actions {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
-        .item-controls {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            background: var(--color-bg-muted);
-            border-radius: var(--radius-lg);
-            padding: 0.25rem;
-        }
-
-        .qty-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            border-radius: var(--radius-md);
-            background: white;
-            color: var(--color-text);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 2px var(--color-shadow);
-        }
-
-        .qty-btn:hover {
-            background: var(--color-primary-light);
-            color: var(--color-primary-hover);
-        }
-
-        .qty-display {
-            min-width: 32px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        .add-btn {
-            background: var(--color-primary);
-            color: var(--color-text);
-            border: none;
-            padding: 0.5rem var(--space-4);
-            border-radius: var(--radius-lg);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            font-size: 0.875rem;
-        }
-
-        .add-btn:hover {
-            background: var(--color-primary-dark);
-            transform: translateY(-1px);
-        }
-
-        /* Cart Sidebar */
-        .cart-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .cart-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .cart-sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 400px;
-            height: 100vh;
-            background: white;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            box-shadow: -4px 0 15px var(--color-shadow-lg);
-        }
-
-        .cart-overlay.active .cart-sidebar {
-            transform: translateX(0);
-        }
-
-        .cart-header {
-            padding: var(--space-5);
-            border-bottom: 1px solid var(--color-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--color-bg);
-        }
-
-        .cart-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .cart-close {
-            background: none;
-            border: none;
-            color: var(--color-text-muted);
-            cursor: pointer;
-            padding: var(--space-2);
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-        }
-
-        .cart-close:hover {
-            background: var(--color-border);
-            color: var(--color-text);
-        }
-
-        .cart-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--space-4);
-        }
-
-        .cart-empty {
-            text-align: center;
-            padding: var(--space-8) var(--space-4);
-            color: var(--color-text-muted);
-        }
-
-        .cart-empty i {
-            font-size: 3rem;
-            margin-bottom: var(--space-4);
-            color: var(--color-text-light);
-        }
-
-        .cart-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-3);
-            background: var(--color-bg);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--space-3);
-        }
-
-        .cart-item-image {
-            width: 50px;
-            height: 50px;
-            background-color: var(--color-border);
-            border-radius: var(--radius-md);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border: 1px solid var(--color-border);
-        }
-
-        .cart-item-details {
-            flex: 1;
-        }
-
-        .cart-item-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .cart-item-price {
-            color: var(--color-text-muted);
-            font-size: 0.875rem;
-        }
-
-        .cart-footer {
-            padding: var(--space-5);
-            border-top: 1px solid var(--color-border);
-            background: var(--color-bg);
-        }
-
-        .cart-total {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-4);
-            font-size: 1.125rem;
-            font-weight: 600;
-        }
-
-        .total-amount {
-            color: var(--color-primary-dark);
-            font-size: 1.5rem;
-        }
-
-        .discount-section {
-            background: var(--color-success-light);
-            border: 1px solid var(--color-success);
-            border-radius: var(--radius-lg);
-            padding: var(--space-3);
-            margin-bottom: var(--space-4);
-        }
-
-        .discount-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--color-success-dark);
-            font-weight: 500;
-        }
-
-        .checkout-btn {
-            width: 100%;
-            background: var(--color-primary);
-            color: white;
-            border: none;
-            padding: var(--space-4);
-            border-radius: var(--radius-lg);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .checkout-btn:hover {
-            background: var(--color-primary-dark);
-        }
-
-        .checkout-btn:disabled {
-            background: var(--color-text-light);
-            cursor: not-allowed;
-        }
-
-        /* Modals */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            padding: var(--space-4);
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal {
-            background: white;
-            border-radius: var(--radius-xl);
-            max-width: 500px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal {
-            transform: scale(1);
-        }
-
-        .modal-header {
-            padding: var(--space-5);
-            border-bottom: 1px solid var(--color-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--color-text-muted);
-            cursor: pointer;
-            padding: var(--space-2);
-            border-radius: var(--radius-md);
-        }
-
-        .modal-content {
-            padding: var(--space-5);
-        }
-
-        .form-group {
-            margin-bottom: var(--space-4);
-        }
-
-        .form-label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: var(--space-2);
-            color: var(--color-text);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: var(--space-3);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            transition: border-color 0.2s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-        }
-
-        .payment-methods {
-            display: grid;
-            gap: var(--space-3);
-            margin-bottom: var(--space-5);
-        }
-
-        .payment-method {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-4);
-            border: 2px solid var(--color-border);
-            border-radius: var(--radius-lg);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .payment-method:hover {
-            border-color: var(--color-primary);
-        }
-
-        .payment-method.selected {
-            border-color: var(--color-primary);
-            background: var(--color-primary-light);
-        }
-
-        .payment-icon {
-            font-size: 1.5rem;
-            color: var(--color-primary);
-        }
-
-        .payment-details h4 {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .payment-details p {
-            color: var(--color-text-muted);
-            font-size: 0.875rem;
-        }
-
-        .btn {
-            background: var(--color-primary);
-            color: white;
-            border: none;
-            padding: var(--space-3) var(--space-5);
-            border-radius: var(--radius-lg);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        .btn:hover {
-            background: var(--color-primary-dark);
-        }
-
-        .btn-secondary {
-            background: var(--color-text-muted);
-        }
-
-        .btn-secondary:hover {
-            background: var(--color-text);
-        }
-
-        .success-message {
-            text-align: center;
-            padding: var(--space-8) var(--space-4);
-        }
-
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--color-success);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto var(--space-4);
-        }
-
-        /* Payment Flow Screens */
-        .payment-screen {
-            text-align: center;
-            padding: var(--space-6) var(--space-4);
-        }
-
-        .payment-screen .icon-container {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto var(--space-5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .payment-screen .icon-container.counter {
-            background: linear-gradient(135deg, var(--color-blue) 0%, var(--color-blue-dark) 100%);
-            color: white;
-        }
-
-        .payment-screen .icon-container.instapay {
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-            color: white;
-        }
-
-        .payment-screen .icon-container.preparing {
-            background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
-            color: white;
-        }
-
-        /* Animated pulse effect */
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-            }
-
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
-            }
-
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-            }
-        }
-
-        .pulse.preparing {
-            animation: pulse-green 2s infinite;
-        }
-
-        @keyframes pulse-green {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-            }
-
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
-            }
-
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
-        }
-
-        /* InstaPay Upload Section */
-        .instapay-upload {
-            margin: var(--space-5) 0;
-        }
-
-        .upload-instructions {
-            background: var(--color-primary-light);
-            border: 1px solid var(--color-primary);
-            border-radius: var(--radius-lg);
-            padding: var(--space-4);
-            margin-bottom: var(--space-4);
-            text-align: left;
-        }
-
-        .upload-instructions h4 {
-            color: var(--color-primary-dark);
-            margin-bottom: var(--space-2);
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        .upload-instructions ol {
-            color: var(--color-text);
-            margin-left: var(--space-4);
-        }
-
-        .upload-instructions li {
-            margin-bottom: var(--space-2);
-        }
-
-        .file-upload-area {
-            border: 2px dashed var(--color-border);
-            border-radius: var(--radius-lg);
-            padding: var(--space-6);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--color-bg);
-        }
-
-        .file-upload-area:hover {
-            border-color: var(--color-primary);
-            background: var(--color-primary-light);
-        }
-
-        .file-upload-area.dragover {
-            border-color: var(--color-primary);
-            background: var(--color-primary-light);
-        }
-
-        .file-upload-area input[type="file"] {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            color: var(--color-text-light);
-            margin-bottom: var(--space-3);
-        }
-
-        .upload-text {
-            color: var(--color-text-muted);
-            margin-bottom: var(--space-2);
-        }
-
-        .uploaded-image {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: var(--radius-lg);
-            margin-top: var(--space-3);
-            box-shadow: 0 2px 8px var(--color-shadow);
-        }
-
-        /* Order History Styles */
-        .order-history {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .history-item {
-            background: var(--color-bg);
-            border-radius: var(--radius-lg);
-            padding: var(--space-4);
-            margin-bottom: var(--space-3);
-            border: 1px solid var(--color-border);
-        }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-2);
-        }
-
-        .order-number {
-            font-weight: 600;
-            color: var(--color-primary-dark);
-        }
-
-        .order-date {
-            font-size: 0.875rem;
-            color: var(--color-text-muted);
-        }
-
-        .order-status {
-            display: inline-block;
-            padding: 0.25rem var(--space-2);
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-completed {
-            background: var(--color-success-light);
-            color: var(--color-success-dark);
-        }
-
-        .status-preparing {
-            background: var(--color-primary-light);
-            color: var(--color-primary-dark);
-        }
-
-        .history-items {
-            margin-top: var(--space-2);
-        }
-
-        .history-item-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.875rem;
-            color: var(--color-text-muted);
-            margin-bottom: 0.25rem;
-        }
-
-        .history-total {
-            border-top: 1px solid var(--color-border);
-            padding-top: var(--space-2);
-            margin-top: var(--space-2);
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* User Status Styles */
-        .user-status {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        .user-info {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-lg);
-            padding: 0.5rem var(--space-3);
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            font-size: 0.875rem;
-            position: relative;
-            min-width: 0;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--color-primary);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--color-text);
-            flex-shrink: 0;
-        }
-
-        .user-details {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            min-width: 0;
-            flex: 1;
-        }
-
-        .user-email {
-            font-weight: 500;
-            line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 100%;
-        }
-
-        .user-discount {
-            font-size: 0.75rem;
-            color: var(--color-primary);
-            font-weight: 600;
-            line-height: 1;
-        }
-
-        .login-btn {
-            background: var(--color-primary);
-            border: none;
-            border-radius: var(--radius-lg);
-            padding: 0.5rem var(--space-4);
-            color: var(--color-text);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.875rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            white-space: nowrap;
-        }
-
-        .login-btn:hover {
-            background: var(--color-primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-md);
-            padding: 0.5rem;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.75rem;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: var(--color-primary);
-        }
-
-        /* Header Navigation */
-        .header-nav {
-            display: flex;
-            align-items: center;
-            gap: var(--space-4);
-        }
-
-        .nav-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-lg);
-            padding: 0.5rem var(--space-3);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.875rem;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--color-primary);
-        }
-
-        /* Desktop layout - keep original structure */
-        .header-top-row,
-        .header-bottom-row {
-            display: contents;
-        }
-
-        /* Mobile Responsive - Improved */
-        @media (max-width: 768px) {
-            .cart-sidebar {
-                width: 100%;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: var(--space-3);
-                align-items: stretch;
-            }
-
-            .header-actions {
-                width: 100%;
-                flex-direction: column;
-                gap: var(--space-3);
-            }
-
-            .header-top-row {
-                display: flex;
-                align-items: center;
-                gap: var(--space-3);
-                width: 100%;
-            }
-
-            .search-container {
-                display: block;
-                flex: 1;
-                min-width: 0;
-            }
-
-            .search-input {
-                width: 100%;
-            }
-
-            .user-status {
-                flex-shrink: 0;
-            }
-
-            .header-bottom-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-            }
-
-            .header-nav {
-                margin-top: 0;
-            }
-
-            .nav-btn {
-                padding: 0.5rem var(--space-2);
-                font-size: 0.8rem;
-            }
-
-            .user-info {
-                padding: 0.5rem var(--space-2);
-                font-size: 0.8rem;
-                max-width: 200px;
-                gap: var(--space-2);
-            }
-
-            .user-avatar {
-                width: 28px;
-                height: 28px;
-                font-size: 0.8rem;
-            }
-
-            .user-email {
-                max-width: 100px;
-                font-size: 0.8rem;
-            }
-
-            .user-discount {
-                font-size: 0.7rem;
-            }
-
-            .logout-btn {
-                width: 28px;
-                height: 28px;
-                padding: 0.375rem;
-                font-size: 0.7rem;
-            }
-
-            .login-btn {
-                padding: 0.5rem var(--space-3);
-                font-size: 0.8rem;
-                white-space: nowrap;
-            }
-
-            /* Improved Mobile Menu Item Layout */
-            .menu-item {
-                flex-direction: column;
-                padding: var(--space-4);
-                text-align: center;
-            }
-
-            .item-image {
-                width: 100%;
-                height: 220px;
-                /* was 160px */
-                max-width: 280px;
-                margin: 0 0 var(--space-4) 0;
-                align-self: center;
-            }
-
-            .item-details {
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .item-header {
-                flex-direction: column;
-                align-items: center;
-                gap: var(--space-2);
-                width: 100%;
-                margin-bottom: var(--space-3);
-            }
-
-            .item-name-section {
-                text-align: center;
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .item-rating {
-                justify-content: center;
-            }
-
-            .item-price-section {
-                margin-left: 0;
-                text-align: center;
-                width: 100%;
-            }
-
-            .item-title {
-                font-size: 1.375rem;
-                margin-bottom: var(--space-2);
-            }
-
-            .item-price {
-                font-size: 1.5rem;
-                margin-bottom: var(--space-2);
-            }
-
-            .item-description {
-                text-align: center;
-                margin: 0 0 var(--space-4) 0;
-                max-width: 320px;
-            }
-
-            .item-actions {
-                justify-content: center;
-                width: 100%;
-            }
-
-            .quantity-controls {
-                justify-content: center;
-            }
-
-            .add-btn {
-                padding: var(--space-3) var(--space-6);
-                font-size: 1rem;
-            }
-
-            .category-nav {
-                overflow-x: auto;
-                padding: var(--space-2);
-            }
-
-            .section-title {
-                font-size: 1.75rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: var(--space-4) var(--space-3);
-            }
-
-            .menu-item {
-                padding: var(--space-3);
-            }
-
-            .item-title {
-                font-size: 1.25rem;
-            }
-
-            .item-price {
-                font-size: 1.375rem;
-            }
-
-            .modal {
-                margin: var(--space-4);
-                width: calc(100% - 2rem);
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        .loading.dark {
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-top-color: var(--color-primary);
-        }
-
-        .menu-loader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-8);
-            text-align: center;
-            min-height: 400px;
-        }
-
-        /* Global spinner for loaders */
-        .loader-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--color-border);
-            border-radius: 50%;
-            border-top-color: var(--color-primary);
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: var(--space-4);
-        }
-
-        .menu-loader h3 {
-            color: var(--color-text);
-            margin-bottom: var(--space-2);
-        }
-
-        .menu-loader p {
-            color: var(--color-text-muted);
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Toast Notifications */
-        .toast {
-            position: fixed;
-            bottom: var(--space-4);
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--color-text);
-            color: white;
-            padding: var(--space-3) var(--space-5);
-            border-radius: var(--radius-lg);
-            z-index: 300;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .toast.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .toast.success {
-            background: var(--color-success);
-        }
-
-        .toast.error {
-            background: var(--color-danger);
-        }
-
-        /* Auto-focus verification input */
-        .form-input[maxlength="6"] {
-            font-family: 'Courier New', monospace;
-            letter-spacing: 0.2rem;
-            text-align: center;
-        }
-
-        /* Enter key indicator */
-        .enter-hint {
-            font-size: 0.75rem;
-            color: var(--color-text-muted);
-            margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .enter-hint kbd {
-            background: var(--color-bg-muted);
-            border: 1px solid var(--color-border);
-            border-radius: 0.25rem;
-            padding: 0.125rem 0.25rem;
-            font-size: 0.6875rem;
-        }
-
-        .global-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(250, 250, 250, 0.95);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        body::before {
-            display: none !important;
-        }
-
-        #warning,
-        .warning-bar,
-        .warning-banner-bar,
-        .warning-banner-bar-hidden {
-            display: none !important;
-            height: 0 !important;
-            min-height: 0 !important;
-            max-height: 0 !important;
-            border: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            background: none !important;
-        }
-
-        /* Debug Log Overlay */
-        #debug-log {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-height: 200px;
-            overflow: auto;
-            background: #222;
-            color: #fff;
-            z-index: 9999;
-            font-size: 12px;
-            padding: 4px;
-            pointer-events: auto;
-        }
+/* Enhanced KROO Café CSS with InstaPay Payment System */
+
+:root {
+    /* Colors - matching booking system */
+    --color-primary: #F4B400;
+    --color-primary-dark: #E0A800;
+    --color-primary-hover: #D97706;
+    --color-primary-light: #FEF3C7;
+    --color-success: #10B981;
+    --color-success-dark: #059669;
+    --color-success-light: #d1fae5;
+    --color-danger: #EF4444;
+    --color-danger-dark: #DC2626;
+    --color-text: #333333;
+    --color-text-muted: #6B7280;
+    --color-text-light: #9CA3AF;
+    --color-border: #E5E7EB;
+    --color-border-dark: #D1D5DB;
+    --color-bg: #FAFAFA;
+    --color-bg-card: #FFFFFF;
+    --color-bg-muted: #F3F4F6;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+    --color-shadow-lg: rgba(0, 0, 0, 0.15);
+    --color-blue: #3B82F6;
+    --color-blue-dark: #2563EB;
+    --color-blue-light: #93C5FD;
+
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+
+    /* Border radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-full: 9999px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    background: var(--color-bg) !important;
+}
+
+html::before, html::after,
+body::before, body::after,
+.header::before, .header::after {
+    display: none !important;
+    border: none !important;
+    background: none !important;
+    content: none !important;
+}
+
+.header {
+    box-shadow: none !important;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #333333 0%, #1F2937 100%);
+    color: white;
+    padding: var(--space-6) 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: none !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(244, 180, 0, 0.15);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--color-primary);
+}
+
+.brand-text h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.brand-text p {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.search-container {
+    position: relative;
+    display: none;
+}
+
+.search-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    color: white;
+    width: 250px;
+    transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.search-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-primary);
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.cart-button {
+    position: relative;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.cart-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-primary);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--color-primary);
+    color: var(--color-text);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Main Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-4);
+}
+
+/* Category Navigation */
+.category-nav {
+    background: var(--color-bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--space-2);
+    margin-bottom: var(--space-8);
+    box-shadow: 0 2px 4px var(--color-shadow);
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.category-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.category-btn {
+    background: none;
+    border: none;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+}
+
+.category-btn:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+}
+
+.category-btn.active {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 2px 4px rgba(244, 180, 0, 0.3);
+}
+
+/* Menu List Style */
+.menu-section {
+    margin-bottom: var(--space-8);
+}
+
+.section-header {
+    margin-bottom: var(--space-6);
+    text-align: center;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: var(--color-primary);
+    margin: var(--space-3) auto 0;
+}
+
+.section-subtitle {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.menu-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
+    background: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 3px var(--color-shadow);
+    transition: all 0.3s ease;
+    border: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--color-shadow-lg);
+    border-color: var(--color-primary);
+}
+
+.menu-item.popular::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-top: 40px solid var(--color-primary);
+}
+
+.menu-item.popular::after {
+    content: '★';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
+.item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-lg);
+    margin-right: var(--space-4);
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid var(--color-border);
+}
+
+.item-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-2);
+}
+
+.item-name-section {
+    flex: 1;
+}
+
+.item-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+.item-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.item-price-section {
+    text-align: right;
+    margin-left: var(--space-4);
+}
+
+.item-price {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.2;
+}
+
+.popular-badge {
+    background: var(--color-primary);
+    color: var(--color-text);
+    padding: 0.125rem var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+    display: inline-block;
+}
+
+.item-description {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin-bottom: var(--space-3);
+    margin-right: var(--space-4);
+}
+
+.item-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.item-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-lg);
+    padding: 0.25rem;
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px var(--color-shadow);
+}
+
+.qty-btn:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary-hover);
+}
+
+.qty-display {
+    min-width: 32px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.add-btn {
+    background: var(--color-primary);
+    color: var(--color-text);
+    border: none;
+    padding: 0.5rem var(--space-4);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.875rem;
+}
+
+.add-btn:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+}
+
+/* Cart Sidebar */
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.cart-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100vh;
+    background: white;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 15px var(--color-shadow-lg);
+}
+
+.cart-overlay.active .cart-sidebar {
+    transform: translateX(0);
+}
+
+.cart-header {
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-bg);
+}
+
+.cart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.cart-close {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+.cart-close:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+}
+
+.cart-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4);
+}
+
+.cart-empty {
+    text-align: center;
+    padding: var(--space-8) var(--space-4);
+    color: var(--color-text-muted);
+}
+
+.cart-empty i {
+    font-size: 3rem;
+    margin-bottom: var(--space-4);
+    color: var(--color-text-light);
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--color-bg);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-3);
+}
+
+.cart-item-image {
+    width: 50px;
+    height: 50px;
+    background-color: var(--color-border);
+    border-radius: var(--radius-md);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid var(--color-border);
+}
+
+.cart-item-details {
+    flex: 1;
+}
+
+.cart-item-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.cart-item-price {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.cart-footer {
+    padding: var(--space-5);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg);
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.total-amount {
+    color: var(--color-primary-dark);
+    font-size: 1.5rem;
+}
+
+.discount-section {
+    background: var(--color-success-light);
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.discount-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--color-success-dark);
+    font-weight: 500;
+}
+
+.checkout-btn {
+    width: 100%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.checkout-btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.checkout-btn:disabled {
+    background: var(--color-text-light);
+    cursor: not-allowed;
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: var(--space-4);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: white;
+    border-radius: var(--radius-xl);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal {
+    transform: scale(1);
+}
+
+.modal-header {
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+}
+
+.modal-content {
+    padding: var(--space-5);
+}
+
+.form-group {
+    margin-bottom: var(--space-4);
+}
+
+.form-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+    color: var(--color-text);
+}
+
+.form-input {
+    width: 100%;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.payment-methods {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-method:hover {
+    border-color: var(--color-primary);
+}
+
+.payment-method.selected {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.payment-icon {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+}
+
+.payment-details h4 {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.payment-details p {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.btn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn-secondary {
+    background: var(--color-text-muted);
+}
+
+.btn-secondary:hover {
+    background: var(--color-text);
+}
+
+.success-message {
+    text-align: center;
+    padding: var(--space-8) var(--space-4);
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--color-success);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto var(--space-4);
+}
+
+/* Payment Flow Screens */
+.payment-screen {
+    text-align: center;
+    padding: var(--space-6) var(--space-4);
+}
+
+.payment-screen .icon-container {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto var(--space-5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-screen .icon-container.counter {
+    background: linear-gradient(135deg, var(--color-blue) 0%, var(--color-blue-dark) 100%);
+    color: white;
+}
+
+.payment-screen .icon-container.instapay {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+}
+
+.payment-screen .icon-container.preparing {
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+    color: white;
+}
+
+/* Animated pulse effect */
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+.pulse.preparing {
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* ===== ENHANCED INSTAPAY UI COMPONENTS ===== */
+
+/* InstaPay Upload Section */
+.instapay-upload {
+    margin: var(--space-5) 0;
+}
+
+.upload-instructions {
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    text-align: left;
+}
+
+.upload-instructions h4 {
+    color: var(--color-primary-dark);
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.upload-instructions ol {
+    color: var(--color-text);
+    margin-left: var(--space-4);
+}
+
+.upload-instructions li {
+    margin-bottom: var(--space-2);
+}
+
+.file-upload-area {
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--color-bg);
+}
+
+.file-upload-area:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.file-upload-area.dragover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.file-upload-area input[type="file"] {
+    display: none;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: var(--color-text-light);
+    margin-bottom: var(--space-3);
+}
+
+.upload-text {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+}
+
+.uploaded-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-3);
+    box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+/* Verification Status Components */
+.status-success {
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-lg);
+    background-color: #f0f9ff;
+    overflow: hidden;
+    margin: var(--space-4) 0;
+}
+
+.status-success-header {
+    display: flex;
+    align-items: center;
+    padding: var(--space-4);
+    background-color: #dcfce7;
+    border-bottom: 1px solid var(--color-success);
+}
+
+.status-success-icon {
+    color: var(--color-success-dark);
+    font-size: 1.5rem;
+    margin-right: var(--space-3);
+}
+
+.status-success-title {
+    color: var(--color-success-dark);
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.status-success-details {
+    padding: var(--space-4);
+}
+
+.status-success-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0;
+}
+
+.status-success-list li {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.status-success-list li:last-child {
+    border-bottom: none;
+}
+
+.status-partial {
+    border: 1px solid #f59e0b;
+    border-radius: var(--radius-lg);
+    background-color: #fffbeb;
+    overflow: hidden;
+    margin: var(--space-4) 0;
+}
+
+.status-partial-header {
+    display: flex;
+    align-items: center;
+    padding: var(--space-4);
+    background-color: #fef3c7;
+    border-bottom: 1px solid #f59e0b;
+}
+
+.status-partial-icon {
+    color: #d97706;
+    font-size: 1.5rem;
+    margin-right: var(--space-3);
+}
+
+.status-partial-title {
+    color: #d97706;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.status-partial-details {
+    padding: var(--space-4);
+}
+
+.status-partial-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0;
+}
+
+.status-partial-list li {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.status-partial-list li:last-child {
+    border-bottom: none;
+}
+
+.status-info {
+    border: 1px solid #3b82f6;
+    border-radius: var(--radius-lg);
+    background-color: #eff6ff;
+    overflow: hidden;
+    margin: var(--space-4) 0;
+}
+
+.status-info-header {
+    display: flex;
+    align-items: center;
+    padding: var(--space-4);
+    background-color: #dbeafe;
+    border-bottom: 1px solid #3b82f6;
+}
+
+.status-info-icon {
+    color: #1d4ed8;
+    font-size: 1.5rem;
+    margin-right: var(--space-3);
+}
+
+.status-info-title {
+    color: #1d4ed8;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.status-info-details {
+    padding: var(--space-4);
+}
+
+.status-info-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0;
+}
+
+.status-info-list li {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.status-info-list li:last-child {
+    border-bottom: none;
+}
+
+.status-loading {
+    text-align: center;
+    padding: var(--space-6);
+    color: var(--color-text-muted);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto var(--space-4);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+}
+
+.uploaded-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-3);
+}
+
+.remaining-amount-banner {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    margin: var(--space-4) 0;
+}
+
+.amount-label {
+    display: block;
+    font-size: 0.875rem;
+    margin-bottom: var(--space-2);
+}
+
+.amount-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.action-buttons {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.verification-actions {
+    margin-top: var(--space-4);
+}
+
+.partial-payment-options {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.error-example {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.error-example-title {
+    font-weight: 600;
+    color: var(--color-danger-dark);
+    margin-bottom: var(--space-2);
+}
+
+.error-example-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.error-example-list li {
+    padding: var(--space-1) 0;
+    color: var(--color-danger-dark);
+}
+
+.critical-error {
+    font-weight: 600;
+    color: var(--color-danger) !important;
+}
+
+.duplicate-error {
+    font-weight: 600;
+    color: var(--color-danger) !important;
+}
+
+.error-example {
+    background-color: #fef2f2;
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.error-example-title {
+    font-weight: 600;
+    color: var(--color-danger-dark);
+    margin-bottom: var(--space-2);
+}
+
+.error-example-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.error-example-list li {
+    padding: var(--space-1) 0;
+    color: var(--color-text);
+}
+
+.error-example-image {
+    display: flex;
+    justify-content: center;
+    margin: var(--space-3) 0;
+    font-size: 2rem;
+    color: var(--color-text-light);
+}
+
+/* Partial Payment Status */
+.status-partial {
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-primary-light);
+    overflow: hidden;
+    margin: var(--space-4) 0;
+}
+
+.status-partial-header {
+    display: flex;
+    align-items: center;
+    padding: var(--space-4);
+    background-color: #fef3c7;
+    border-bottom: 1px solid var(--color-primary);
+}
+
+.status-partial-icon {
+    color: var(--color-primary-dark);
+    font-size: 1.5rem;
+    margin-right: var(--space-3);
+}
+
+.status-partial-title {
+    color: var(--color-primary-dark);
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.status-partial-details {
+    padding: var(--space-4);
+}
+
+.status-partial-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0;
+}
+
+.status-partial-list li {
+    padding: var(--space-1) 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.payment-progress {
+    height: 20px;
+    background-color: var(--color-border);
+    border-radius: 10px;
+    margin: var(--space-3) 0;
+    overflow: hidden;
+}
+
+.payment-progress-bar {
+    height: 100%;
+    background-color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    transition: width 0.5s ease;
+    position: relative;
+    padding-right: var(--space-2);
+}
+
+.payment-progress-text {
+    color: white;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+.partial-payment-options {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-4);
+    gap: var(--space-3);
+}
+
+.partial-payment-options button {
+    flex: 1;
+}
+
+/* Info Status */
+.status-info {
+    border: 1px solid var(--color-blue);
+    border-radius: var(--radius-lg);
+    background-color: #dbeafe;
+    overflow: hidden;
+    margin: var(--space-4) 0;
+}
+
+.status-info-header {
+    display: flex;
+    align-items: center;
+    padding: var(--space-4);
+    background-color: #bfdbfe;
+    border-bottom: 1px solid var(--color-blue);
+}
+
+.status-info-icon {
+    color: var(--color-blue-dark);
+    font-size: 1.5rem;
+    margin-right: var(--space-3);
+}
+
+.status-info-title {
+    color: var(--color-blue-dark);
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.status-info-details {
+    padding: var(--space-4);
+}
+
+.status-info-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0;
+}
+
+.status-info-list li {
+    padding: var(--space-1) 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Loading Status */
+.status-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-6);
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--color-border);
+    border-radius: 50%;
+    border-top-color: var(--color-primary);
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: var(--space-3);
+}
+
+.loading-dots::after {
+    content: '';
+    animation: loading-dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes loading-dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+}
+
+/* Payment Completion Instructions */
+.payment-completion {
+    border-color: var(--color-primary);
+}
+
+.payment-completion .status-info-header {
+    background-color: var(--color-primary-light);
+}
+
+.payment-completion .status-info-icon {
+    color: var(--color-primary);
+}
+
+.payment-completion .status-info-title {
+    color: var(--color-primary-dark);
+}
+
+.remaining-amount-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    margin: var(--space-4) 0;
+}
+
+.amount-label {
+    font-size: 1rem;
+    color: var(--color-primary-dark);
+}
+
+.amount-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--color-primary-dark);
+}
+
+.payment-instructions {
+    margin: var(--space-4) 0;
+}
+
+.instructions-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-4);
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+.instructions-header i {
+    margin-right: var(--space-2);
+    color: var(--color-primary);
+}
+
+.payment-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-6) 0;
+}
+
+.payment-steps li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: var(--space-4);
+    line-height: 1.5;
+}
+
+.step-number {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    margin-right: var(--space-3);
+    flex-shrink: 0;
+    font-weight: bold;
+}
+
+.step-text {
+    padding-top: 4px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-6);
+    gap: var(--space-4);
+}
+
+.action-buttons button {
+    flex: 1;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-weight: 500;
+}
+
+.action-buttons i {
+    margin-right: var(--space-2);
+}
+
+/* Verification Actions */
+.verification-actions {
+    margin-top: var(--space-4);
+}
+
+.verification-actions button {
+    width: 100%;
+    padding: var(--space-4);
+}
+
+/* Payment Summary */
+.payment-summary {
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    margin: var(--space-3) 0;
+}
+
+.payment-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-2) 0;
+}
+
+.payment-row.highlight {
+    font-weight: bold;
+    color: var(--color-primary);
+    border-bottom: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-2) 0;
+    margin: var(--space-2) 0;
+}
+
+.payment-row.total {
+    font-weight: bold;
+    margin-top: var(--space-2);
+}
+
+/* Order History Styles */
+.order-history {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history-item {
+    background: var(--color-bg);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--color-border);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+}
+
+.order-number {
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+.order-date {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.order-status {
+    display: inline-block;
+    padding: 0.25rem var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-completed {
+    background: var(--color-success-light);
+    color: var(--color-success-dark);
+}
+
+.status-preparing {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.history-items {
+    margin-top: var(--space-2);
+}
+
+.history-item-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.history-total {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-2);
+    margin-top: var(--space-2);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* User Status Styles */
+.user-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.user-info {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 0.5rem var(--space-3);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.875rem;
+    position: relative;
+    min-width: 0;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--color-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    flex-shrink: 0;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    flex: 1;
+}
+
+.user-email {
+    font-weight: 500;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.user-discount {
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    line-height: 1;
+}
+
+.login-btn {
+    background: var(--color-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 0.5rem var(--space-4);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    white-space: nowrap;
+}
+
+.login-btn:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+}
+
+.logout-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    padding: 0.5rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--color-primary);
+}
+
+/* Header Navigation */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.nav-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 0.5rem var(--space-3);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-primary);
+}
+
+/* Desktop layout - keep original structure */
+.header-top-row,
+.header-bottom-row {
+    display: contents;
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+.loading.dark {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-top-color: var(--color-primary);
+}
+
+.menu-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    text-align: center;
+    min-height: 400px;
+}
+
+/* Global spinner for loaders */
+.loader-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--color-border);
+    border-radius: 50%;
+    border-top-color: var(--color-primary);
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: var(--space-4);
+}
+
+.menu-loader h3 {
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+}
+
+.menu-loader p {
+    color: var(--color-text-muted);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: var(--space-4);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-text);
+    color: white;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-lg);
+    z-index: 300;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.toast.success {
+    background: var(--color-success);
+}
+
+.toast.error {
+    background: var(--color-danger);
+}
+
+/* Auto-focus verification input */
+.form-input[maxlength="6"] {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.2rem;
+    text-align: center;
+}
+
+/* Enter key indicator */
+.enter-hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.enter-hint kbd {
+    background: var(--color-bg-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.25rem;
+    font-size: 0.6875rem;
+}
+
+.global-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(250, 250, 250, 0.95);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+body::before {
+    display: none !important;
+}
+
+#warning,
+.warning-bar,
+.warning-banner-bar,
+.warning-banner-bar-hidden {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important;
+}
+
+/* Debug Log Overlay */
+#debug-log {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow: auto;
+    background: #222;
+    color: #fff;
+    z-index: 9999;
+    font-size: 12px;
+    padding: 4px;
+    pointer-events: auto;
+}
+
+/* Mobile Responsive - Improved */
+@media (max-width: 768px) {
+    .cart-sidebar {
+        width: 100%;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: var(--space-3);
+        align-items: stretch;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .header-top-row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        width: 100%;
+    }
+
+    .search-container {
+        display: block;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .user-status {
+        flex-shrink: 0;
+    }
+
+    .header-bottom-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .header-nav {
+        margin-top: 0;
+    }
+
+    .nav-btn {
+        padding: 0.5rem var(--space-2);
+        font-size: 0.8rem;
+    }
+
+    .user-info {
+        padding: 0.5rem var(--space-2);
+        font-size: 0.8rem;
+        max-width: 200px;
+        gap: var(--space-2);
+    }
+
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+
+    .user-email {
+        max-width: 100px;
+        font-size: 0.8rem;
+    }
+
+    .user-discount {
+        font-size: 0.7rem;
+    }
+
+    .logout-btn {
+        width: 28px;
+        height: 28px;
+        padding: 0.375rem;
+        font-size: 0.7rem;
+    }
+
+    .login-btn {
+        padding: 0.5rem var(--space-3);
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    /* Improved Mobile Menu Item Layout */
+    .menu-item {
+        flex-direction: column;
+        padding: var(--space-4);
+        text-align: center;
+    }
+
+    .item-image {
+        width: 100%;
+        height: 220px;
+        max-width: 280px;
+        margin: 0 0 var(--space-4) 0;
+        align-self: center;
+    }
+
+    .item-details {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .item-header {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-2);
+        width: 100%;
+        margin-bottom: var(--space-3);
+    }
+
+    .item-name-section {
+        text-align: center;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .item-rating {
+        justify-content: center;
+    }
+
+    .item-price-section {
+        margin-left: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .item-title {
+        font-size: 1.375rem;
+        margin-bottom: var(--space-2);
+    }
+
+    .item-price {
+        font-size: 1.5rem;
+        margin-bottom: var(--space-2);
+    }
+
+    .item-description {
+        text-align: center;
+        margin: 0 0 var(--space-4) 0;
+        max-width: 320px;
+    }
+
+    .item-actions {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .quantity-controls {
+        justify-content: center;
+    }
+
+    .add-btn {
+        padding: var(--space-3) var(--space-6);
+        font-size: 1rem;
+    }
+
+    .category-nav {
+        overflow-x: auto;
+        padding: var(--space-2);
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    /* Mobile InstaPay UI Adjustments */
+    .payment-screen {
+        padding: var(--space-4) var(--space-3);
+    }
+
+    .upload-instructions {
+        padding: var(--space-3);
+    }
+
+    .upload-instructions ol {
+        margin-left: var(--space-3);
+    }
+
+    .file-upload-area {
+        padding: var(--space-4);
+    }
+
+    .payment-steps li {
+        margin-bottom: var(--space-3);
+    }
+
+    .step-number {
+        width: 24px;
+        height: 24px;
+        margin-right: var(--space-2);
+        font-size: 0.875rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .action-buttons button {
+        width: 100%;
+    }
+
+    .partial-payment-options {
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .remaining-amount-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-1);
+    }
+
+    .status-success-header,
+    .status-error-header,
+    .status-partial-header,
+    .status-info-header {
+        padding: var(--space-3);
+    }
+
+    .status-success-details,
+    .status-error-details,
+    .status-partial-details,
+    .status-info-details {
+        padding: var(--space-3);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: var(--space-4) var(--space-3);
+    }
+
+    .menu-item {
+        padding: var(--space-3);
+    }
+
+    .item-title {
+        font-size: 1.25rem;
+    }
+
+    .item-price {
+        font-size: 1.375rem;
+    }
+
+    .modal {
+        margin: var(--space-4);
+        width: calc(100% - 2rem);
+    }
+
+    .payment-screen .icon-container {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+
+    .upload-icon {
+        font-size: 2.5rem;
+    }
+
+    .status-success-icon,
+    .status-error-icon,
+    .status-partial-icon,
+    .status-info-icon {
+        font-size: 1.25rem;
+    }
+
+    .status-success-title,
+    .status-error-title,
+    .status-partial-title,
+    .status-info-title {
+        font-size: 1.125rem;
+    }
+}
+
+.status-error {
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-lg);
+    background-color: #fee2e2;
+    overflow: hidden;
+    margin: var(--space-4) 0;
+}
+
+.status-error-header {
+    display: flex;
+    align-items: center;
+    padding: var(--space-4);
+    background-color: #fecaca;
+    border-bottom: 1px solid var(--color-danger);
+}
+
+.status-error-icon {
+    color: var(--color-danger-dark);
+    font-size: 1.5rem;
+    margin-right: var(--space-3);
+}
+
+.status-error-title {
+    color: var(--color-danger-dark);
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.status-error-details {
+    padding: var(--space-4);
+}
+
+/* .status-error */
     </style>
 </head>
 
 <body>
+    <input type="hidden" id="debug-mode" value="<?= debugMode ?>">
+
     <!-- Header -->
     <header class="header">
         <div class="header-content">
@@ -3237,6 +3955,7 @@
         function showInstaPayFlow() {
             const checkoutContent = document.getElementById('checkoutContent');
             const totals = appState.getCartTotals();
+            const paymentRef = appState.getPaymentReference();
 
             checkoutContent.innerHTML = `
                 <div class="payment-screen">
@@ -3251,19 +3970,17 @@
                     <div class="upload-instructions">
                         <h4><i class="fas fa-info-circle"></i> Payment Instructions</h4>
                         <ol>
-                            <li>Click the InstaPay link below to open your banking app</li>
-                            <li>Complete the payment of <strong>EGP ${totals.total.toFixed(2)}</strong></li>
-                            <li>Take a screenshot of the successful payment</li>
+                            <li>Open your InstaPay app</li>
+                            <li>Transfer <strong>EGP ${totals.total.toFixed(2)}</strong> to our account</li>
+                            <li>Use reference: <strong>${paymentRef}</strong></li>
+                            <li>Take a screenshot of the payment confirmation</li>
                             <li>Upload the screenshot below for verification</li>
                         </ol>
                     </div>
 
-                    <div style="margin: 1.5rem 0;">
-                        <a href="instapay://pay?amount=${totals.total.toFixed(2)}&merchant=KROO_CAFE" 
-                           class="btn" style="width: 100%; justify-content: center; text-decoration: none;">
-                            <i class="fas fa-external-link-alt"></i>
-                            Open InstaPay (EGP ${totals.total.toFixed(2)})
-                        </a>
+                    <div style="background: var(--color-primary-light); border-radius: var(--radius-lg); padding: 1rem; margin: 1.5rem 0; text-align: center;">
+                        <div style="color: var(--color-primary-dark); font-weight: 600; margin-bottom: 0.5rem;">Payment Reference</div>
+                        <div style="font-family: monospace; font-size: 1.25rem; font-weight: bold; color: var(--color-primary-dark);">${paymentRef}</div>
                     </div>
 
                     <div class="instapay-upload">
@@ -3281,6 +3998,8 @@
                             <div id="uploadPreview"></div>
                         </div>
                     </div>
+
+                    <div id="verificationStatus" style="margin: 1rem 0;"></div>
 
                     <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                         <button class="btn btn-secondary" onclick="showPaymentOptions()" style="flex: 1;">
@@ -3327,66 +4046,92 @@
             verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
             verifyBtn.disabled = true;
 
+            const verificationStatus = document.getElementById('verificationStatus');
+            if (verificationStatus) {
+                verificationStatus.innerHTML = `
+                    <div class="status-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Verifying payment, please wait<span class="loading-dots"></span></p>
+                    </div>
+                `;
+            }
+
             const totals = appState.getCartTotals();
-            // Ensure reference is generated before any API call
-            const orderReference = generateOrderReference();
+            const paymentReference = appState.getPaymentReference();
+            const expectedAmount = appState.expectedRemainingAmount || totals.total;
 
-            // First verify the payment
-            API.verifyInstapayPayment(
+            const verificationOptions = {
+                maxAgeMins: 10,
+                strictMetadataCheck: false,
+                allowMoreThanExpected: true
+            };
+
+            API.processFullVerification(
                 appState.currentUploadedFile,
-                orderReference,
-                totals.total
+                paymentReference,
+                expectedAmount,
+                verificationOptions
             )
-                .then(verificationResult => {
-                    if (verificationResult.verified) {
-                        // If verified, complete the payment and add to buffer
-                        const orderData = {
-                            orderNumber: orderReference,
-                            reference: orderReference,
-                            email: appState.user.email,
-                            items: appState.cart.map(item => ({
-                                name: item.name,
-                                price: item.price,
-                                quantity: item.quantity
-                            })),
-                            subtotal: totals.subtotal,
-                            discount: totals.discount,
-                            total: totals.total,
-                            paymentMethod: 'instapay',
-                            discountApplied: appState.user.discountPercentage,
-                            timestamp: new Date().toISOString(),
-                            status: 'finished',
-                            orderId: orderReference,
-                            accountEmail: appState.user.email
+            .then(response => {
+                let parsedComponents;
+                
+                try {
+                    const initialParsed = typeof response === 'string' ? JSON.parse(response) : response;
+                    
+                    if (typeof initialParsed === 'string') {
+                        parsedComponents = JSON.parse(initialParsed);
+                    } else if (initialParsed && typeof initialParsed === 'object') {
+                        parsedComponents = {
+                            ocrResult: initialParsed.ocrResult || {},
+                            verificationResult: initialParsed.verificationResult || {},
+                            decision: initialParsed.decision || {}
                         };
-
-                        // Add to buffer first
-                        API.addToBuffer(orderData)
-                            .then(() => {
-                                showOrderPreparation(orderData);
-                                // Fire-and-forget DB write
-                                API.addToFinishedOrders(orderData).catch(console.error);
-                                appState.addOrder(orderData);
-                                appState.clearCart();
-                                appState.updateUI({ selectedPayment: '' });
-                                appState.currentUploadedFile = null;
-                            })
-                            .catch(error => {
-                                console.error('Payment verification error:', error);
-                                showToast('Failed to verify payment. Please try again.', 'error');
-                                verifyBtn.innerHTML = 'Verify Payment';
-                                verifyBtn.disabled = false;
-                            });
-                    } else {
-                        throw new Error('Payment verification failed');
                     }
-                })
-                .catch(error => {
-                    console.error('Payment verification error:', error);
-                    showToast('Failed to verify payment. Please try again.', 'error');
-                    verifyBtn.innerHTML = 'Verify Payment';
-                    verifyBtn.disabled = false;
-                });
+                } catch (error) {
+                    console.error('Error parsing components:', error);
+                    throw new Error('Failed to process the verification response. Please try again.');
+                }
+
+                const { ocrResult, verificationResult, decision } = parsedComponents;
+
+                appState.verificationResult = {
+                    verified: verificationResult.isLegitimate && verificationResult.isRightAmount,
+                    confidence: ocrResult.confidence?.amount ? `${(ocrResult.confidence.amount * 100).toFixed(1)}%` : 'Low',
+                    message: decision?.message || getVerificationMessage(verificationResult),
+                    remainder: verificationResult.remainder || 0,
+                    amountStatus: verificationResult.amountStatus || 'unknown',
+                    detailedResult: parsedComponents,
+                    timestamp: new Date().toISOString()
+                };
+
+                verifyBtn.innerHTML = 'Verify Payment';
+                verifyBtn.disabled = false;
+
+                updateVerificationUI(verificationResult, ocrResult, decision);
+
+                if (decision?.decision === 'APPROVED' || (verificationResult.isLegitimate && verificationResult.isRightAmount)) {
+                    showCompleteOrderButton();
+                }
+            })
+            .catch(error => {
+                console.error('Error during verification:', error);
+                verifyBtn.innerHTML = 'Verify Payment';
+                verifyBtn.disabled = false;
+
+                if (verificationStatus) {
+                    verificationStatus.innerHTML = `
+                        <div class="status-error">
+                            <div class="status-error-header">
+                                <i class="fas fa-times-circle status-error-icon"></i>
+                                <h3 class="status-error-title">Verification Failed</h3>
+                            </div>
+                            <div class="status-error-details">
+                                <p>${error.message || 'Could not verify payment. Please try again.'}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
         }
 
         function showCounterFlow(paymentMethod) {
@@ -3863,7 +4608,62 @@
                     successMessage: 'Email verified!',
                     errorMessage: 'Failed to verify email. Please try again.'
                 });
-            }
+            },
+
+            /**
+             * Process full InstaPay verification with OCR and verification pipeline
+             * @param {File} file - Screenshot file
+             * @param {string} orderReference - Order reference
+             * @param {number} expectedAmount - Expected payment amount
+             * @param {object} verificationOptions - Verification options
+             * @returns {Promise} Promise resolving to verification result
+             */
+            processFullVerification: function (file, orderReference, expectedAmount, verificationOptions = {}) {
+                const requestId = `processFullVerification_${orderReference}`;
+                
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        try {
+                            const base64Data = e.target.result.split(',')[1];
+                            
+                            const dataToSend = {
+                                fileContent: base64Data,
+                                fileName: file.name,
+                                fileType: file.type,
+                                fileSize: file.size,
+                                paymentReference: orderReference,
+                                expectedAmount: expectedAmount,
+                                ...verificationOptions
+                            };
+
+                            console.log("Sending file:", file.name, "size:", file.size, "type:", file.type);
+                            console.log("With reference:", orderReference, "expected amount:", expectedAmount);
+
+                            this.request('processFullVerification', dataToSend, {
+                                requestId: requestId,
+                                showLoader: false,
+                                hideToastOnSuccess: true,
+                                errorMessage: 'Could not verify payment. Please try again.'
+                            })
+                            .then(resolve)
+                            .catch(reject);
+                        }
+                        catch (error) {
+                            console.error('Error preparing file data:', error);
+                            reject(error);
+                        }
+                    };
+
+                    reader.onerror = (error) => {
+                        console.error('Error reading file:', error);
+                        reject(error);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+            },
         };
 
         // ===== DOM MODULE =====
@@ -3877,7 +4677,15 @@
             return `ORDER-${dateStr}-${randomPart}`;
         }
 
+        // Utility: Detect debug mode from URL
+        function isDebugMode() {
+            const debugInput = document.getElementById('debug-mode');
+            console.log(debugInput)
+            return debugInput && debugInput.value === 'true';
+        }
+
         function debugLog(msg) {
+            if (!isDebugMode()) return;
             let el = document.getElementById('debug-log');
             if (!el) {
                 el = document.createElement('div');
@@ -3916,6 +4724,604 @@
                 debugLog(`[loadUserFromCookies] No saved user found in cookies`);
             }
             updateUserStatus();
+        }
+
+        // Enhanced InstaPay Integration - Complete Implementation
+
+        // Enhanced payment state management
+        appState.currentUploadedFile = null;
+        appState.verificationResult = null;
+        appState.partialPaymentAmount = 0;
+        appState.remainingAmount = 0;
+        appState.expectedRemainingAmount = 0;
+        appState.paymentReference = null;
+
+        // Enhanced payment reference methods
+        appState.getPaymentReference = function() {
+            if (!this.paymentReference) {
+                this.paymentReference = generateReferenceNumber();
+            }
+            return this.paymentReference;
+        };
+
+        appState.resetPaymentReference = function() {
+            this.paymentReference = null;
+            this.verificationResult = null;
+            this.currentUploadedFile = null;
+            this.partialPaymentAmount = 0;
+            this.remainingAmount = 0;
+            this.expectedRemainingAmount = 0;
+        };
+
+        // Enhanced Utility Functions
+        function generateReferenceNumber() {
+            const today = new Date();
+            const refDate = `${today.getFullYear().toString().substr(2)}${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`;
+            const refNum = Math.floor(10000 + Math.random() * 90000);
+            return refDate + refNum;
+        }
+
+        function generateOrderReference() {
+            const today = new Date();
+            const dateStr = today.getFullYear() +
+                (today.getMonth() + 1).toString().padStart(2, '0') +
+                today.getDate().toString().padStart(2, '0');
+            const randomPart = Math.floor(10000 + Math.random() * 90000);
+            return `ORDER-${dateStr}-${randomPart}`;
+        }
+
+        // InstaPay verification functionality has been integrated into the main API object
+
+        /**
+         * Get user-friendly verification messages
+         */
+        function getVerificationMessage(verificationResult, decision = null) {
+            if (decision && decision.message) {
+                return decision.message;
+            }
+
+            if (!verificationResult) {
+                return 'Could not verify the payment. Please try again.';
+            }
+
+            const missingFields = [];
+            if (!verificationResult.hasReferenceNumber) missingFields.push("reference number");
+            if (!verificationResult.hasTimestamp) missingFields.push("timestamp/date");
+            if (!verificationResult.hasAmount) missingFields.push("payment amount");
+
+            if (missingFields.length > 0) {
+                return `The screenshot is missing: ${missingFields.join(", ")}. Please ensure your screenshot shows the complete payment receipt.`;
+            }
+
+            if (!verificationResult.isLegitimate) {
+                if (verificationResult.reasons && verificationResult.reasons.length > 0) {
+                    return verificationResult.reasons[0];
+                }
+                return 'The payment screenshot could not be verified. Please ensure all payment details are clearly visible.';
+            }
+
+            if (verificationResult.amountStatus === 'less') {
+                const remainder = Math.abs(verificationResult.remainder || 0).toFixed(2);
+                return `We detected a partial payment. You need to pay an additional EGP ${remainder} to complete the order.`;
+            }
+
+            if (verificationResult.amountStatus === 'more') {
+                const extra = Math.abs(verificationResult.remainder || 0).toFixed(2);
+                return `You paid EGP ${extra} more than the required amount. The order will be confirmed.`;
+            }
+
+            if (verificationResult.isRightAmount) {
+                return 'Payment verified successfully! Your order is confirmed.';
+            }
+
+            return 'There was an issue with the payment verification. Please try again or contact support.';
+        }
+
+        /**
+         * Update the verification UI with specific warnings for missing information
+         */
+        function updateVerificationUI(verificationResult, ocrResult, decision = {}) {
+            const verificationStatus = document.getElementById('verificationStatus');
+            if (!verificationStatus) return;
+
+            const isLegitimate = verificationResult?.isLegitimate || false;
+            const isRightAmount = verificationResult?.isRightAmount || false;
+            const amountStatus = verificationResult?.amountStatus || 'unknown';
+            const remainder = verificationResult?.remainder || 0;
+
+            let confidenceDisplay = 'Medium';
+            if (ocrResult?.confidence?.amount) {
+                const confidencePercent = (ocrResult.confidence.amount * 100).toFixed(1);
+                confidenceDisplay = `${confidencePercent}%`;
+            }
+
+            const reasons = verificationResult?.reasons || [];
+            const decisionStatus = decision?.decision || null;
+            const decisionMessage = decision?.message || null;
+
+            // Check for missing fields
+            const missingFields = [];
+            if (!verificationResult.hasReferenceNumber) missingFields.push("reference number");
+            if (!verificationResult.hasTimestamp) missingFields.push("date/time");
+            if (!verificationResult.hasAmount) missingFields.push("payment amount");
+
+            if (missingFields.length > 0) {
+                verificationStatus.innerHTML = `
+                    <div class="status-error">
+                        <div class="status-error-header">
+                            <i class="fas fa-times-circle status-error-icon"></i>
+                            <h3 class="status-error-title">Verification Failed</h3>
+                        </div>
+                        <div class="status-error-details">
+                            <p>The screenshot is missing: ${missingFields.join(", ")}</p>
+                            <div class="error-example">
+                                <p class="error-example-title">Please ensure your screenshot includes:</p>
+                                <ul class="error-example-list">
+                                    ${!verificationResult.hasReferenceNumber ? '<li class="critical-error">- Transaction reference number</li>' : ''}
+                                    ${!verificationResult.hasTimestamp ? '<li class="critical-error">- Date and time of the transaction</li>' : ''}
+                                    ${!verificationResult.hasAmount ? '<li class="critical-error">- Payment amount</li>' : ''}
+                                    <li>- The complete payment receipt</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Handle different verification results
+            if (decisionStatus === 'APPROVED' || (isLegitimate && isRightAmount)) {
+                verificationStatus.innerHTML = `
+                    <div class="status-success">
+                        <div class="status-success-header">
+                            <i class="fas fa-check-circle status-success-icon"></i>
+                            <h3 class="status-success-title">Payment Verified Successfully</h3>
+                        </div>
+                        <div class="status-success-details">
+                            <p>${decisionMessage || 'Your payment has been verified and your order is confirmed.'}</p>
+                            <ul class="status-success-list">
+                                <li>Amount: EGP ${appState.getCartTotals().total.toFixed(2)}</li>
+                                <li>Confidence: ${confidenceDisplay}</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                showCompleteOrderButton();
+            }
+            else if (decisionStatus === 'PARTIAL' || (isLegitimate && amountStatus === 'less')) {
+                const expectedTotal = appState.expectedRemainingAmount || appState.getCartTotals().total;
+                const paidAmount = expectedTotal - Math.abs(remainder);
+                const remainingAmount = Math.abs(remainder);
+                const percentPaid = Math.round((paidAmount / expectedTotal) * 100);
+
+                verificationStatus.innerHTML = `
+                    <div class="status-partial">
+                        <div class="status-partial-header">
+                            <i class="fas fa-percentage status-partial-icon"></i>
+                            <h3 class="status-partial-title">Partial Payment Detected</h3>
+                        </div>
+                        <div class="status-partial-details">
+                            <p>${decisionMessage || `We've detected a payment for ${percentPaid}% of the required amount.`}</p>
+                            <ul class="status-partial-list">
+                                <li>Paid: EGP ${paidAmount.toFixed(2)}</li>
+                                <li>Remaining: EGP ${remainingAmount.toFixed(2)}</li>
+                                <li>Total required: EGP ${expectedTotal.toFixed(2)}</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                setTimeout(() => {
+                    setupPartialPaymentButton(paidAmount, remainingAmount);
+                }, 100);
+            }
+            else {
+                verificationStatus.innerHTML = `
+                    <div class="status-error">
+                        <div class="status-error-header">
+                            <i class="fas fa-times-circle status-error-icon"></i>
+                            <h3 class="status-error-title">Verification Failed</h3>
+                        </div>
+                        <div class="status-error-details">
+                            <p>${decisionMessage || getVerificationMessage(verificationResult)}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+         * Sets up the partial payment UI buttons and handlers
+         */
+        function setupPartialPaymentButton(paidAmount, remainingAmount) {
+            appState.partialPaymentAmount = paidAmount;
+            appState.remainingAmount = remainingAmount;
+
+            const verificationStatus = document.getElementById('verificationStatus');
+            if (!verificationStatus) return;
+
+            const warningSection = verificationStatus.querySelector('.status-partial-details');
+            if (!warningSection) return;
+
+            let buttonContainer = warningSection.querySelector('.partial-payment-options');
+            if (!buttonContainer) {
+                buttonContainer = document.createElement('div');
+                buttonContainer.className = 'partial-payment-options';
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.justifyContent = 'space-between';
+                buttonContainer.style.marginTop = '16px';
+                buttonContainer.style.gap = '12px';
+                warningSection.appendChild(buttonContainer);
+            }
+
+            buttonContainer.innerHTML = `
+                <button id="accept-partial-payment" class="btn btn-secondary" style="flex: 1;">Accept Partial Payment</button>
+                <button id="complete-payment" class="btn" style="flex: 1;">Complete Payment</button>
+            `;
+
+            document.getElementById('accept-partial-payment').addEventListener('click', function() {
+                handleVerifiedInstapayPayment(true);
+            });
+
+            document.getElementById('complete-payment').addEventListener('click', function() {
+                showCompletePaymentInstructions(remainingAmount);
+            });
+        }
+
+        /**
+         * Show instructions for completing the payment
+         */
+        function showCompletePaymentInstructions(remainingAmount) {
+            const verificationStatus = document.getElementById('verificationStatus');
+            if (!verificationStatus) return;
+
+            appState.remainingAmount = remainingAmount;
+            appState.expectedRemainingAmount = remainingAmount;
+
+            verificationStatus.innerHTML = `
+                <div class="status-info payment-completion">
+                    <div class="status-info-header">
+                        <i class="fas fa-info-circle status-info-icon"></i>
+                        <h3 class="status-info-title">Complete Your Payment</h3>
+                    </div>
+                    <div class="status-info-details">
+                        <div class="remaining-amount-banner">
+                            <span class="amount-label">Please pay the remaining balance:</span>
+                            <span class="amount-value">EGP ${remainingAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="action-buttons">
+                            <button id="back-to-partial" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                            <button id="upload-new-payment" class="btn">
+                                <i class="fas fa-upload"></i> Upload New Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                document.getElementById('back-to-partial').addEventListener('click', () => {
+                    const verificationResult = appState.verificationResult?.detailedResult?.verificationResult || {};
+                    const ocrResult = appState.verificationResult?.detailedResult?.ocrResult || {};
+                    const decision = appState.verificationResult?.detailedResult?.decision || {};
+                    updateVerificationUI(verificationResult, ocrResult, decision);
+                });
+
+                document.getElementById('upload-new-payment').addEventListener('click', () => {
+                    clearFilePreview();
+                    const fileInput = document.getElementById('paymentScreenshot');
+                    if (fileInput) {
+                        fileInput.value = '';
+                        fileInput.click();
+                    }
+                });
+            }, 100);
+        }
+
+        function clearFilePreview() {
+            const uploadPreview = document.getElementById('uploadPreview');
+            if (uploadPreview) {
+                uploadPreview.innerHTML = '';
+            }
+            appState.currentUploadedFile = null;
+            const verifyBtn = document.getElementById('verifyPaymentBtn');
+            if (verifyBtn) {
+                verifyBtn.disabled = true;
+            }
+        }
+
+        function showCompleteOrderButton() {
+            const verificationStatus = document.getElementById('verificationStatus');
+            if (!verificationStatus) return;
+
+            let buttonContainer = verificationStatus.querySelector('.verification-actions');
+            if (!buttonContainer) {
+                buttonContainer = document.createElement('div');
+                buttonContainer.className = 'verification-actions';
+                buttonContainer.style.marginTop = '16px';
+                verificationStatus.appendChild(buttonContainer);
+            }
+
+            buttonContainer.innerHTML = `
+                <button class="btn" onclick="handleVerifiedInstapayPayment(false)" style="width: 100%;">
+                    <i class="fas fa-check"></i> Complete Order
+                </button>
+            `;
+        }
+
+        function handleVerifiedInstapayPayment(isPartial = false) {
+            const totals = appState.getCartTotals();
+            const orderReference = generateOrderReference();
+            
+            let finalAmount = totals.total;
+            let orderData = {
+                orderNumber: orderReference,
+                reference: orderReference,
+                email: appState.user.email,
+                items: appState.cart.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
+                subtotal: totals.subtotal,
+                discount: totals.discount,
+                total: finalAmount,
+                paymentMethod: 'instapay',
+                discountApplied: appState.user.discountPercentage,
+                timestamp: new Date().toISOString(),
+                status: 'finished',
+                orderId: orderReference,
+                accountEmail: appState.user.email,
+                paymentVerification: appState.verificationResult
+            };
+
+            if (isPartial) {
+                orderData.isPartialPayment = true;
+                orderData.paidAmount = appState.partialPaymentAmount;
+                orderData.remainingAmount = appState.remainingAmount;
+                orderData.status = 'partial_payment';
+                finalAmount = appState.partialPaymentAmount;
+                
+                showToast(`Order confirmed with partial payment of EGP ${appState.partialPaymentAmount.toFixed(2)}`, 'success');
+            } else {
+                showToast('Payment verified! Order confirmed.', 'success');
+            }
+
+            // Add to buffer and complete order
+            API.addToBuffer(orderData)
+                .then(() => {
+                    showOrderPreparation(orderData);
+                    if (isPartial) {
+                        API.addToPendingPayments(orderData).catch(console.error);
+                    } else {
+                        API.addToFinishedOrders(orderData).catch(console.error);
+                    }
+                    appState.addOrder(orderData);
+                    appState.clearCart();
+                    appState.updateUI({ selectedPayment: '' });
+                    appState.resetPaymentReference();
+                })
+                .catch(error => {
+                    console.error('Order processing error:', error);
+                    showToast('Failed to process order. Please try again.', 'error');
+                });
+        }
+
+        // Enhanced InstaPay flow
+        function showInstaPayFlow() {
+            const checkoutContent = document.getElementById('checkoutContent');
+            const totals = appState.getCartTotals();
+            const paymentRef = appState.getPaymentReference();
+
+            checkoutContent.innerHTML = `
+                <div class="payment-screen">
+                    <div class="icon-container instapay">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>InstaPay Payment</h3>
+                    <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+                        Total Amount: <strong style="color: var(--color-primary-dark);">EGP ${totals.total.toFixed(2)}</strong>
+                    </p>
+                    
+                    <div class="upload-instructions">
+                        <h4><i class="fas fa-info-circle"></i> Payment Instructions</h4>
+                        <ol>
+                            <li>Open your InstaPay app</li>
+                            <li>Transfer <strong>EGP ${totals.total.toFixed(2)}</strong> to our account</li>
+                            <li>Use reference: <strong>${paymentRef}</strong></li>
+                            <li>Take a screenshot of the payment confirmation</li>
+                            <li>Upload the screenshot below for verification</li>
+                        </ol>
+                    </div>
+
+                    <div style="background: var(--color-primary-light); border-radius: var(--radius-lg); padding: 1rem; margin: 1.5rem 0; text-align: center;">
+                        <div style="color: var(--color-primary-dark); font-weight: 600; margin-bottom: 0.5rem;">Payment Reference</div>
+                        <div style="font-family: monospace; font-size: 1.25rem; font-weight: bold; color: var(--color-primary-dark);">${paymentRef}</div>
+                    </div>
+
+                    <div class="instapay-upload">
+                        <div class="file-upload-area" onclick="document.getElementById('paymentScreenshot').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text">
+                                <strong>Upload Payment Screenshot</strong>
+                            </div>
+                            <p style="color: var(--color-text-light); font-size: 0.875rem;">
+                                Click to browse or drag & drop your screenshot
+                            </p>
+                            <input type="file" id="paymentScreenshot" accept="image/*" onchange="handleScreenshotUpload(event)">
+                            <div id="uploadPreview"></div>
+                        </div>
+                    </div>
+
+                    <div id="verificationStatus" style="margin: 1rem 0;"></div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn btn-secondary" onclick="showPaymentOptions()" style="flex: 1;">
+                            Back
+                        </button>
+                        <button class="btn" onclick="verifyPayment()" id="verifyPaymentBtn" style="flex: 2;" disabled>
+                            Verify Payment
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleScreenshotUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                showToast('Please upload a valid image file (JPG, PNG)', 'error');
+                return;
+            }
+
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('File size should be less than 5MB', 'error');
+                return;
+            }
+
+            appState.currentUploadedFile = file;
+
+            const preview = document.getElementById('uploadPreview');
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Payment Screenshot" class="uploaded-image">
+                    <p style="color: var(--color-success); margin-top: 0.5rem;">
+                        <i class="fas fa-check"></i> Screenshot uploaded successfully
+                    </p>
+                `;
+                document.getElementById('verifyPaymentBtn').disabled = false;
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function verifyPayment() {
+            if (!appState.currentUploadedFile) {
+                showToast('Please upload payment screenshot first', 'error');
+                return;
+            }
+
+            const verifyBtn = document.getElementById('verifyPaymentBtn');
+            verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
+            verifyBtn.disabled = true;
+
+            const verificationStatus = document.getElementById('verificationStatus');
+            if (verificationStatus) {
+                verificationStatus.innerHTML = `
+                    <div class="status-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Verifying payment, please wait<span class="loading-dots"></span></p>
+                    </div>
+                `;
+            }
+
+            const totals = appState.getCartTotals();
+            const paymentReference = appState.getPaymentReference();
+            const expectedAmount = appState.expectedRemainingAmount || totals.total;
+
+            const verificationOptions = {
+                maxAgeMins: 10,
+                strictMetadataCheck: false,
+                allowMoreThanExpected: true
+            };
+
+            API.processFullVerification(
+                appState.currentUploadedFile,
+                paymentReference,
+                expectedAmount,
+                verificationOptions
+            )
+            .then(response => {
+                let parsedComponents;
+                
+                try {
+                    const initialParsed = typeof response === 'string' ? JSON.parse(response) : response;
+                    
+                    if (typeof initialParsed === 'string') {
+                        parsedComponents = JSON.parse(initialParsed);
+                    } else if (initialParsed && typeof initialParsed === 'object') {
+                        parsedComponents = {
+                            ocrResult: initialParsed.ocrResult || {},
+                            verificationResult: initialParsed.verificationResult || {},
+                            decision: initialParsed.decision || {}
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error parsing components:', error);
+                    throw new Error('Failed to process the verification response. Please try again.');
+                }
+
+                const { ocrResult, verificationResult, decision } = parsedComponents;
+
+                appState.verificationResult = {
+                    verified: verificationResult.isLegitimate && verificationResult.isRightAmount,
+                    confidence: ocrResult.confidence?.amount ? `${(ocrResult.confidence.amount * 100).toFixed(1)}%` : 'Low',
+                    message: decision?.message || getVerificationMessage(verificationResult),
+                    remainder: verificationResult.remainder || 0,
+                    amountStatus: verificationResult.amountStatus || 'unknown',
+                    detailedResult: parsedComponents,
+                    timestamp: new Date().toISOString()
+                };
+
+                verifyBtn.innerHTML = 'Verify Payment';
+                verifyBtn.disabled = false;
+
+                updateVerificationUI(verificationResult, ocrResult, decision);
+
+                if (decision?.decision === 'APPROVED' || (verificationResult.isLegitimate && verificationResult.isRightAmount)) {
+                    showCompleteOrderButton();
+                }
+            })
+            .catch(error => {
+                console.error('Error during verification:', error);
+                verifyBtn.innerHTML = 'Verify Payment';
+                verifyBtn.disabled = false;
+
+                if (verificationStatus) {
+                    verificationStatus.innerHTML = `
+                        <div class="status-error">
+                            <div class="status-error-header">
+                                <i class="fas fa-times-circle status-error-icon"></i>
+                                <h3 class="status-error-title">Verification Failed</h3>
+                            </div>
+                            <div class="status-error-details">
+                                <p>${error.message || 'Could not verify payment. Please try again.'}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Add enhanced API methods to the existing API object
+        if (typeof API !== 'undefined') {
+            API.addToFinishedOrders = function(orderData) {
+                const finishedOrderData = {
+                    ...orderData,
+                    finishedTimestamp: Date.now()
+                };
+
+                const requestId = `addToFinishedOrders_${orderData.reference}`;
+
+                return this.request('addToFinishedOrders', finishedOrderData, {
+                    requestId: requestId,
+                    showLoader: false,
+                    hideToastOnSuccess: true,
+                    preventDuplicateSubmission: true
+                });
+            };
+
+
         }
     </script>
 </body>
