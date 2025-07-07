@@ -113,24 +113,33 @@
 
     function submitOrder(order) {
         console.log(order)
+   
+
         const masterFile = readFromJSON(MASTER_INDEX_ID);
         const { paymentMethod } = order
         timestamp = timestampCreate(undefined, "MM/dd/YYYY HH:mm:ss")
         console.log(order.accountEmail)
         try {
-            getOrdersSheet()
-            const ordersObjArr = createOrdersObjArr(order)
-            writeToDBSheet(ordersObjArr, ordersDBSheetObj)
-            if (paymentMethod == "account") {
-                getKROOCafeOrdersSheet()
-                const cafeOrdersObjArr = createCafeOrdersObjArr(order)
-                writeToDBSheet(cafeOrdersObjArr, krooSystemCafeordersDBSheetObj)
-            } else {
+            getKROOCafePendingOrdersSheet()
+            if(paymentMethod == "instapay") {
+                const pendingOrdersObjArr = createOrdersObjArr(order)
+                writeToDBSheet(pendingOrdersObjArr, krooCafePendingOrdersSheetObj)
+                getOrdersSheet()
+                // writeToDBSheet(pendingOrdersObjArr, ordersDBSheetObj)
                 getAutoLedgerSheet()
                 const ledgerObjArr = createLedgerObjArr(order)
-                writeToDBSheet(ledgerObjArr, krooLedgerSheetObj)
+                // writeToDBSheet(ledgerObjArr, krooLedgerSheetObj)
+            }else{
+                const pendingOrdersObjArr = createOrdersObjArr(order)
+                writeToDBSheet(pendingOrdersObjArr, krooCafePendingOrdersSheetObj)
             }
             removeFromBuffer(order, masterFile)
+            
+            // Send email notification
+
+            sendOrderNotificationEmail(order)
+            console.log('Order notification email sent successfully')      
+            
             return true
         } catch (e) {
             throw e
@@ -146,6 +155,8 @@
             const pendingOrdersObjArr = createOrdersObjArr(order)
             writeToDBSheet(pendingOrdersObjArr, krooCafePendingOrdersSheetObj)
             removeFromBuffer(order, masterFile)
+            sendOrderNotificationEmail(order)
+            console.log('Order notification email sent successfully') 
             return true
         } catch (e) {
             throw e
@@ -178,14 +189,16 @@
     }
 
     function createOrdersObjArr(order) {
-        const { discount, orderId, paymentMethod, accountEmail } = order
+        const { discount = 0, orderId, paymentMethod, accountEmail, paymentStatus, tableNumber, overpaidAmount,refundDue, paymentScreenshot = {} } = order
+        const {url} = paymentScreenshot
         const ordersObjArr = order.items.map(item => {
             const { name, price, quantity } = item
             item.item = name
             item.amount = price * quantity
+            item.netAmount = item.amount * (1 - (discount / 100))
             item.email = accountEmail || "kroo.mensa.cc@kroo.cc"
-            item.settled = paymentMethod == "account" ? false : true
-            return { ...item, timestamp, discount, orderId, paymentMethod }
+            item.settled = paymentMethod == "instapay" ? true : false
+            return { ...item, timestamp, discount, orderId, paymentStatus, paymentMethod, tableNumber, overpaidAmount, refundDue, paymentURL: url }
         })
         return ordersObjArr
     }
@@ -265,12 +278,244 @@
         return `${(num).toFixed(2)}%`; //Already coming in as an integer
     }
 
+    function sendOrderNotificationEmail(order) {
+        try {
+            const { items, totals, payment, customer, tableNumber, timestamp, orderNumber, reference } = order;
+            const customerEmail = customer?.type === 'guest' ? 'Guest Order' : order.email || order.accountEmail;
+            const paymentStatus = payment?.status || order.paymentStatus || 'pending';
+            const paymentMethod = payment?.method || order.paymentMethod || 'unknown';
+            
+           // Calculate totals if not provided
+            const orderTotal = totals?.total || order.total || items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discount = order.discount || 0;
+            const discountAmount = orderTotal * (discount / 100);
+            const finalTotal = orderTotal - discountAmount;
+            
+            // Format order date
+            const orderDate = new Date(timestamp).toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Build items HTML
+            const itemsHtml = items.map(item => `
+                <tr style="border-bottom: 1px solid #E5E7EB;">
+                    <td style="padding: 12px 8px; color: #6B7280;">${item.name}</td>
+                    <td style="padding: 12px 8px; text-align: center; color: #6B7280;">${item.quantity}</td>
+                    <td style="padding: 12px 8px; text-align: right; color: #6B7280;">EGP ${(item.price).toFixed(2)}</td>
+                    <td style="padding: 12px 8px; text-align: right; font-weight: 600; color: #333333;">EGP ${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>
+            `).join('');
+            
+            // Payment status styling
+            const paymentStatusColor = paymentStatus === 'complete' ? '#10b981' : '#f59e0b';
+            const paymentStatusBg = paymentStatus === 'complete' ? '#d1fae5' : '#fef3c7';
+            const paymentStatusText = paymentStatus === 'complete' ? 'Paid' : 'Pending';
+            
+            // Overpayment info
+            let overpaymentHtml = '';
+            if (payment?.isOverpaid) {
+                overpaymentHtml = `
+                    <div style="background-color: #FEF3C7; border: 1px solid #F4B400; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 8px 0; color: #E0A800; font-size: 16px; font-weight: 600;">
+                            ⚠️ Overpayment Alert
+                        </h4>
+                        <p style="margin: 0; color: #E0A800;">
+                            Customer overpaid by <strong>EGP ${payment.overpaidAmount?.toFixed(2)}</strong>. 
+                            Refund may be required.
+                        </p>
+                    </div>
+                `;
+            }
+            
+            // Screenshot info
+            let screenshotHtml = '';
+            if (payment?.screenshot?.url) {
+                screenshotHtml = `
+                    <div style="background-color: #EFF6FF; border: 1px solid #3B82F6; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 8px 0; color: #2563EB; font-size: 16px; font-weight: 600;">📸 Payment Screenshot</h4>
+                        <p style="margin: 0; color: #2563EB;">
+                            <a href="${payment.screenshot.url}" style="color: #2563EB; text-decoration: none; font-weight: 600;">
+                                📎 View Payment Screenshot
+                            </a>
+                        </p>
+                    </div>
+                `;
+            }
+            
+            const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New KROO Café Order</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAFAFA;">
+    <div style="max-width: 600px; margin: 20px auto; background-color: #FFFFFF; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #333333 0%, #1F2937 100%); color: white; padding: 30px 20px; text-align: center;">
+            <div style="width: 60px; height: 60px; background: rgba(244, 180, 0, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
+                ☕
+            </div>
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #FFFFFF;">KROO Café</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9; color: #FFFFFF;">New Order Received</p>
+            <div style="background: linear-gradient(135deg, #F4B400 0%, #E0A800 100%); color: #333333; padding: 10px 20px; border-radius: 25px; display: inline-block; margin-top: 15px; font-weight: 600;">
+                Order #${orderNumber || reference}
+            </div>
+        </div>
+        
+        <!-- Order Info -->
+        <div style="padding: 25px;">
+            <div style="background-color: #FFFBEB; border: 1px solid #FEF3C7; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h3 style="margin: 0 0 15px 0; color: #333333; font-size: 18px; font-weight: 600;">📋 Order Details</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #6B7280; font-weight: 500;">Customer:</td>
+                        <td style="padding: 8px 0; color: #333333; font-weight: 600; text-align: right;">${customerEmail}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #6B7280; font-weight: 500;">Table:</td>
+                        <td style="padding: 8px 0; color: #333333; font-weight: 600; text-align: right;">${tableNumber || 'Not specified'}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #6B7280; font-weight: 500;">Time:</td>
+                        <td style="padding: 8px 0; color: #333333; font-weight: 600; text-align: right;">${orderDate}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #6B7280; font-weight: 500;">Payment:</td>
+                        <td style="padding: 8px 0; text-align: right;">
+                            <span style="background: ${paymentStatusBg}; color: ${paymentStatusColor}; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                ${paymentStatusText} - ${paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1)}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            ${overpaymentHtml}
+            ${screenshotHtml}
+            
+            <!-- Order Items -->
+            <h3 style="margin: 0 0 15px 0; color: #333333; font-size: 18px; font-weight: 600;">🛍️ Items Ordered</h3>
+            <div style="border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #FFFBEB;">
+                            <th style="padding: 12px; text-align: left; font-weight: 600; color: #333333; border-bottom: 1px solid #FEF3C7;">Item</th>
+                            <th style="padding: 12px; text-align: center; font-weight: 600; color: #333333; border-bottom: 1px solid #FEF3C7;">Qty</th>
+                            <th style="padding: 12px; text-align: right; font-weight: 600; color: #333333; border-bottom: 1px solid #FEF3C7;">Price</th>
+                            <th style="padding: 12px; text-align: right; font-weight: 600; color: #333333; border-bottom: 1px solid #FEF3C7;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Order Total -->
+            <div style="background-color: #FFFBEB; border: 1px solid #FEF3C7; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 5px 0; color: #6B7280;">Subtotal:</td>
+                        <td style="padding: 5px 0; text-align: right; color: #333333; font-weight: 500;">EGP ${orderTotal.toFixed(2)}</td>
+                    </tr>
+                    ${discount > 0 ? `
+                    <tr>
+                        <td style="padding: 5px 0; color: #10B981;">Discount (${discount}%):</td>
+                        <td style="padding: 5px 0; text-align: right; color: #10B981; font-weight: 500;">-EGP ${discountAmount.toFixed(2)}</td>
+                    </tr>
+                    ` : ''}
+                    <tr style="border-top: 2px solid #E5E7EB;">
+                        <td style="padding: 10px 0 5px 0; color: #333333; font-weight: 700; font-size: 16px;">Total:</td>
+                        <td style="padding: 10px 0 5px 0; text-align: right; color: #E0A800; font-weight: 700; font-size: 16px;">EGP ${finalTotal.toFixed(2)}</td>
+                    </tr>
+                    ${payment?.actualPaidAmount ? `
+                    <tr>
+                        <td style="padding: 5px 0; color: #6B7280;">Amount Paid:</td>
+                        <td style="padding: 5px 0; text-align: right; color: #10B981; font-weight: 600;">EGP ${payment.actualPaidAmount.toFixed(2)}</td>
+                    </tr>
+                    ` : ''}
+                </table>
+            </div>
+            
+            <!-- Action Required -->
+            ${paymentStatus === 'pending' ? `
+            <div style="background-color: #FEF3C7; border: 1px solid #F4B400; border-radius: 12px; padding: 15px; text-align: center;">
+                <h4 style="margin: 0 0 8px 0; color: #E0A800; font-size: 16px; font-weight: 600;">⏳ Action Required</h4>
+                <p style="margin: 0; color: #E0A800;">Customer will pay ${paymentMethod} at the counter. Please collect payment before serving.</p>
+            </div>
+            ` : `
+            <div style="background-color: #d1fae5; border: 1px solid #10B981; border-radius: 12px; padding: 15px; text-align: center;">
+                <h4 style="margin: 0 0 8px 0; color: #059669; font-size: 16px; font-weight: 600;">✅ Ready to Prepare</h4>
+                <p style="margin: 0; color: #059669;">Payment confirmed. You can start preparing this order.</p>
+            </div>
+            `}
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #FFFBEB; padding: 15px; text-align: center; border-top: 1px solid #FEF3C7;">
+            <p style="margin: 0; color: #6B7280; font-size: 14px;">
+                KROO Café Management System | 
+                <a href="mailto:cafe@kroo.cc" style="color: #F4B400; text-decoration: none; font-weight: 600;">cafe@kroo.cc</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+            `;
+            
+            // Send email to cafe and front desk
+            // const recipients = ['cafe@kroo.cc', 'frontdesk@kroo.cc'];
+            const recipients = ['mohamedallam.tu@gmail.com'];
+
+            
+            // Create dynamic subject based on payment method
+            let subject = '';
+            if (paymentMethod === 'instapay' && paymentStatus === 'complete') {
+                subject = `🚀 START NOW - Order #${orderNumber || reference} (InstaPay Paid)`;
+            } else if (paymentMethod === 'cash') {
+                subject = `⏳ PENDING - Order #${orderNumber || reference} (Cash at Counter)`;
+            } else if (paymentMethod === 'card') {
+                subject = `⏳ PENDING - Order #${orderNumber || reference} (Card at Counter)`;
+            } else {
+                subject = `📋 New Order #${orderNumber || reference} (${paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1)})`;
+            }
+            
+            recipients.forEach(email => {
+                try {
+                    MailApp.sendEmail({
+                        to: email,
+                        subject: subject,
+                        htmlBody: emailHtml,
+                        name: 'KROO Café System'
+                    });
+                    console.log(`Order notification email sent to ${email}`);
+                } catch (emailError) {
+                    console.error(`Failed to send email to ${email}:`, emailError);
+                }
+            });
+            
+            return true;
+        } catch (error) {
+            console.error('Error sending order notification email:', error);
+            return false;
+        }
+    }
+
     return {
         getMenuItems,
         addOrderToBuffer,
         submitOrder,
         submitPendingOrder,
-        checkIfEmailExists
+        checkIfEmailExists,
+        sendOrderNotificationEmail
     }
 
 })
@@ -327,4 +572,174 @@ function testAddToPendingPayments() {
     const result = addToPendingPayments(testOrder);
     console.log("Test addToPendingPayments result:", result);
     return result;
+}
+
+// === EMAIL TEST FUNCTIONS ===
+function testEmailNotification() {
+    const testOrder = {
+        reference: "ORDER-20241201-12345",
+        orderId: "ORDER-20241201-12345",
+        orderNumber: "KROO24120112345",
+        accountEmail: "testuser@kroo.cc",
+        email: "testuser@kroo.cc",
+        paymentMethod: "instapay",
+        paymentStatus: "complete",
+        discount: 10,
+        tableNumber: "Table 3",
+        timestamp: new Date().toISOString(),
+        total: 117,
+        items: [
+            {
+                name: "Cappuccino",
+                price: 45,
+                quantity: 2
+            },
+            {
+                name: "Chocolate Croissant",
+                price: 35,
+                quantity: 1
+            },
+            {
+                name: "Green Tea",
+                price: 25,
+                quantity: 1
+            }
+        ],
+        // Guest order structure
+        customer: {
+            type: 'guest',
+            isGuest: true
+        },
+        // Payment details structure
+        payment: {
+            method: 'instapay',
+            status: 'complete',
+            reference: 'REF-20241201-98765',
+            amount: 117,
+            isOverpaid: false,
+            screenshot: {
+                fileId: '1ABC123DEF456GHI789',
+                url: 'https://drive.google.com/file/d/1ABC123DEF456GHI789/view',
+                uploadTimestamp: new Date().toISOString()
+            }
+        },
+        // Totals structure
+        totals: {
+            subtotal: 130,
+            discount: 13,
+            total: 117
+        }
+    };
+
+    console.log('Testing email notification with order:', testOrder);
+    return KROO_MENSA_APP.sendOrderNotificationEmail(testOrder);
+}
+
+function testEmailNotificationOverpaid() {
+    const testOrder = {
+        reference: "ORDER-20241201-67890",
+        orderId: "ORDER-20241201-67890",
+        orderNumber: "KROO24120167890",
+        accountEmail: "premium@kroo.cc",
+        email: "premium@kroo.cc",
+        paymentMethod: "instapay",
+        paymentStatus: "complete",
+        discount: 15,
+        tableNumber: "Table 7",
+        timestamp: new Date().toISOString(),
+        total: 85,
+        overpaidAmount: 15,
+        refundDue: 15,
+        items: [
+            {
+                name: "Karak Tea",
+                price: 30,
+                quantity: 2
+            },
+            {
+                name: "Baklava",
+                price: 40,
+                quantity: 1
+            }
+        ],
+        // Authenticated user (not guest)
+        customer: {
+            type: 'authenticated',
+            isGuest: false
+        },
+        // Payment with overpayment
+        payment: {
+            method: 'instapay',
+            status: 'complete',
+            reference: 'REF-20241201-54321',
+            amount: 85,
+            isOverpaid: true,
+            actualPaidAmount: 100,
+            overpaidAmount: 15,
+            refundDue: 15,
+            screenshot: {
+                fileId: '1XYZ789ABC123DEF456',
+                url: 'https://drive.google.com/file/d/1XYZ789ABC123DEF456/view',
+                uploadTimestamp: new Date().toISOString()
+            }
+        },
+        // Totals structure
+        totals: {
+            subtotal: 100,
+            discount: 15,
+            total: 85
+        }
+    };
+
+    console.log('Testing overpaid email notification with order:', testOrder);
+    return KROO_MENSA_APP.sendOrderNotificationEmail(testOrder);
+}
+
+function testEmailNotificationPending() {
+    const testOrder = {
+        reference: "ORDER-20241201-11111",
+        orderId: "ORDER-20241201-11111",
+        orderNumber: "KROO24120111111",
+        accountEmail: "student@kroo.edu",
+        email: "student@kroo.edu",
+        paymentMethod: "cash",
+        paymentStatus: "pending",
+        discount: 10,
+        tableNumber: "Table 1",
+        timestamp: new Date().toISOString(),
+        total: 63,
+        items: [
+            {
+                name: "Americano",
+                price: 40,
+                quantity: 1
+            },
+            {
+                name: "Muffin",
+                price: 30,
+                quantity: 1
+            }
+        ],
+        // Authenticated user
+        customer: {
+            type: 'authenticated',
+            isGuest: false
+        },
+        // Cash payment (pending)
+        payment: {
+            method: 'cash',
+            status: 'pending',
+            reference: null,
+            amount: 63
+        },
+        // Totals structure
+        totals: {
+            subtotal: 70,
+            discount: 7,
+            total: 63
+        }
+    };
+
+    console.log('Testing pending payment email notification with order:', testOrder);
+    return KROO_MENSA_APP.sendOrderNotificationEmail(testOrder);
 }

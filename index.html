@@ -2298,6 +2298,8 @@ body::before {
 
 <body>
     <input type="hidden" id="debug-mode" value="<?= debugMode ?>">
+    <input type="hidden" id="table-number" value="<?= tableNumber ?>">
+    <input type="hidden" id="login-required" value="<?= loginRequired ?>">
 
     <!-- Header -->
     <header class="header">
@@ -2443,7 +2445,7 @@ body::before {
                 "subtitle": "Traditional & Herbal Teas",
                 "items": [
                     {
-                        id: 1,
+                        itemId: 1,
                         "name": "Tea",
                         "price": 25,
                         "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop",
@@ -2452,7 +2454,7 @@ body::before {
                         "popular": true
                     },
                     {
-                        id: 2,
+                        itemId: 2,
                         "name": "Yanson",
                         "price": 25,
                         "image": "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?w=400&h=300&fit=crop",
@@ -2460,7 +2462,7 @@ body::before {
                         "rating": 4.3
                     },
                     {
-                        id: 3,
+                        itemId: 3,
                         "name": "Mint",
                         "price": 25,
                         "image": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop",
@@ -2468,7 +2470,7 @@ body::before {
                         "rating": 4.6
                     },
                     {
-                        id: 4,
+                        itemId: 4,
                         "name": "Karak",
                         "price": 30,
                         "image": "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400&h=300&fit=crop",
@@ -2477,7 +2479,7 @@ body::before {
                         "popular": true
                     },
                     {
-                        id: 5,
+                        itemId: 5,
                         "name": "Masala",
                         "price": 30,
                         "image": "https://images.unsplash.com/photo-1597318181409-cf64352723bb?w=400&h=300&fit=crop",
@@ -2485,7 +2487,7 @@ body::before {
                         "rating": 4.7
                     },
                     {
-                        id: 6,
+                        itemId: 6,
                         "name": "Ice Tea",
                         "price": 50,
                         "image": "https://images.unsplash.com/photo-1499638673689-79a0b5115d87?w=400&h=300&fit=crop",
@@ -2493,7 +2495,7 @@ body::before {
                         "rating": 4.4
                     },
                     {
-                        id: 7,
+                        itemId: 7,
                         "name": "Green Tea",
                         "price": 25,
                         "image": "https://images.unsplash.com/photo-1564890275775-5d9d3b2e2d50?w=400&h=300&fit=crop",
@@ -3028,19 +3030,28 @@ body::before {
 
             // Cart methods
             addToCart(item) {
-                const existingItem = this.cart.find(cartItem => cartItem.id === item.id);
+                const itemId = item.id || item.itemId;
+                const existingItem = this.cart.find(cartItem => {
+                    const cartItemId = cartItem.id || cartItem.itemId;
+                    return cartItemId == itemId;
+                });
 
                 if (existingItem) {
                     existingItem.quantity += 1;
                 } else {
-                    this.cart.push({ ...item, quantity: 1 });
+                    // Ensure the item has a consistent id property
+                    const cartItem = { ...item, id: itemId, quantity: 1 };
+                    this.cart.push(cartItem);
                 }
 
                 this.notify('cart');
             },
 
             updateCartQuantity(itemId, change) {
-                const cartItemIndex = this.cart.findIndex(item => item.id === itemId);
+                const cartItemIndex = this.cart.findIndex(item => {
+                    const cartItemId = item.id || item.itemId;
+                    return cartItemId == itemId;
+                });
 
                 if (cartItemIndex !== -1) {
                     this.cart[cartItemIndex].quantity += change;
@@ -3056,6 +3067,8 @@ body::before {
             clearCart() {
                 this.cart = [];
                 this.notify('cart');
+                // Re-render menu to reset item controls back to "Add" buttons
+                renderMenu();
             },
 
             // Calculate totals with discount
@@ -3149,15 +3162,19 @@ body::before {
                                     transformedMenu[category] = {
                                         name: categoryData.name || category,
                                         subtitle: categoryData.subtitle || '',
-                                        items: categoryData.items.map(item => ({
-                                            id: item.id,
-                                            name: item.name,
-                                            price: parseFloat(item.price),
-                                            image: item.image,
-                                            description: item.description,
-                                            rating: parseFloat(item.rating) || 4.5,
-                                            popular: item.popular === true
-                                        }))
+                                        items: categoryData.items.map(item => {
+                                            const itemId = item.itemId || item.id;
+                                            console.log('Processing item:', item.name, 'with itemId:', itemId, 'original item:', item);
+                                            return {
+                                                id: itemId,
+                                                name: item.name,
+                                                price: parseFloat(item.price),
+                                                image: item.image,
+                                                description: item.description,
+                                                rating: parseFloat(item.rating) || 4.5,
+                                                popular: item.popular === true
+                                            };
+                                        })
                                     };
                                 }
                             }
@@ -3390,8 +3407,21 @@ body::before {
         }
 
         function clearUserLogin() {
+            // Try multiple approaches to clear the cookie
+            const cookieName = 'krooUserEmail';
+            const pastDate = 'Thu, 01 Jan 1970 00:00:00 GMT';
+            
+            // Clear with different attribute combinations
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/;`;
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; SameSite=Lax;`;
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; SameSite=None; Secure;`;
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; domain=${window.location.hostname};`;
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; domain=.${window.location.hostname};`;
+            
+            // Also try the original method
             setCookie('krooUserEmail', '', -1);
-            console.log('User login cleared');
+            
+            console.log('User login cleared with multiple attempts');
         }
 
         // Menu Display - Fixed function
@@ -3535,23 +3565,24 @@ body::before {
         }
 
         function getItemControls(item) {
-            const cartItem = appState.cart.find(cartItem => cartItem.id === item.id);
+            const itemId = item.id || item.itemId;
+            const cartItem = appState.cart.find(cartItem => (cartItem.id == itemId || cartItem.itemId == itemId));
 
             if (cartItem) {
                 return `
                     <div class="quantity-controls">
-                        <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">
+                        <button class="qty-btn" onclick="updateQuantity('${itemId}', -1)">
                             <i class="fas fa-minus"></i>
                         </button>
                         <span class="qty-display">${cartItem.quantity}</span>
-                        <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">
+                        <button class="qty-btn" onclick="updateQuantity('${itemId}', 1)">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
                 `;
             } else {
                 return `
-                    <button class="add-btn" onclick="addToCart(${item.id})">
+                    <button class="add-btn" onclick="addToCart('${itemId}')">
                         <i class="fas fa-plus"></i>
                         Add
                     </button>
@@ -3578,7 +3609,7 @@ body::before {
             for (const categoryKey in menuData) {
                 const categoryData = menuData[categoryKey];
                 if (categoryData.items) {
-                    const item = categoryData.items.find(item => item.id === id);
+                    const item = categoryData.items.find(item => (item.id == id || item.itemId == id));
                     if (item) return item;
                 }
             }
@@ -3620,11 +3651,11 @@ body::before {
                             <div class="cart-item-price">EGP ${item.price.toFixed(2)} each</div>
                         </div>
                         <div class="quantity-controls">
-                            <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">
+                            <button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">
                                 <i class="fas fa-minus"></i>
                             </button>
                             <span class="qty-display">${item.quantity}</span>
-                            <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">
+                            <button class="qty-btn" onclick="updateQuantity('${item.id}', 1)">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -3674,10 +3705,17 @@ body::before {
         function checkout() {
             if (appState.cart.length === 0) return;
 
-            if (appState.user.isAuthenticated) {
-                showPaymentOptions();
+            // Check if login is required
+            if (isLoginRequired()) {
+                // Original behavior - require login
+                if (appState.user.isAuthenticated) {
+                    showPaymentOptions();
+                } else {
+                    showLoginForm();
+                }
             } else {
-                showLoginForm();
+                // Skip login and go directly to payment options
+                showGuestPaymentOptions();
             }
         }
 
@@ -3952,7 +3990,17 @@ body::before {
                 currentVerificationCode: ''
             });
 
-            showToast('Logged out successfully', 'success');
+            // Verify cookie was cleared
+            setTimeout(() => {
+                const cookieStillExists = getCookie('krooUserEmail');
+                if (cookieStillExists) {
+                    console.warn('Cookie may not have been fully cleared');
+                    showToast('Logged out (session cleared)', 'success');
+                } else {
+                    showToast('Logged out successfully', 'success');
+                }
+            }, 100);
+            
             updateUserStatus();
             closeModal('checkoutModal');
         }
@@ -4138,7 +4186,10 @@ body::before {
                     remainder: verificationResult.remainder || 0,
                     amountStatus: verificationResult.amountStatus || 'unknown',
                     detailedResult: parsedComponents,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    // Capture the saved file ID from the response
+                    savedFileId: parsedComponents.savedFileId || null,
+                    screenshotUrl: parsedComponents.savedFileId ? getDriveFileUrl(parsedComponents.savedFileId, 'view') : null
                 };
 
                 verifyBtn.innerHTML = 'Verify Payment';
@@ -4233,10 +4284,16 @@ body::before {
             const totals = appState.getCartTotals();
             // Ensure reference is generated before any API call
             const orderReference = generateOrderReference();
+            const tableNumber = getTableNumber();
+            
+            // Set payment status based on payment method
+            const paymentStatus = paymentMethod === 'instapay' ? 'complete' : 'pending';
+            
             const orderData = {
                 orderNumber: orderReference,
                 reference: orderReference,
                 email: appState.user.email,
+                tableNumber: tableNumber,
                 items: appState.cart.map(item => ({
                     name: item.name,
                     price: item.price,
@@ -4244,8 +4301,12 @@ body::before {
                 })),
                 subtotal: totals.subtotal,
                 discount: totals.discount,
+                discountPercentage: appState.user.discountPercentage,
+                discountType: appState.user.discountType,
+                userType: appState.user.userType,
                 total: totals.total,
                 paymentMethod: paymentMethod,
+                paymentStatus: paymentStatus,
                 discountApplied: appState.user.discountPercentage,
                 timestamp: new Date().toISOString(),
                 status: 'pending',
@@ -4717,6 +4778,48 @@ body::before {
             return debugInput && debugInput.value === 'true';
         }
 
+        // Utility: Get table number from hidden input
+        function getTableNumber() {
+            const tableInput = document.getElementById('table-number');
+            return tableInput ? tableInput.value : null;
+        }
+
+        // Utility: Check if login is required from hidden input
+        function isLoginRequired() {
+            const loginInput = document.getElementById('login-required');
+            // Default to true if not specified for backward compatibility
+            return loginInput ? loginInput.value !== 'false' : true;
+        }
+
+        // Utility: Convert Google Drive file ID to viewable URL
+        function getDriveFileUrl(fileId, type = 'view') {
+            if (!fileId) return null;
+            
+            switch (type) {
+                case 'view':
+                    return 'https://drive.google.com/file/d/'+ fileId +'/view';
+                case 'download':
+                    return 'https://drive.google.com/uc?id=' + fileId;
+                case 'thumbnail':
+                    return 'https://drive.google.com/thumbnail?'+fileId;
+                default:
+                    return 'https://drive.google.com/file/d/' +  fileId + 'view';
+            }
+        }
+
+        // Utility: Get screenshot information from verification result
+        function getScreenshotInfo() {
+            if (!appState.verificationResult?.savedFileId) return null;
+            
+            return {
+                fileId: appState.verificationResult.savedFileId,
+                viewUrl: getDriveFileUrl(appState.verificationResult.savedFileId, 'view'),
+                downloadUrl: getDriveFileUrl(appState.verificationResult.savedFileId, 'download'),
+                thumbnailUrl: getDriveFileUrl(appState.verificationResult.savedFileId, 'thumbnail'),
+                uploadTimestamp: appState.verificationResult.timestamp
+            };
+        }
+
         function debugLog(msg) {
             if (!isDebugMode()) return;
             let el = document.getElementById('debug-log');
@@ -4743,8 +4846,22 @@ body::before {
 
         function clearUserLogin() {
             debugLog(`[clearUserLogin]`);
+            
+            // Try multiple approaches to clear the cookie
+            const cookieName = 'krooUserEmail';
+            const pastDate = 'Thu, 01 Jan 1970 00:00:00 GMT';
+            
+            // Clear with different attribute combinations
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/;`;
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; SameSite=Lax;`;
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; SameSite=None; Secure;`;
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; domain=${window.location.hostname};`;
+            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; domain=.${window.location.hostname};`;
+            
+            // Also try the original method
             setCookie('krooUserEmail', '', -1);
-            debugLog(`[clearUserLogin] User login cleared`);
+            
+            debugLog(`[clearUserLogin] User login cleared with multiple attempts`);
         }
 
         function loadUserFromCookies() {
@@ -4768,6 +4885,8 @@ body::before {
         appState.remainingAmount = 0;
         appState.expectedRemainingAmount = 0;
         appState.paymentReference = null;
+        appState.overpaidAmount = 0;
+        appState.actualPaidAmount = 0;
 
         // Enhanced payment reference methods
         appState.getPaymentReference = function() {
@@ -4784,6 +4903,11 @@ body::before {
             this.partialPaymentAmount = 0;
             this.remainingAmount = 0;
             this.expectedRemainingAmount = 0;
+            this.overpaidAmount = 0;
+            this.actualPaidAmount = 0;
+            // Clear overpayment state
+            this.isOverpaid = false;
+            this.refundDue = null;
         };
 
         // Enhanced Utility Functions
@@ -4919,6 +5043,44 @@ body::before {
                 setTimeout(() => {
                     handleVerifiedInstapayPayment(false);
                 }, 1500);
+            }
+            else if (decisionStatus === 'OVERPAID' || (isLegitimate && amountStatus === 'more')) {
+                const expectedTotal = appState.expectedRemainingAmount || appState.getCartTotals().total;
+                const overpaidAmount = Math.abs(remainder);
+                const paidAmount = expectedTotal + overpaidAmount;
+
+                verificationStatus.innerHTML = `
+                    <div class="status-success">
+                        <div class="status-success-header">
+                            <i class="fas fa-check-circle status-success-icon"></i>
+                            <h3 class="status-success-title">Payment Verified - Overpaid</h3>
+                        </div>
+                        <div class="status-success-details">
+                            <p>${decisionMessage || 'Your payment has been verified. You paid more than the required amount.'}</p>
+                            <ul class="status-success-list">
+                                <li>Required: EGP ${expectedTotal.toFixed(2)}</li>
+                                <li>Paid: EGP ${paidAmount.toFixed(2)}</li>
+                                <li>Overpaid: EGP ${overpaidAmount.toFixed(2)}</li>
+                                <li>Status: Verified & Confirmed</li>
+                            </ul>
+                            <div style="background: var(--color-primary-light); border-radius: var(--radius-lg); padding: var(--space-3); margin-top: var(--space-3); text-align: center;">
+                                <p style="color: var(--color-primary-dark); margin: 0; font-weight: 500;">
+                                    <i class="fas fa-info-circle"></i> 
+                                    You overpaid by EGP ${overpaidAmount.toFixed(2)}. Please contact us if you need a refund.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Store overpayment info for order processing
+                appState.overpaidAmount = overpaidAmount;
+                appState.actualPaidAmount = paidAmount;
+                
+                // Automatically proceed to order confirmation after a brief moment
+                setTimeout(() => {
+                    handleVerifiedInstapayPayment(false, true); // Pass true for overpayment
+                }, 2000); // Slightly longer delay to let user read the overpayment message
             }
             else if (decisionStatus === 'PARTIAL' || (isLegitimate && amountStatus === 'less')) {
                 const expectedTotal = appState.expectedRemainingAmount || appState.getCartTotals().total;
@@ -5065,15 +5227,17 @@ body::before {
 
 
 
-        function handleVerifiedInstapayPayment(isPartial = false) {
+        function handleVerifiedInstapayPayment(isPartial = false, isOverpaid = false) {
             const totals = appState.getCartTotals();
             const orderReference = generateOrderReference();
+            const tableNumber = getTableNumber();
             
             let finalAmount = totals.total;
             let orderData = {
                 orderNumber: orderReference,
                 reference: orderReference,
                 email: appState.user.email,
+                tableNumber: tableNumber,
                 items: appState.cart.map(item => ({
                     name: item.name,
                     price: item.price,
@@ -5081,14 +5245,24 @@ body::before {
                 })),
                 subtotal: totals.subtotal,
                 discount: totals.discount,
+                discountPercentage: appState.user.discountPercentage,
+                discountType: appState.user.discountType,
+                userType: appState.user.userType,
                 total: finalAmount,
                 paymentMethod: 'instapay',
+                paymentStatus: 'complete',
                 discountApplied: appState.user.discountPercentage,
                 timestamp: new Date().toISOString(),
                 status: 'finished',
                 orderId: orderReference,
                 accountEmail: appState.user.email,
-                paymentVerification: appState.verificationResult
+                paymentVerification: appState.verificationResult,
+                // Include screenshot information
+                paymentScreenshot: {
+                    fileId: appState.verificationResult?.savedFileId || null,
+                    url: appState.verificationResult?.screenshotUrl || null,
+                    uploadTimestamp: appState.verificationResult?.timestamp || null
+                }
             };
 
             if (isPartial) {
@@ -5099,6 +5273,14 @@ body::before {
                 finalAmount = appState.partialPaymentAmount;
                 
                 showToast(`Order confirmed with partial payment of EGP ${appState.partialPaymentAmount.toFixed(2)}`, 'success');
+            } else if (isOverpaid) {
+                orderData.isOverpaid = true;
+                orderData.requiredAmount = totals.total;
+                orderData.actualPaidAmount = appState.actualPaidAmount;
+                orderData.overpaidAmount = appState.overpaidAmount;
+                orderData.refundDue = appState.overpaidAmount;
+                
+                showToast(`Payment verified! You overpaid by EGP ${appState.overpaidAmount.toFixed(2)}. Order confirmed.`, 'success');
             } else {
                 showToast('Payment verified! Order confirmed.', 'success');
             }
@@ -5285,15 +5467,16 @@ body::before {
                     remainder: verificationResult.remainder || 0,
                     amountStatus: verificationResult.amountStatus || 'unknown',
                     detailedResult: parsedComponents,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    // Capture the saved file ID from the response
+                    savedFileId: parsedComponents.savedFileId || null,
+                    screenshotUrl: parsedComponents.savedFileId ? getDriveFileUrl(parsedComponents.savedFileId, 'view') : null
                 };
 
                 verifyBtn.innerHTML = 'Verify Payment';
                 verifyBtn.disabled = false;
 
                 updateVerificationUI(verificationResult, ocrResult, decision);
-
-                // Removed showCompleteOrderButton() call since we now auto-proceed in updateVerificationUI
             })
             .catch(error => {
                 console.error('Error during verification:', error);
@@ -5335,6 +5518,522 @@ body::before {
             };
 
 
+        }
+
+        function showGuestPaymentOptions() {
+            const checkoutContent = document.getElementById('checkoutContent');
+            const totals = appState.getCartTotals();
+
+            checkoutContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div style="width: 60px; height: 60px; background: var(--color-primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        <i class="fas fa-shopping-cart" style="color: var(--color-primary); font-size: 1.5rem;"></i>
+                    </div>
+                    <h3>Guest Checkout</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 0.5rem;">Complete your order without creating an account</p>
+                </div>
+
+                <h4 style="margin: 1.5rem 0 1rem 0;">Order Summary</h4>
+                <div style="background: var(--color-bg); padding: 1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
+                    ${appState.cart.map(item => `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>${item.name} × ${item.quantity}</span>
+                            <span>EGP ${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    `).join('')}
+                    <div style="border-top: 1px solid var(--color-border); padding-top: 0.5rem; margin-top: 0.5rem; font-weight: 600;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Total</span>
+                            <span style="color: var(--color-primary-dark); font-size: 1.25rem;">EGP ${totals.total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 style="margin: 1.5rem 0 1rem 0;">Payment Method</h4>
+                <div class="payment-methods">
+                    <div class="payment-method" onclick="selectPayment('instapay')">
+                        <div class="payment-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="payment-details">
+                            <h4>InstaPay</h4>
+                            <p>Transfer via bank InstaPay system</p>
+                        </div>
+                    </div>
+                    <div class="payment-method" onclick="selectPayment('cash')">
+                        <div class="payment-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="payment-details">
+                            <h4>Cash</h4>
+                            <p>Pay in cash when you arrive</p>
+                        </div>
+                    </div>
+                    <div class="payment-method" onclick="selectPayment('card')">
+                        <div class="payment-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="payment-details">
+                            <h4>Card at Counter</h4>
+                            <p>Pay with card when you arrive</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn btn-secondary" onclick="closeModal('checkoutModal')" style="flex: 1;">
+                        Cancel
+                    </button>
+                    <button class="btn" onclick="processGuestOrder()" id="processBtn" style="flex: 2;" disabled>
+                        <span>Place Order</span>
+                    </button>
+                </div>
+            `;
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+
+        function processGuestOrder() {
+            if (!appState.ui.selectedPayment) {
+                showToast('Please select a payment method', 'error');
+                return;
+            }
+
+            const paymentMethod = appState.ui.selectedPayment;
+
+            if (paymentMethod === 'instapay') {
+                showGuestInstaPayFlow();
+            } else if (paymentMethod === 'cash' || paymentMethod === 'card') {
+                showGuestCounterFlow(paymentMethod);
+            }
+        }
+
+        function showGuestInstaPayFlow() {
+            const checkoutContent = document.getElementById('checkoutContent');
+            const totals = appState.getCartTotals();
+            const paymentRef = appState.getPaymentReference();
+
+            checkoutContent.innerHTML = `
+                <div class="payment-screen">
+                    <div class="icon-container instapay">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>InstaPay Payment</h3>
+                    <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+                        Total Amount: <strong style="color: var(--color-primary-dark);">EGP ${totals.total.toFixed(2)}</strong>
+                    </p>
+                    
+                    <div class="upload-instructions">
+                        <h4><i class="fas fa-info-circle"></i> Payment Instructions</h4>
+                        <ol>
+                            <li>Open your InstaPay app</li>
+                            <li>Transfer <strong>EGP ${totals.total.toFixed(2)}</strong> to our account</li>
+                            <li>Use reference: <strong>${paymentRef}</strong></li>
+                            <li>Take a screenshot of the payment confirmation</li>
+                            <li>Upload the screenshot below for verification</li>
+                        </ol>
+                    </div>
+
+                    <div style="background: var(--color-primary-light); border-radius: var(--radius-lg); padding: 1rem; margin: 1.5rem 0; text-align: center;">
+                        <div style="color: var(--color-primary-dark); font-weight: 600; margin-bottom: 0.5rem;">Payment Reference</div>
+                        <div style="font-family: monospace; font-size: 1.25rem; font-weight: bold; color: var(--color-primary-dark);">${paymentRef}</div>
+                    </div>
+
+                    <div class="instapay-upload">
+                        <div class="file-upload-area" onclick="document.getElementById('paymentScreenshot').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text">
+                                <strong>Upload Payment Screenshot</strong>
+                            </div>
+                            <p style="color: var(--color-text-light); font-size: 0.875rem;">
+                                Click to browse or drag & drop your screenshot
+                            </p>
+                            <input type="file" id="paymentScreenshot" accept="image/*" onchange="handleScreenshotUpload(event)">
+                            <div id="uploadPreview"></div>
+                        </div>
+                    </div>
+
+                    <div id="verificationStatus" style="margin: 1rem 0;"></div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn btn-secondary" onclick="showGuestPaymentOptions()" style="flex: 1;">
+                            Back
+                        </button>
+                        <button class="btn" onclick="verifyGuestPayment()" id="verifyPaymentBtn" style="flex: 2;" disabled>
+                            Verify Payment
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showGuestCounterFlow(paymentMethod) {
+            const checkoutContent = document.getElementById('checkoutContent');
+            const totals = appState.getCartTotals();
+            const paymentText = paymentMethod === 'cash' ? 'Cash' : 'Card';
+
+            checkoutContent.innerHTML = `
+                <div class="payment-screen">
+                    <div class="icon-container counter pulse">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <h3>Go to Counter</h3>
+                    <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+                        Please proceed to the counter to complete your ${paymentText.toLowerCase()} payment
+                    </p>
+                    
+                    <div style="background: var(--color-bg); border-radius: var(--radius-lg); padding: 1.5rem; margin: 1.5rem 0;">
+                        <h4 style="margin-bottom: 1rem; color: var(--color-text);">Order Summary</h4>
+                        ${appState.cart.map(item => `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>${item.name} × ${item.quantity}</span>
+                                <span>EGP ${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                        <div style="border-top: 1px solid var(--color-border); padding-top: 0.5rem; margin-top: 0.5rem; font-weight: 600;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Total Amount</span>
+                                <span style="color: var(--color-primary-dark); font-size: 1.25rem;">EGP ${totals.total.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--color-primary-light); border-radius: var(--radius-lg); padding: 1rem; margin: 1.5rem 0;">
+                        <p style="color: var(--color-primary-dark); text-align: center; margin: 0;">
+                            <i class="fas fa-info-circle"></i> 
+                            Show this screen to our staff for ${paymentText.toLowerCase()} payment
+                        </p>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn btn-secondary" onclick="showGuestPaymentOptions()" style="flex: 1;">
+                            Back
+                        </button>
+                        <button class="btn" onclick="completeGuestOrder('${paymentMethod}')" style="flex: 2;">
+                            <i class="fas fa-check"></i> Complete Order
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function verifyGuestPayment() {
+            if (!appState.currentUploadedFile) {
+                showToast('Please upload payment screenshot first', 'error');
+                return;
+            }
+
+            const verifyBtn = document.getElementById('verifyPaymentBtn');
+            verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
+            verifyBtn.disabled = true;
+
+            const verificationStatus = document.getElementById('verificationStatus');
+            if (verificationStatus) {
+                verificationStatus.innerHTML = `
+                    <div class="status-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Verifying payment, please wait<span class="loading-dots"></span></p>
+                    </div>
+                `;
+            }
+
+            const totals = appState.getCartTotals();
+            const paymentReference = appState.getPaymentReference();
+            const expectedAmount = appState.expectedRemainingAmount || totals.total;
+
+            const verificationOptions = {
+                maxAgeMins: 10,
+                strictMetadataCheck: false,
+                allowMoreThanExpected: true
+            };
+
+            API.processFullVerification(
+                appState.currentUploadedFile,
+                paymentReference,
+                expectedAmount,
+                verificationOptions
+            )
+            .then(response => {
+                let parsedComponents;
+                
+                try {
+                    const initialParsed = typeof response === 'string' ? JSON.parse(response) : response;
+                    
+                    if (typeof initialParsed === 'string') {
+                        parsedComponents = JSON.parse(initialParsed);
+                    } else if (initialParsed && typeof initialParsed === 'object') {
+                        parsedComponents = {
+                            ocrResult: initialParsed.ocrResult || {},
+                            verificationResult: initialParsed.verificationResult || {},
+                            decision: initialParsed.decision || {}
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error parsing components:', error);
+                    throw new Error('Failed to process the verification response. Please try again.');
+                }
+
+                const { ocrResult, verificationResult, decision } = parsedComponents;
+
+                // Capture screenshot information from response
+                appState.verificationResult = {
+                    verified: verificationResult.isLegitimate && verificationResult.isRightAmount,
+                    confidence: ocrResult.confidence?.amount ? `${(ocrResult.confidence.amount * 100).toFixed(1)}%` : 'Low',
+                    message: decision?.message || getVerificationMessage(verificationResult),
+                    remainder: verificationResult.remainder || 0,
+                    amountStatus: verificationResult.amountStatus || 'unknown',
+                    detailedResult: parsedComponents,
+                    timestamp: new Date().toISOString(),
+                    savedFileId: parsedComponents.savedFileId || null,
+                    screenshotUrl: parsedComponents.savedFileId ? getDriveFileUrl(parsedComponents.savedFileId, 'view') : null
+                };
+
+                verifyBtn.innerHTML = 'Verify Payment';
+                verifyBtn.disabled = false;
+
+                updateGuestVerificationUI(verificationResult, ocrResult, decision);
+            })
+            .catch(error => {
+                console.error('Error during verification:', error);
+                verifyBtn.innerHTML = 'Verify Payment';
+                verifyBtn.disabled = false;
+
+                if (verificationStatus) {
+                    verificationStatus.innerHTML = `
+                        <div class="status-error">
+                            <div class="status-error-header">
+                                <i class="fas fa-times-circle status-error-icon"></i>
+                                <h3 class="status-error-title">Verification Failed</h3>
+                            </div>
+                            <div class="status-error-details">
+                                <p>${error.message || 'Could not verify payment. Please try again.'}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function updateGuestVerificationUI(verificationResult, ocrResult, decision) {
+            const verificationStatus = document.getElementById('verificationStatus');
+            
+            if (verificationResult.isLegitimate && verificationResult.isRightAmount) {
+                const amountStatus = verificationResult.amountStatus;
+                const expectedAmount = appState.expectedRemainingAmount || appState.getCartTotals().total;
+                const paidAmount = ocrResult.extractedAmount || 0;
+                
+                if (amountStatus === 'more') {
+                    // Handle overpayment
+                    const overpaidAmount = paidAmount - expectedAmount;
+                    appState.isOverpaid = true;
+                    appState.actualPaidAmount = paidAmount;
+                    appState.overpaidAmount = overpaidAmount;
+                    appState.refundDue = overpaidAmount;
+                    
+                    verificationStatus.innerHTML = `
+                        <div class="status-success">
+                            <div class="status-success-header">
+                                <i class="fas fa-check-circle status-success-icon"></i>
+                                <h3 class="status-success-title">Payment Verified - Overpaid</h3>
+                            </div>
+                            <div class="status-success-details">
+                                <p>Required: EGP ${expectedAmount.toFixed(2)}</p>
+                                <p>Paid: EGP ${paidAmount.toFixed(2)}</p>
+                                <p style="color: var(--color-primary-dark); font-weight: 600;">
+                                    Overpaid: EGP ${overpaidAmount.toFixed(2)}
+                                </p>
+                            </div>
+                            <div class="status-info-box">
+                                <i class="fas fa-info-circle"></i>
+                                You overpaid by EGP ${overpaidAmount.toFixed(2)}. Please contact us if you need a refund.
+                            </div>
+                        </div>
+                    `;
+                    
+                    showToast(`Payment verified! You overpaid by EGP ${overpaidAmount.toFixed(2)}`, 'success');
+                    
+                    setTimeout(() => {
+                        completeGuestOrder('instapay', true);
+                    }, 2000);
+                } else {
+                    // Exact payment
+                    verificationStatus.innerHTML = `
+                        <div class="status-success">
+                            <div class="status-success-header">
+                                <i class="fas fa-check-circle status-success-icon"></i>
+                                <h3 class="status-success-title">Payment Verified</h3>
+                            </div>
+                            <div class="status-success-details">
+                                <p>Amount: EGP ${paidAmount.toFixed(2)}</p>
+                                <p style="color: var(--color-success-dark);">Payment confirmed successfully</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    showToast('Payment verified successfully!', 'success');
+                    
+                    setTimeout(() => {
+                        completeGuestOrder('instapay', false);
+                    }, 1500);
+                }
+            } else {
+                // Payment failed verification
+                verificationStatus.innerHTML = `
+                    <div class="status-error">
+                        <div class="status-error-header">
+                            <i class="fas fa-times-circle status-error-icon"></i>
+                            <h3 class="status-error-title">Payment Verification Failed</h3>
+                        </div>
+                        <div class="status-error-details">
+                            <p>${decision?.message || 'Could not verify payment. Please check your screenshot and try again.'}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function completeGuestOrder(paymentMethod, isOverpaid = false) {
+            const totals = appState.getCartTotals();
+            const tableNumber = getTableNumber();
+            const paymentReference = appState.getPaymentReference();
+            const orderReference = generateOrderReference();
+            
+            const orderData = {
+                reference: orderReference,
+                orderId: orderReference,
+                items: appState.cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    total: item.price * item.quantity
+                })),
+                totals: {
+                    subtotal: totals.subtotal,
+                    tax: totals.tax,
+                    total: totals.total
+                },
+                // Required fields for sheet tracking
+                paymentStatus: paymentMethod === 'instapay' ? 'complete' : 'pending',
+                settled: paymentMethod === 'instapay' ? true : false,
+                paymentMethod: paymentMethod,
+                overpaidAmount: 0,
+                refundDue: 0,
+                paymentURL: paymentMethod === 'instapay' && appState.verificationResult?.screenshotUrl ? appState.verificationResult.screenshotUrl : '',
+                payment: {
+                    method: paymentMethod,
+                    status: paymentMethod === 'instapay' ? 'complete' : 'pending',
+                    reference: paymentMethod === 'instapay' ? paymentReference : null,
+                    amount: totals.total,
+                    // Include screenshot information for InstaPay payments
+                    screenshot: paymentMethod === 'instapay' && appState.verificationResult ? {
+                        fileId: appState.verificationResult.savedFileId || null,
+                        url: appState.verificationResult.screenshotUrl || null,
+                        uploadTimestamp: appState.verificationResult.timestamp || null
+                    } : null
+                },
+                customer: {
+                    type: 'guest',
+                    isGuest: true
+                },
+                tableNumber: tableNumber,
+                timestamp: new Date().toISOString()
+            };
+
+            // Add overpayment information if applicable
+            if (isOverpaid && appState.isOverpaid) {
+                // Update top-level fields for sheet tracking
+                orderData.overpaidAmount = appState.overpaidAmount || 0;
+                orderData.refundDue = appState.refundDue || 0;
+                
+                // Update payment object for detailed tracking
+                orderData.payment.isOverpaid = true;
+                orderData.payment.actualPaidAmount = appState.actualPaidAmount;
+                orderData.payment.overpaidAmount = appState.overpaidAmount;
+                orderData.payment.refundDue = appState.refundDue;
+            }
+
+            // Submit order using the same flow as regular orders
+            API.addToBuffer(orderData)
+                .then(response => {
+                    showGuestOrderConfirmation(orderData, response);
+                    // Fire-and-forget DB write for guest orders too
+                    API.addToPendingPayments(orderData).catch(console.error);
+                    appState.clearCart();
+                    appState.resetPaymentReference();
+                })
+                .catch(error => {
+                    console.error('Order submission failed:', error);
+                    showToast('Failed to submit order. Please try again.', 'error');
+                });
+        }
+
+        function showGuestOrderConfirmation(orderData, response) {
+            const checkoutContent = document.getElementById('checkoutContent');
+            const orderNumber = response.orderNumber || orderData.reference || 'N/A';
+            const paymentMethod = orderData.payment.method;
+            const paymentText = paymentMethod === 'instapay' ? 'InstaPay' : 
+                              paymentMethod === 'cash' ? 'Cash' : 'Card';
+
+            checkoutContent.innerHTML = `
+                <div class="payment-screen">
+                    <div class="icon-container success pulse">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h3>Order Confirmed!</h3>
+                    <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+                        Your order has been successfully placed
+                    </p>
+                    
+                    <div style="background: var(--color-success-light); border-radius: var(--radius-lg); padding: 1.5rem; margin: 1.5rem 0; text-align: center;">
+                        <div style="color: var(--color-success-dark); font-weight: 600; margin-bottom: 0.5rem;">Order Number</div>
+                        <div style="font-family: monospace; font-size: 1.5rem; font-weight: bold; color: var(--color-success-dark);">#${orderNumber}</div>
+                    </div>
+
+                    <div style="background: var(--color-bg); border-radius: var(--radius-lg); padding: 1.5rem; margin: 1.5rem 0;">
+                        <h4 style="margin-bottom: 1rem; color: var(--color-text);">Order Details</h4>
+                        ${orderData.items.map(item => `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>${item.name} × ${item.quantity}</span>
+                                <span>EGP ${item.total.toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                        <div style="border-top: 1px solid var(--color-border); padding-top: 0.5rem; margin-top: 0.5rem; font-weight: 600;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Total Paid</span>
+                                <span style="color: var(--color-success-dark); font-size: 1.25rem;">EGP ${orderData.payment.actualPaidAmount ? orderData.payment.actualPaidAmount.toFixed(2) : orderData.totals.total.toFixed(2)}</span>
+                            </div>
+                            ${orderData.payment.isOverpaid ? `
+                                <div style="display: flex; justify-content: space-between; color: var(--color-primary-dark); font-size: 0.9rem; margin-top: 0.25rem;">
+                                    <span>Overpaid Amount</span>
+                                    <span>EGP ${orderData.payment.overpaidAmount.toFixed(2)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div style="background: var(--color-primary-light); border-radius: var(--radius-lg); padding: 1rem; margin: 1.5rem 0;">
+                        <p style="color: var(--color-primary-dark); text-align: center; margin: 0;">
+                            <i class="fas fa-info-circle"></i> 
+                            Payment Method: ${paymentText}
+                            ${orderData.payment.status === 'pending' ? ' (Pay at counter)' : ' (Completed)'}
+                        </p>
+                        ${orderData.payment.isOverpaid ? `
+                            <p style="color: var(--color-primary-dark); text-align: center; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                You overpaid by EGP ${orderData.payment.overpaidAmount.toFixed(2)}. Contact us for refund if needed.
+                            </p>
+                        ` : ''}
+                    </div>
+
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button class="btn" onclick="closeModal('checkoutModal')" style="padding: 0.75rem 2rem;">
+                            <i class="fas fa-check"></i> Done
+                        </button>
+                    </div>
+                </div>
+            `;
         }
     </script>
 </body>
