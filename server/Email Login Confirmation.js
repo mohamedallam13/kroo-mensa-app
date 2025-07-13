@@ -1,7 +1,7 @@
 (function (root, factory) {
   root.EMAIL_CODE_SENDING = factory();
 })(this, function () {
-  // === KROO Café Login Code Email Module ===
+  // === KROO Mensa Login Code Email Module ===
 
   // Set to true to send to real users, false to send to testEmail
   const LIVE = true;
