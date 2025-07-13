@@ -353,7 +353,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New KROO Café Order</title>
+    <title>New KROO Mensa Order</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAFAFA;">
     <div style="max-width: 600px; margin: 20px auto; background-color: #FFFFFF; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
@@ -363,7 +363,7 @@
             <div style="width: 60px; height: 60px; background: rgba(244, 180, 0, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
                 ☕
             </div>
-            <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #FFFFFF;">KROO Café</h1>
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #FFFFFF;">KROO Mensa</h1>
             <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9; color: #FFFFFF;">New Order Received</p>
             <div style="background: linear-gradient(135deg, #F4B400 0%, #E0A800 100%); color: #333333; padding: 10px 20px; border-radius: 25px; display: inline-block; margin-top: 15px; font-weight: 600;">
                 Order #${orderNumber || reference}
@@ -462,7 +462,7 @@
         <!-- Footer -->
         <div style="background-color: #FFFBEB; padding: 15px; text-align: center; border-top: 1px solid #FEF3C7;">
             <p style="margin: 0; color: #6B7280; font-size: 14px;">
-                KROO Café Management System | 
+                KROO Mensa Management System | 
                 <a href="mailto:cafe@kroo.cc" style="color: #F4B400; text-decoration: none; font-weight: 600;">cafe@kroo.cc</a>
             </p>
         </div>
@@ -494,7 +494,7 @@
                         to: email,
                         subject: subject,
                         htmlBody: emailHtml,
-                        name: 'KROO Café System'
+                        name: 'KROO Mensa System'
                     });
                     console.log(`Order notification email sent to ${email}`);
                 } catch (emailError) {

@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KROO Café - Order Menu</title>
+    <title>KROO Mensa - Order Menu</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-/* Enhanced KROO Café CSS with InstaPay Payment System */
+/* Enhanced KROO Mensa CSS with InstaPay Payment System */
 
         :root {
             /* Colors - matching booking system */
@@ -149,16 +149,16 @@ body {
     gap: var(--space-3);
 }
 
-.brand-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--color-primary-alpha-15);
-    border-radius: var(--radius-lg);
+.brand-logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
-    color: var(--color-primary);
+}
+
+.brand-logo img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
 }
 
 .brand-text h1 {
@@ -2305,11 +2305,11 @@ body::before {
     <header class="header">
         <div class="header-content">
             <div class="brand">
-                <div class="brand-icon">
-                    <i class="fas fa-coffee"></i>
+                <div class="brand-logo">
+                    <img src="" alt="KROO Mensa Logo" id="brandLogo" style="height: 40px; width: auto;">
                 </div>
                 <div class="brand-text">
-                    <h1>KROO Café</h1>
+                    <h1>KROO Mensa</h1>
                     <p>Fresh • Local • Sustainable</p>
                 </div>
             </div>
@@ -2433,8 +2433,8 @@ body::before {
     <!-- Global Loader -->
     <div id="globalLoader" class="global-loader" style="display: none;">
         <div class="loader-spinner"></div>
-        <h3>Loading Menu</h3>
-        <p>Getting fresh items ready...</p>
+        <h3 id="loaderTitle">Loading Menu</h3>
+        <p id="loaderMessage">Getting fresh items ready...</p>
     </div>
 
     <script>
@@ -3135,7 +3135,9 @@ body::before {
             fetchMenu(); // Replace simulateMenuLoading with fetchMenu
         });
 
-        function showGlobalLoader() {
+        function showGlobalLoader(title = 'Loading Menu', message = 'Getting fresh items ready...') {
+            document.getElementById('loaderTitle').textContent = title;
+            document.getElementById('loaderMessage').textContent = message;
             document.getElementById('globalLoader').style.display = 'flex';
         }
 
@@ -3262,15 +3264,23 @@ body::before {
             });
         }
 
-        function showMenuLoader() {
+        function showMenuLoader(title = 'Loading Menu', message = 'Getting fresh items ready...') {
             const menuContainer = document.getElementById('menuContainer');
             menuContainer.innerHTML = `
                 <div class="menu-loader">
                     <div class="loader-spinner"></div>
-                    <h3>Loading Menu</h3>
-                    <p>Getting fresh items ready...</p>
+                    <h3>${title}</h3>
+                    <p>${message}</p>
                 </div>
             `;
+        }
+
+        // Function to set the logo source
+        function setLogoSrc(logoSrc) {
+            const logoElement = document.getElementById('brandLogo');
+            if (logoElement && logoSrc) {
+                logoElement.src = logoSrc;
+            }
         }
 
         // Setup keyboard event listeners
@@ -4737,7 +4747,9 @@ body::before {
 
                             this.request('processFullVerification', dataToSend, {
                                 requestId: requestId,
-                                showLoader: false,
+                                loaderTitle: 'Verifying Payment',
+                                loaderMessage: 'Processing your payment screenshot...',
+                                showLoader: true,
                                 hideToastOnSuccess: true,
                                 errorMessage: 'Could not verify payment. Please try again.'
                             })
