@@ -11,6 +11,10 @@ function doGet(e) {
   const params = e.parameters || {}
   console.log(params)
   params.debugMode = params.debugMode || null
+  params.tableNumber = params.tableNumber || null
+  params.discount = params.discount || null
+  params.loginRequired = params.loginRequired || true
+  
   const { page, props = {} } = request
   return _R(page, { ...props, ...params }, { ...siteParams, metaData: [{ name: "viewport", content: "width=device-width, initial-scale=1" }] })
 }
