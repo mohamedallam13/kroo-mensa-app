@@ -368,8 +368,9 @@
     const ocrResult = getOcrResult(imageInput, options);
     const verificationResult = getVerificationResult(ocrResult, options);
     const decision = getPaymentDecision(verificationResult, ocrResult, options);
+    const imageURL =" https://lh3.googleusercontent.com/d/" + savedFileId
     // Include the saved file ID in the result
-    return JSON.stringify({ ocrResult, verificationResult, decision, savedFileId });
+    return JSON.stringify({ ocrResult, verificationResult, decision, savedFileId, imageURL });
   }
 
   /**
@@ -501,6 +502,7 @@
       var folder = DriveApp.getFolderById(SCREENHOTS_FOLDER_ID);
       var file = folder.createFile(blob);
       file.setName(fileName);
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
       return file.getId();
     } catch (e) {
       Logger.log('Error saving screenshot to Drive: ' + e);

@@ -472,8 +472,8 @@
             `;
             
             // Send email to cafe and front desk
-            // const recipients = ['cafe@kroo.cc', 'frontdesk@kroo.cc'];
-            const recipients = ['mohamedallam.tu@gmail.com'];
+            const recipients = ['kroo.fd.cc@gmail.com', 'kroo.mensa.cc@gmail.com'];
+            // const recipients = ['mohamedallam.tu@gmail.com'];
 
             
             // Create dynamic subject based on payment method

@@ -2306,7 +2306,7 @@ body::before {
         <div class="header-content">
             <div class="brand">
                 <div class="brand-logo">
-                    <img src="" alt="KROO Mensa Logo" id="brandLogo" style="height: 40px; width: auto;">
+                    <img src="https://lh3.googleusercontent.com/d/1JDO6dqyJ8U6hrIuzDk31VibFtIIs5Pd_" alt="KROO Mensa Logo" id="brandLogo" style="height: 40px; width: auto;">
                 </div>
                 <div class="brand-text">
                     <h1>KROO Mensa</h1>
@@ -4187,7 +4187,7 @@ body::before {
                     throw new Error('Failed to process the verification response. Please try again.');
                 }
 
-                const { ocrResult, verificationResult, decision } = parsedComponents;
+                const { ocrResult, verificationResult, decision, imageURL } = parsedComponents;
 
                 appState.verificationResult = {
                     verified: verificationResult.isLegitimate && verificationResult.isRightAmount,
@@ -4199,7 +4199,7 @@ body::before {
                     timestamp: new Date().toISOString(),
                     // Capture the saved file ID from the response
                     savedFileId: parsedComponents.savedFileId || null,
-                    screenshotUrl: parsedComponents.savedFileId ? getDriveFileUrl(parsedComponents.savedFileId, 'view') : null
+                    screenshotUrl: imageURL || null
                 };
 
                 verifyBtn.innerHTML = 'Verify Payment';
@@ -5272,9 +5272,10 @@ body::before {
                 // Include screenshot information
                 paymentScreenshot: {
                     fileId: appState.verificationResult?.savedFileId || null,
-                    url: appState.verificationResult?.screenshotUrl || null,
+                    url: appState.verificationResult?.imageURL || null,
                     uploadTimestamp: appState.verificationResult?.timestamp || null
-                }
+                },
+                paymentURL: appState.verificationResult?.imageURL || null
             };
 
             if (isPartial) {
@@ -5470,7 +5471,7 @@ body::before {
                     throw new Error('Failed to process the verification response. Please try again.');
                 }
 
-                const { ocrResult, verificationResult, decision } = parsedComponents;
+                const { ocrResult, verificationResult, decision, imageURL } = parsedComponents;
 
                 appState.verificationResult = {
                     verified: verificationResult.isLegitimate && verificationResult.isRightAmount,
@@ -5482,7 +5483,7 @@ body::before {
                     timestamp: new Date().toISOString(),
                     // Capture the saved file ID from the response
                     savedFileId: parsedComponents.savedFileId || null,
-                    screenshotUrl: parsedComponents.savedFileId ? getDriveFileUrl(parsedComponents.savedFileId, 'view') : null
+                    screenshotUrl: parsedComponents.imageURL ? parsedComponents.imageURL : null
                 };
 
                 verifyBtn.innerHTML = 'Verify Payment';
@@ -5786,7 +5787,7 @@ body::before {
                     throw new Error('Failed to process the verification response. Please try again.');
                 }
 
-                const { ocrResult, verificationResult, decision } = parsedComponents;
+                const { ocrResult, verificationResult, decision, imageURL } = parsedComponents;
 
                 // Capture screenshot information from response
                 appState.verificationResult = {
@@ -5798,7 +5799,7 @@ body::before {
                     detailedResult: parsedComponents,
                     timestamp: new Date().toISOString(),
                     savedFileId: parsedComponents.savedFileId || null,
-                    screenshotUrl: parsedComponents.savedFileId ? getDriveFileUrl(parsedComponents.savedFileId, 'view') : null
+                    screenshotUrl: parsedComponents.imageURL ? parsedComponents.imageURL : null
                 };
 
                 verifyBtn.innerHTML = 'Verify Payment';
