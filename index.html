@@ -2965,7 +2965,8 @@ body::before {
             },
             ui: {
                 selectedPayment: '',
-                currentVerificationCode: ''
+                currentVerificationCode: '',
+                pendingAccountPayment: false
             },
 
             // Reactive subscribers
@@ -3100,20 +3101,8 @@ body::before {
                     discountPercentage = userData.discount;
                     userType = userData.type;
                 } else {
-                    if (email.includes('employee@') || email.includes('staff@')) {
-                        discountPercentage = 20;
-                        userType = 'Employee';
-                    } else if (email.includes('student@') || email.includes('.edu')) {
-                        discountPercentage = 10;
-                        userType = 'Student';
-                    } else if (email.includes('vip@') || email === 'premium@user.com') {
-                        discountPercentage = 15;
-                        userType = 'VIP';
-                    } else {
-                        const randomDiscount = Math.random() < 0.3 ? 5 : 0;
-                        discountPercentage = randomDiscount;
-                        userType = randomDiscount > 0 ? 'Lucky User' : 'Regular';
-                    }
+                    discountPercentage = 0;
+                    userType = 'Regular';
                 }
 
                 this.updateUser({
@@ -3376,62 +3365,63 @@ body::before {
             debugLog(`[setCookie] name=${name}, value=${value}, days=${days}`);
             const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
             if (days < 0) {
-                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;`;
-                debugLog(`[setCookie] Cleared cookie: ${name}`);
+                try {
+                    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;`;
+                    debugLog(`[setCookie] Cleared cookie: ${name}`);
+                } catch (e) {
+                    debugLog(`[setCookie] Clear cookie failed: ${e}`);
+                }
                 return;
             }
+            
+            // Try to set cookie without verification to avoid hanging
             try {
                 document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
-                debugLog(`[setCookie] Tried Lax: ${document.cookie}`);
-                if (getCookie(name) === value) {
-                    debugLog(`[setCookie] Cookie set successfully: ${name} (Lax)`);
-                    return;
-                }
+                debugLog(`[setCookie] Attempted to set cookie: ${name} (Lax)`);
             } catch (e) {
                 debugLog(`[setCookie] SameSite=Lax failed: ${e}`);
-            }
-            try {
-                document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=None; Secure`;
-                debugLog(`[setCookie] Tried None; Secure: ${document.cookie}`);
-                if (getCookie(name) === value) {
-                    debugLog(`[setCookie] Cookie set successfully: ${name} (None; Secure)`);
-                    return;
+                try {
+                    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+                    debugLog(`[setCookie] Attempted to set cookie: ${name} (basic)`);
+                } catch (e2) {
+                    debugLog(`[setCookie] Basic cookie failed: ${e2}`);
                 }
-            } catch (e) {
-                debugLog(`[setCookie] SameSite=None; Secure failed: ${e}`);
             }
-            try {
-                document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-                debugLog(`[setCookie] Tried no SameSite: ${document.cookie}`);
-                if (getCookie(name) === value) {
-                    debugLog(`[setCookie] Cookie set successfully: ${name} (no SameSite)`);
-                    return;
-                }
-            } catch (e) {
-                debugLog(`[setCookie] Basic cookie failed: ${e}`);
-            }
-            debugLog(`[setCookie] Failed to save cookie: ${name}. Mobile browser may be blocking cookies.`);
-            if (isMobileDevice()) {
-                showToast('Login state may not persist on this device. Please sign in again if needed.', 'info');
-            }
+            
+            // Don't verify immediately to avoid hanging - verification will happen later
+            debugLog(`[setCookie] Cookie set attempt completed for: ${name}`);
         }
 
         function clearUserLogin() {
-            // Try multiple approaches to clear the cookie
+            debugLog(`[clearUserLogin]`);
+            
+            // Try multiple approaches to clear the cookie without hanging
             const cookieName = 'krooUserEmail';
             const pastDate = 'Thu, 01 Jan 1970 00:00:00 GMT';
             
-            // Clear with different attribute combinations
-            document.cookie = `${cookieName}=; expires=${pastDate}; path=/;`;
-            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; SameSite=Lax;`;
-            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; SameSite=None; Secure;`;
-            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; domain=${window.location.hostname};`;
-            document.cookie = `${cookieName}=; expires=${pastDate}; path=/; domain=.${window.location.hostname};`;
+            try {
+                document.cookie = `${cookieName}=; expires=${pastDate}; path=/;`;
+                document.cookie = `${cookieName}=; expires=${pastDate}; path=/; SameSite=Lax;`;
+                document.cookie = `${cookieName}=; expires=${pastDate}; path=/; SameSite=None; Secure;`;
+                document.cookie = `${cookieName}=; expires=${pastDate}; path=/; domain=${window.location.hostname};`;
+                document.cookie = `${cookieName}=; expires=${pastDate}; path=/; domain=.${window.location.hostname};`;
+                debugLog(`[clearUserLogin] Cookie clear attempts completed`);
+            } catch (e) {
+                debugLog(`[clearUserLogin] Cookie clear failed: ${e}`);
+            }
             
             // Also try the original method
             setCookie('krooUserEmail', '', -1);
             
-            console.log('User login cleared with multiple attempts');
+            // Clear localStorage
+            try {
+                localStorage.removeItem('krooUserEmail');
+                debugLog(`[clearUserLogin] localStorage cleared successfully`);
+            } catch (e) {
+                debugLog(`[clearUserLogin] localStorage clear failed: ${e}`);
+            }
+            
+            debugLog(`[clearUserLogin] User login cleared with multiple attempts`);
         }
 
         // Menu Display - Fixed function
@@ -3715,21 +3705,16 @@ body::before {
         function checkout() {
             if (appState.cart.length === 0) return;
 
-            // Check if login is required
-            if (isLoginRequired()) {
-                // Original behavior - require login
-                if (appState.user.isAuthenticated) {
-                    showPaymentOptions();
-                } else {
-                    showLoginForm();
-                }
+            // Show payment options to everyone, login only required for account payment
+            if (appState.user.isAuthenticated) {
+                showPaymentOptions();
             } else {
-                // Skip login and go directly to payment options
                 showGuestPaymentOptions();
             }
         }
 
         function showLoginForm() {
+            console.log('showLoginForm called, pendingAccountPayment:', appState.ui.pendingAccountPayment);
             const checkoutContent = document.getElementById('checkoutContent');
 
             checkoutContent.innerHTML = `
@@ -3768,6 +3753,7 @@ body::before {
         }
 
         function showVerificationForm(email) {
+            console.log('showVerificationForm called, pendingAccountPayment:', appState.ui.pendingAccountPayment);
             const checkoutContent = document.getElementById('checkoutContent');
 
             checkoutContent.innerHTML = `
@@ -3851,6 +3837,15 @@ body::before {
                 
                 <h4 style="margin: 1.5rem 0 1rem 0;">Payment Method</h4>
                 <div class="payment-methods">
+                    <div class="payment-method" onclick="selectPayment('account')">
+                        <div class="payment-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="payment-details">
+                            <h4>Add to my Account</h4>
+                            <p>Pay with your account balance</p>
+                        </div>
+                    </div>
                     <div class="payment-method" onclick="selectPayment('instapay')">
                         <div class="payment-icon">
                             <i class="fas fa-mobile-alt"></i>
@@ -3893,6 +3888,7 @@ body::before {
         }
 
         function sendVerificationCode(email = null) {
+            console.log('sendVerificationCode called, pendingAccountPayment:', appState.ui.pendingAccountPayment);
             const emailToUse = email || document.getElementById('loginEmailInput').value;
 
             if (!emailToUse) {
@@ -3968,13 +3964,48 @@ body::before {
             verifyBtn.innerHTML = '<div class="loading"></div> Verifying...';
             verifyBtn.disabled = true;
 
+            // Add a timeout to prevent hanging
+            const verificationTimeout = setTimeout(() => {
+                showToast('Verification timed out. Please try again.', 'error');
+                verifyBtn.innerHTML = 'Verify & Continue';
+                verifyBtn.disabled = false;
+            }, 5000); // 5 second timeout
+
             setTimeout(() => {
+                // Clear the timeout since verification completed
+                clearTimeout(verificationTimeout);
+                
                 if (enteredCode === appState.ui.currentVerificationCode) {
-                    setCookie('krooUserEmail', email);
+                    try {
+                        // Try to persist login but don't let it hang
+                        persistUserLogin(email);
+                    } catch (e) {
+                        console.error('Login persistence failed:', e);
+                        // Continue anyway - user can still login
+                    }
+                    
                     appState.loadUserData(email);
                     showToast('Login successful!', 'success');
                     updateUserStatus();
-                    showPaymentOptions();
+                    checkStorageStatus();
+                    
+                    // Check if user is now authenticated and we have a selected payment method
+                    console.log('User authenticated:', appState.user.isAuthenticated);
+                    console.log('Selected payment:', appState.ui.selectedPayment);
+                    console.log('Checking pendingAccountPayment:', appState.ui.pendingAccountPayment);
+                    
+                    if (appState.user.isAuthenticated && appState.ui.selectedPayment === 'account') {
+                        console.log('User is authenticated and selected account payment - proceeding with order');
+                        appState.updateUI({ pendingAccountPayment: false });
+                        completeAccountOrder();
+                    } else if (appState.ui.pendingAccountPayment) {
+                        console.log('Processing account payment after login');
+                        appState.updateUI({ pendingAccountPayment: false });
+                        completeAccountOrder();
+                    } else {
+                        console.log('Showing payment options after login');
+                        showPaymentOptions();
+                    }
                 } else {
                     showToast('Invalid verification code. Please try again.', 'error');
                     verifyBtn.innerHTML = 'Verify & Continue';
@@ -3997,7 +4028,8 @@ body::before {
             });
             appState.updateUI({
                 selectedPayment: '',
-                currentVerificationCode: ''
+                currentVerificationCode: '',
+                pendingAccountPayment: false
             });
 
             // Verify cookie was cleared
@@ -4033,14 +4065,19 @@ body::before {
                 return;
             }
 
-            if (!appState.user.isAuthenticated) {
-                showToast('Please login first', 'error');
-                return;
-            }
-
             const paymentMethod = appState.ui.selectedPayment;
 
-            if (paymentMethod === 'instapay') {
+            if (paymentMethod === 'account') {
+                if (!appState.user.isAuthenticated) {
+                    showToast('Please login first to use account payment', 'error');
+                    // Set a flag to indicate we're waiting for account payment after login
+                    appState.updateUI({ pendingAccountPayment: true });
+                    console.log('Set pendingAccountPayment to true');
+                    showLoginForm();
+                    return;
+                }
+                completeOrder('account');
+            } else if (paymentMethod === 'instapay') {
                 showInstaPayFlow();
             } else if (paymentMethod === 'cash' || paymentMethod === 'card') {
                 showCounterFlow(paymentMethod);
@@ -4284,6 +4321,55 @@ body::before {
             `;
         }
 
+        function completeAccountOrder() {
+            console.log('completeAccountOrder called');
+            const totals = appState.getCartTotals();
+            const orderReference = generateOrderReference();
+            const tableNumber = getTableNumber();
+            
+            const orderData = {
+                orderNumber: orderReference,
+                reference: orderReference,
+                email: appState.user.email,
+                tableNumber: tableNumber,
+                items: appState.cart.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
+                subtotal: totals.subtotal,
+                discount: totals.discount,
+                discountPercentage: appState.user.discountPercentage,
+                discountType: appState.user.discountType,
+                userType: appState.user.userType,
+                total: totals.total,
+                paymentMethod: 'account',
+                paymentStatus: 'complete',
+                discountApplied: appState.user.discountPercentage,
+                timestamp: new Date().toISOString(),
+                status: 'pending',
+                orderId: orderReference,
+                accountEmail: appState.user.email
+            };
+
+            console.log('Order data:', orderData);
+
+            // Direct database push for account payments
+            API.addToPendingPayments(orderData)
+                .then(() => {
+                    console.log('Account order sent to database successfully');
+                    showOrderPreparation(orderData);
+                    appState.addOrder(orderData);
+                    appState.clearCart();
+                    appState.updateUI({ selectedPayment: '' });
+                    appState.currentUploadedFile = null;
+                })
+                .catch(error => {
+                    console.error('Account order processing error:', error);
+                    showToast('Failed to process account order. Please try again.', 'error');
+                });
+        }
+
         function completeOrder(paymentMethod) {
             const processBtn = document.querySelector('.payment-screen .btn:not(.btn-secondary)');
             if (processBtn) {
@@ -4297,7 +4383,7 @@ body::before {
             const tableNumber = getTableNumber();
             
             // Set payment status based on payment method
-            const paymentStatus = paymentMethod === 'instapay' ? 'complete' : 'pending';
+            const paymentStatus = (paymentMethod === 'instapay' || paymentMethod === 'account') ? 'complete' : 'pending';
             
             const orderData = {
                 orderNumber: orderReference,
@@ -4347,7 +4433,7 @@ body::before {
 
         function showOrderPreparation(order) {
             const checkoutContent = document.getElementById('checkoutContent');
-            const isPaid = order.status === 'finished' || order.paymentMethod === 'instapay' || order.settled === true;
+            const isPaid = order.status === 'finished' || order.paymentMethod === 'instapay' || order.paymentMethod === 'account' || order.settled === true;
             const statusText = isPaid ? 'Preparing' : 'Pending Payment';
             const statusClass = isPaid ? 'status-preparing' : 'status-pending';
             const timeEstimate = isPaid ? '5 minutes' : 'Please complete payment at counter';
@@ -4843,17 +4929,55 @@ body::before {
             el.innerHTML += `<div>${msg}</div>`;
         }
 
+        function checkStorageStatus() {
+            if (!isDebugMode()) return;
+            
+            const cookieEmail = getCookie('krooUserEmail');
+            const localStorageEmail = localStorage.getItem('krooUserEmail');
+            
+            debugLog(`[Storage Check] Cookie: ${cookieEmail || 'empty'}`);
+            debugLog(`[Storage Check] localStorage: ${localStorageEmail || 'empty'}`);
+            debugLog(`[Storage Check] User authenticated: ${appState.user.isAuthenticated}`);
+            debugLog(`[Storage Check] User email: ${appState.user.email}`);
+        }
+
         function persistUserLogin(email) {
             debugLog(`[persistUserLogin] email=${email}`);
-            setCookie('krooUserEmail', email);
-            debugLog(`[persistUserLogin] Attempted to persist user login: ${email}`);
-            const verified = getCookie('krooUserEmail');
-            if (verified === email) {
-                debugLog(`[persistUserLogin] Cookie verified successfully`);
-            } else {
-                debugLog(`[persistUserLogin] Cookie verification failed - mobile browser may be blocking cookies`);
-                showToast('Note: Login may not persist on this device due to browser settings', 'info');
+            
+            // Try to save to both cookie and localStorage with timeout protection
+            try {
+                setCookie('krooUserEmail', email);
+            } catch (e) {
+                debugLog(`[persistUserLogin] Cookie set failed: ${e}`);
             }
+            
+            try {
+                localStorage.setItem('krooUserEmail', email);
+                debugLog(`[persistUserLogin] Saved to localStorage: ${email}`);
+            } catch (e) {
+                debugLog(`[persistUserLogin] localStorage failed: ${e}`);
+            }
+            
+            debugLog(`[persistUserLogin] Attempted to persist user login: ${email}`);
+            
+            // Quick verification without hanging
+            setTimeout(() => {
+                try {
+                    const cookieVerified = getCookie('krooUserEmail');
+                    const localStorageVerified = localStorage.getItem('krooUserEmail');
+                    
+                    debugLog(`[persistUserLogin] Cookie verification: ${cookieVerified === email ? 'SUCCESS' : 'FAILED'}`);
+                    debugLog(`[persistUserLogin] localStorage verification: ${localStorageVerified === email ? 'SUCCESS' : 'FAILED'}`);
+                    
+                    if (cookieVerified === email || localStorageVerified === email) {
+                        debugLog(`[persistUserLogin] Login persistence verified successfully`);
+                    } else {
+                        debugLog(`[persistUserLogin] Both storage methods failed - mobile browser may be blocking storage`);
+                    }
+                } catch (e) {
+                    debugLog(`[persistUserLogin] Verification failed: ${e}`);
+                }
+            }, 100);
         }
 
         function clearUserLogin() {
@@ -4873,17 +4997,41 @@ body::before {
             // Also try the original method
             setCookie('krooUserEmail', '', -1);
             
+            // Clear localStorage
+            try {
+                localStorage.removeItem('krooUserEmail');
+                debugLog(`[clearUserLogin] localStorage cleared successfully`);
+            } catch (e) {
+                debugLog(`[clearUserLogin] localStorage clear failed: ${e}`);
+            }
+            
             debugLog(`[clearUserLogin] User login cleared with multiple attempts`);
         }
 
         function loadUserFromCookies() {
             debugLog(`[loadUserFromCookies]`);
-            const savedEmail = getCookie('krooUserEmail');
+            
+            // Try to load from both cookie and localStorage
+            const savedEmailCookie = getCookie('krooUserEmail');
+            const savedEmailLocalStorage = localStorage.getItem('krooUserEmail');
+            
+            debugLog(`[loadUserFromCookies] Cookie email: ${savedEmailCookie || 'none'}`);
+            debugLog(`[loadUserFromCookies] localStorage email: ${savedEmailLocalStorage || 'none'}`);
+            
+            // Use localStorage if cookie is empty, or use cookie if both exist
+            const savedEmail = savedEmailCookie || savedEmailLocalStorage;
+            
             if (savedEmail) {
                 appState.loadUserData(savedEmail);
-                debugLog(`[loadUserFromCookies] User loaded from cookie: ${savedEmail}`);
+                debugLog(`[loadUserFromCookies] User loaded successfully: ${savedEmail}`);
+                
+                // If we loaded from localStorage but cookie is empty, try to restore cookie
+                if (!savedEmailCookie && savedEmailLocalStorage) {
+                    debugLog(`[loadUserFromCookies] Restoring cookie from localStorage`);
+                    setCookie('krooUserEmail', savedEmailLocalStorage);
+                }
             } else {
-                debugLog(`[loadUserFromCookies] No saved user found in cookies`);
+                debugLog(`[loadUserFromCookies] No saved user found in either storage method`);
             }
             updateUserStatus();
         }
@@ -5564,6 +5712,15 @@ body::before {
                 
                 <h4 style="margin: 1.5rem 0 1rem 0;">Payment Method</h4>
                 <div class="payment-methods">
+                    <div class="payment-method" onclick="selectPayment('account')">
+                        <div class="payment-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="payment-details">
+                            <h4>Add to my Account</h4>
+                            <p>Pay with your account balance</p>
+                        </div>
+                    </div>
                     <div class="payment-method" onclick="selectPayment('instapay')">
                         <div class="payment-icon">
                             <i class="fas fa-mobile-alt"></i>
@@ -5593,6 +5750,8 @@ body::before {
                     </div>
                 </div>
                 
+
+                
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <button class="btn btn-secondary" onclick="closeModal('checkoutModal')" style="flex: 1;">
                         Cancel
@@ -5613,7 +5772,10 @@ body::before {
 
             const paymentMethod = appState.ui.selectedPayment;
 
-            if (paymentMethod === 'instapay') {
+            if (paymentMethod === 'account') {
+                showToast('Please login first to use account payment', 'error');
+                showLoginForm();
+            } else if (paymentMethod === 'instapay') {
                 showGuestInstaPayFlow();
             } else if (paymentMethod === 'cash' || paymentMethod === 'card') {
                 showGuestCounterFlow(paymentMethod);
