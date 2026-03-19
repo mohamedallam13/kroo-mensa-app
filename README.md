@@ -1,149 +1,99 @@
 # KROO Mensa Menu Application
 
-A modern, responsive web application built with Google Apps Script that provides an interactive menu ordering system for KROO Mensa. This application offers a seamless ordering experience with real-time cart management, category-based menu navigation, and a beautiful, user-friendly interface.
+A Google Apps Script WebApp providing an interactive menu ordering system for KROO Mensa. Features email-based OTP authentication, a real-time cart, category-based navigation, and InstaPay payment integration.
 
-## 🌟 Features
+![Google Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-4285F4?style=flat&logo=google&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-WebApp-blue)
+![Status](https://img.shields.io/badge/Status-Production-green)
 
-- **Modern UI/UX Design**
-  - Responsive layout that works on all devices
-  - Beautiful gradient headers and card-based design
-  - Smooth animations and transitions
-  - Dark mode support
-  - Intuitive navigation with category-based browsing
-  - Elegant loading states and transitions
+---
 
-- **Advanced Authentication System**
-  - Secure email-based authentication
-  - One-time verification code system
-  - Automatic session persistence
+## Features
 
-- **Interactive Menu System**
-  - Category-based navigation
-  - Real-time search functionality
-  - Detailed item descriptions and pricing
-  - Customizable order options
-  - High-quality image display
-  - Smart image preloading for instant display
-  - CDN-optimized image delivery
+- **Authentication** — secure email-based OTP (one-time verification code) with automatic session persistence
+- **Interactive Menu** — category-based navigation, real-time search, item descriptions, pricing, and high-quality image display
+- **Shopping Cart** — real-time updates, quantity adjustments, persistent cart state, and order summary
+- **Payment** — InstaPay integration with receipt submission flow
+- **Responsive Design** — works across mobile and desktop with dark mode support and smooth animations
 
-- **Shopping Cart Management**
-  - Real-time cart updates
-  - Item quantity adjustments
-  - Order summary
-  - Checkout process
-  - Persistent cart state
-  - Price calculations
-  - Order history tracking
+---
 
-- **Performance Optimized**
-  - Fast loading times
-  - Efficient state management
-  - Optimized asset loading
-  - Smooth scrolling and interactions
-  - Intelligent image preloading
-  - CDN integration for fast content delivery
-  - Caching mechanisms
-  - Lazy loading where appropriate
+## Tech Stack
 
-- **Advanced Features**
-  - Real-time menu updates
-  - Error handling and recovery
-  - User preferences storage
-  - Responsive image handling
-  - Cross-browser compatibility
-  - Accessibility features
-  - Keyboard navigation support
+| Layer    | Technology                       |
+|----------|----------------------------------|
+| Platform | Google Apps Script               |
+| UI       | HTML5, CSS3, Vanilla JavaScript  |
+| Icons    | Font Awesome                     |
+| Database | Google Sheets                    |
+| Payment  | InstaPay                         |
+| Deploy   | clasp CLI                        |
 
-## 🛠️ Technical Stack
+---
 
-- **Frontend**
-  - HTML5 & CSS3 with modern features
-  - Vanilla JavaScript for interactivity
-  - Font Awesome for icons
-  - Custom CSS variables for theming
+## Project Structure
 
-- **Backend**
-  - Google Apps Script
-  - Server-side processing
-  - Secure data handling
-  - API integrations
+```
+kroo-mensa-app/
+├── README.md
+├── AGENT.md
+├── .gitignore
+└── src/
+    ├── env.js                       # Sheet IDs and config
+    ├── Backend.js                   # Data access layer (Sheets read/write)
+    ├── Helpers.js                   # Pure utility functions
+    ├── Middleware.js                # Server-side routing and auth
+    ├── Server.js                    # doGet() / doPost() entry points
+    ├── Email Login Confirmation.js  # OTP email generation
+    ├── Instapay.js                  # Payment integration helpers
+    └── index.html                   # SPA shell (menu, cart, auth screens)
+```
 
-## 🚀 Getting Started
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- Node.js and npm installed
-- Google account with Apps Script access
-- Basic knowledge of web development
+- A Google account with Google Apps Script access
+- [clasp](https://github.com/google/clasp) installed globally
 
-### Installation
-
-1. Install [CLASP](https://github.com/google/clasp) globally:
 ```bash
 npm install -g @google/clasp
-```
-
-2. Login to CLASP:
-```bash
 clasp login
 ```
 
-3. Clone this repository and pull the latest code:
-```bash
-clasp pull
-```
+### Setup
 
-## 💻 Development
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/mohamedallam13/kroo-mensa-app.git
+   cd kroo-mensa-app
+   ```
 
-### Local Development
-- Use `clasp push` to push changes to Google Apps Script
-- Use `clasp pull` to pull latest changes from Google Apps Script
-- Use `clasp open` to open the project in the Google Apps Script editor
+2. Link to your Apps Script project:
+   ```bash
+   clasp create --type webapp --title "KROO Mensa" --rootDir src
+   ```
 
-### Project Structure
+3. Push source files:
+   ```bash
+   clasp push
+   ```
 
-```
-├── index.html                    # Main application interface
-├── appsscript.json              # Apps Script configuration
-├── .clasp.json                  # CLASP configuration
-├── server/                      # Server-side code
-│   ├── Backend.js              # Core backend functionality
-│   ├── Email Login Confirmation.js  # Email verification system
-│   ├── Helpers.js              # Utility functions
-│   ├── Instapay.js             # Payment integration
-│   ├── Middleware.js           # Request/response middleware
-│   ├── Server.js               # Server configuration
-│   └── env.js                  # Environment configuration
-```
+4. Set the Sheet ID and any secrets in `env.js` (never commit real values).
 
-## 🎨 Design System
+---
 
-The application uses a comprehensive design system with:
-- Custom color palette with primary, success, and danger states
-- Consistent spacing scale
-- Standardized border radiuses
-- Typography hierarchy
-- Shadow system for depth
-- Responsive breakpoints
+## Deployment
 
-## 🤝 Contributing
+1. In the Apps Script editor, go to **Deploy > New deployment**
+2. Select type: **Web app**
+3. Set **Execute as**: Me · **Who has access**: Anyone
+4. Click **Deploy** and share the Web App URL
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+---
 
-## 📝 License
+## Author
 
-This project is proprietary and confidential. All rights reserved.
-
-## 👥 Authors
-
-- KROO Development Team
-
-## 🙏 Acknowledgments
-
-- Google Apps Script team for the platform
-- Font Awesome for the icon system
-- All contributors who have helped shape this project 
+**Mohamed Allam** — [GitHub](https://github.com/mohamedallam13) · [Email](mailto:mohamedallam.tu@gmail.com)
