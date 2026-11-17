@@ -74,7 +74,7 @@
 
     function addOrderToBuffer(order) {
         try {
-            timestamp = timestampCreate(undefined, "M/d/YYYY HH:mm:ss");
+            timestamp = timestampCreate(undefined, "M/d/yyyy HH:mm:ss");
             const masterFile = readFromJSON(MASTER_INDEX_ID);
             const { cafeBuffer } = masterFile;
             const pendingOrders = readFromJSON(cafeBuffer);
@@ -117,7 +117,7 @@
 
         const masterFile = readFromJSON(MASTER_INDEX_ID);
         const { paymentMethod } = order
-        timestamp = timestampCreate(undefined, "MM/dd/YYYY HH:mm:ss")
+        timestamp = timestampCreate(undefined, "MM/dd/yyyy HH:mm:ss")
         console.log(order.accountEmail)
         try {
             getKROOCafePendingOrdersSheet()
@@ -149,7 +149,7 @@
     function submitPendingOrder(order) {
         console.log(order)
         const masterFile = readFromJSON(MASTER_INDEX_ID);
-        timestamp = timestampCreate(undefined, "MM/dd/YYYY HH:mm:ss")
+        timestamp = timestampCreate(undefined, "MM/dd/yyyy HH:mm:ss")
         try {
             getKROOCafePendingOrdersSheet()
             const pendingOrdersObjArr = createOrdersObjArr(order)
